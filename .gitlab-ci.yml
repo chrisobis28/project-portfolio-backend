@@ -1,0 +1,30 @@
+stages:
+  - build_and_test
+  - code_coverage_check
+
+variables:
+  GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+
+before_script:
+  - chmod +x gradlew
+
+build_and_test:
+  stage: build_and_test
+  script:
+    - ./gradlew build
+    - ./gradlew test
+
+code_coverage_check:
+  stage: code_coverage_check
+  only:
+    - main
+    - dev
+  script:
+    - ./gradlew jacocoTestReport
+    - ./gradlew jacocoTestCoverageVerification
+
+# Additional configuration for code coverage reports
+jacocoTestReport:
+  artifacts:
+    paths:
+      - build/reports/jacoco/test/html/
