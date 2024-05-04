@@ -65,9 +65,10 @@ jacocoTestCoverageVerification {
 	}
 }
 
+def isCI = System.getenv().containsKey("CI")
 
 checkstyle {
-	ignoreFailures = true
+	ignoreFailures = !isCI
 	maxWarnings = 0
 	toolVersion = '8.45.1'
 	configFile = file('checkstyle.xml')
