@@ -73,13 +73,6 @@ checkstyle {
 	configFile = file('checkstyle.xml')
 }
 
-task checkstyle(type: Checkstyle) {
-	source 'src'
-	include '**/*.java'
-	exclude '**/build/**'
-	configFile = file('checkstyle.xml')
-}
-
 check.dependsOn(checkstyleMain, checkstyleTest)
 
 test.finalizedBy(jacocoTestReport)
