@@ -6,6 +6,14 @@
         <property name="fileNamePattern" value="[A-Za-z_\-]*Test[A-Za-z_\-]*\.java" />
     </module>
     <module name="TreeWalker">
+        <module name="DeclarationOrder">
+            <property name="severity" value="warning" />
+        </module>
+        <module name="MethodParamPad">
+            <property name="allowLineBreaks" value="true"/>
+            <property name="option" value="space"/>
+            <property name="tokens" value="METHOD_DEF"/>
+        </module>
         <module name="JavadocMethod">
             <property name="accessModifiers" value="public" />
             <property name="allowMissingParamTags" value="false" />

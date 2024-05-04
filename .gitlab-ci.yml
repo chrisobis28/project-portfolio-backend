@@ -1,8 +1,9 @@
 image: gradle:7.6.0-jdk19-alpine
 
 stages:
-  - build_and_test
-  - code_coverage_check
+  - build
+  - static_analysis
+  - test
 
 variables:
   GRADLE_OPTS: "-Dorg.gradle.daemon=false"
@@ -15,21 +16,25 @@ cache:
     - .gradle/wrapper
     - .gradle/caches
 
-build_and_test:
-  stage: build_and_test
+build:
+  stage: build
   script:
     - ./gradlew build
-    - ./gradlew test
 
-code_coverage_check:
-  stage: code_coverage_check
-  only:
-    - main
-    - dev
+static_analysis:
+  stage: static_analysis
   script:
-    - ./gradlew jacocoTestReport
-    - ./gradlew jacocoTestCoverageVerification
+    - ./gradlew checkstyle
+  allow_failure: false
 
+test:
+  stage: test
+  script:
+    - ./gradlew test
+    - |
+      if [[ "$CI_COMMIT_BRANCH" == "main" || "$CI_COMMIT_BRANCH" == "dev" ]]; then
+        ./gradlew jacocoTestCoverageVerification
+      fi
   artifacts:
     paths:
       - build/reports/jacoco/test/html/
