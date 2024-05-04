@@ -24,7 +24,7 @@ build:
 static_analysis:
   stage: static_analysis
   script:
-    - ./gradlew checkstyle
+    - ./gradlew checkstyleMain checkstyleTest
   allow_failure: false
 
 test:
