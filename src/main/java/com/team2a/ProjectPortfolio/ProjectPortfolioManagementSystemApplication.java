@@ -6,8 +6,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class ProjectPortfolioManagementSystemApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(ProjectPortfolioManagementSystemApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(ProjectPortfolioManagementSystemApplication.class, args);
+    }
 
 }
