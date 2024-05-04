@@ -68,6 +68,7 @@ jacocoTestCoverageVerification {
 def isCI = System.getenv().containsKey("CI")
 
 checkstyle {
+	showViolations = true
 	ignoreFailures = !isCI
 	maxWarnings = 0
 	toolVersion = '8.45.1'
