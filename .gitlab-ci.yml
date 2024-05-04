@@ -2,7 +2,6 @@ image: gradle:7.6.0-jdk19-alpine
 
 stages:
   - build
-  - static_analysis
   - test
 
 variables:
@@ -20,12 +19,6 @@ build:
   stage: build
   script:
     - ./gradlew build
-
-static_analysis:
-  stage: static_analysis
-  script:
-    - ./gradlew checkstyleMain checkstyleTest
-  allow_failure: false
 
 test:
   stage: test
