@@ -1,8 +1,6 @@
 package com.team2a.ProjectPortfolio.Commons;
 
 import jakarta.persistence.*;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
 
 import java.util.UUID;
 
@@ -16,8 +14,7 @@ public class Media {
     @Column(name="PATH")
     private String path;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.REMOVE)
     @JoinColumn(name="PROJECTID", referencedColumnName = "PROJECTID")
-    @OnDelete(action = OnDeleteAction.CASCADE)
     private Project project;
 }
