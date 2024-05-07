@@ -14,7 +14,4 @@ public class Media {
     @Column(name="PATH")
     private String path;
 
-    @ManyToOne(cascade = CascadeType.REMOVE)
-    @JoinColumn(name="PROJECTID", referencedColumnName = "PROJECTID")
-    private Project project;
 }
