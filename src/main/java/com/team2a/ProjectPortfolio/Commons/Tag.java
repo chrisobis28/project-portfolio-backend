@@ -10,54 +10,37 @@ import java.util.List;
 import java.util.UUID;
 
 @Entity
-@Table(name = "PROJECT")
-public class Project {
+@Table(name = "TAG")
+public class Tag {
     @Id
-    @Column(name="PROJECT_ID", nullable=false)
+    @Column(name="TAG_ID", nullable=false)
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Getter
     @Setter
-    private UUID projectId;
+    private UUID tagId;
 
-    @Column(name="TITLE")
+    @Column(name="NAME")
     @Getter
     @Setter
-    private String title;
+    private String name;
 
-    @Column(name="DESCRIPTION")
+    @Column(name="COLOR")
     @Getter
     @Setter
-    private String description;
+    private String color;
 
-    @Column(name="BIBTEX")
-    @Getter
-    @Setter
-    private String bibtex;
-
-    @Column(name="ARCHIVED")
-    @Getter
-    @Setter
-    private Boolean archived;
 
     @Getter
     @Setter
     @OneToMany(cascade=CascadeType.ALL, orphanRemoval = true)
     @OnDelete(action=OnDeleteAction.CASCADE)
-    @JoinColumn(name="PROJECT_ID")
-    private List<Media> media;
+    @JoinColumn(name="TAG_ID")
+    private List<RequestTagProject> requestTagProjects;
 
     @Getter
     @Setter
     @OneToMany(cascade=CascadeType.ALL, orphanRemoval = true)
     @OnDelete(action=OnDeleteAction.CASCADE)
-    @JoinColumn(name="PROJECT_ID")
+    @JoinColumn(name="TAG_ID")
     private List<TagsToProject> tagsToProjects;
-
-    @Getter
-    @Setter
-    @OneToMany(cascade=CascadeType.ALL, orphanRemoval = true)
-    @OnDelete(action=OnDeleteAction.CASCADE)
-    @JoinColumn(name="PROJECT_ID")
-    private List<Link> links;
-
 }

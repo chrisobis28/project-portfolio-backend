@@ -10,23 +10,29 @@ import java.util.List;
 import java.util.UUID;
 
 @Entity
-@Table(name="MEDIA")
-public class Media {
+@Table(name = "LINK")
+public class Link {
     @Id
-    @Column(name="MEDIA_ID")
+    @Column(name="LINK_ID", nullable=false)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     @Getter
     @Setter
-    private UUID mediaId;
+    private UUID linkId;
 
-    @Column(name="PATH")
+    @Column(name="NAME")
     @Getter
     @Setter
-    private String path;
+    private String name;
+
+    @Column(name="URL")
+    @Getter
+    @Setter
+    private String url;
 
     @Getter
     @Setter
     @OneToMany(cascade=CascadeType.ALL, orphanRemoval = true)
     @OnDelete(action= OnDeleteAction.CASCADE)
-    @JoinColumn(name="MEDIA_ID")
-    private List<RequestMediaProject> requestMediaProjects;
+    @JoinColumn(name="LINK_ID")
+    private List<RequestLinkProject> requestLinkProjects;
 }
