@@ -52,7 +52,8 @@ public class Account {
     @JoinColumn(name="REQUEST_ACCOUNT")
     private List<Request> requests;
 
-    public Account(String username, String name, String password, Boolean isAdministrator, Boolean isPM, List<ProjectsToAccounts> projectsToAccounts) {
+    public Account(String username, String name, String password, Boolean isAdministrator,
+                   Boolean isPM, List<ProjectsToAccounts> projectsToAccounts) {
         this.username = username;
         this.name = name;
         this.password = password;

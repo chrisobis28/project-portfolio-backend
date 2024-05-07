@@ -71,7 +71,7 @@ public class Request {
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @OnDelete(action= OnDeleteAction.CASCADE)
     @JoinColumn(name="REQUEST_ID")
-    List<RequestCollaboratorsProjects> requestCollaboratorsProjects;
+    private List<RequestCollaboratorsProjects> requestCollaboratorsProjects;
 
     public Request(UUID requestId, String newTitle, String newDescription, String newBibtex, Boolean isCounterOffer) {
         this.requestId = requestId;
