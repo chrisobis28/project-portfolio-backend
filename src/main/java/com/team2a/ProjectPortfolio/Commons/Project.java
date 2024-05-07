@@ -6,6 +6,7 @@ import lombok.Setter;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -38,11 +39,11 @@ public class Project {
     @Setter
     private Boolean archived;
 
-    public Project(UUID projectId, String title, String description, String bibtex, Boolean archived) {
-        this.projectId = projectId;
-        this.title = title;
-        this.description = description;
-        this.bibtex = bibtex;
-        this.archived = archived;
-    }
+    @Getter
+    @Setter
+    @OneToMany(cascade=CascadeType.ALL, orphanRemoval = true)
+    @OnDelete(action=OnDeleteAction.CASCADE)
+    @JoinColumn(name="currProject")
+    private List<Media> media;
+
 }
