@@ -43,7 +43,30 @@ public class Project {
     @Setter
     @OneToMany(cascade=CascadeType.ALL, orphanRemoval = true)
     @OnDelete(action=OnDeleteAction.CASCADE)
-    @JoinColumn(name="currProject")
+    @JoinColumn(name="PROJECT_ID")
     private List<Media> media;
 
+    @Getter
+    @Setter
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @OnDelete(action=OnDeleteAction.CASCADE)
+    @JoinColumn(name="PROJECT_ID")
+    private List<ProjectsToAccounts> projectsToAccounts;
+
+
+    @Getter
+    @Setter
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @OnDelete(action=OnDeleteAction.CASCADE)
+    @JoinColumn(name="PROJECT_ID")
+    private List<ProjectsToCollaborators> projectsToCollaborators;
+
+    public Project(UUID projectId, String title, String description, String bibtex, Boolean archived, List<Media> media) {
+        this.projectId = projectId;
+        this.title = title;
+        this.description = description;
+        this.bibtex = bibtex;
+        this.archived = archived;
+        this.media = media;
+    }
 }
