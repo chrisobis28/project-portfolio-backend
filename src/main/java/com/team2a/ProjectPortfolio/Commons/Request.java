@@ -42,7 +42,29 @@ public class Request {
     @Column(name="IS_COUNTEROFFER")
     @Getter
     @Setter
-    private Boolean isCounterOffer;
+    private boolean isCounterOffer;
+
+    @Getter
+    @Setter
+    @OneToMany(cascade=CascadeType.ALL, orphanRemoval = true)
+    @OnDelete(action= OnDeleteAction.CASCADE)
+    @JoinColumn(name="REQUEST_ID")
+    private List<RequestTagProject> requestTagProjects;
+
+    @Getter
+    @Setter
+    @OneToMany(cascade=CascadeType.ALL, orphanRemoval = true)
+    @OnDelete(action= OnDeleteAction.CASCADE)
+    @JoinColumn(name="REQUEST_ID")
+    private List<RequestMediaProject> requestMediaProjects;
+
+    @Getter
+    @Setter
+    @OneToMany(cascade=CascadeType.ALL, orphanRemoval = true)
+    @OnDelete(action= OnDeleteAction.CASCADE)
+    @JoinColumn(name="REQUEST_ID")
+    private List<RequestLinkProject> requestLinkProjects;
+
 
     @Getter
     @Setter
@@ -58,4 +80,5 @@ public class Request {
         this.newBibtex = newBibtex;
         this.isCounterOffer = isCounterOffer;
     }
+
 }

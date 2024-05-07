@@ -11,7 +11,7 @@ import java.util.UUID;
 public class RequestCollaboratorsProjects {
 
     @Id
-    @Column(name="ID", nullable=false)
+    @Column(name="REQUEST_COLLABORATORS_PROJECTS_ID", nullable=false)
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Getter
     @Setter

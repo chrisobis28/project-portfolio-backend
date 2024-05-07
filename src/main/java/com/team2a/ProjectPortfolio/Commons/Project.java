@@ -13,7 +13,7 @@ import java.util.UUID;
 @Table(name = "PROJECT")
 public class Project {
     @Id
-    @Column(name="PROJECTID", nullable=false)
+    @Column(name="PROJECT_ID", nullable=false)
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Getter
     @Setter
@@ -61,6 +61,27 @@ public class Project {
     @JoinColumn(name="PROJECT_ID")
     private List<ProjectsToCollaborators> projectsToCollaborators;
 
+    @Getter
+    @Setter
+    @OneToMany(cascade=CascadeType.ALL, orphanRemoval = true)
+    @OnDelete(action=OnDeleteAction.CASCADE)
+    @JoinColumn(name="PROJECT_ID")
+    private List<TagsToProject> tagsToProjects;
+
+    @Getter
+    @Setter
+    @OneToMany(cascade=CascadeType.ALL, orphanRemoval = true)
+    @OnDelete(action=OnDeleteAction.CASCADE)
+    @JoinColumn(name="PROJECT_ID")
+    private List<Link> links;
+
+    @Getter
+    @Setter
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @OnDelete(action= OnDeleteAction.CASCADE)
+    @JoinColumn(name="REQUEST_PROJECT")
+    private List<Request> requests;
+
     public Project(UUID projectId, String title, String description, String bibtex, Boolean archived, List<Media> media) {
         this.projectId = projectId;
         this.title = title;
@@ -69,4 +90,6 @@ public class Project {
         this.archived = archived;
         this.media = media;
     }
+
+
 }
