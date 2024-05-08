@@ -81,7 +81,6 @@ paths:
           required: true
           schema:
             type: string
-            format: uuid
       requestBody:
         required: true
         content:
@@ -111,7 +110,6 @@ paths:
           required: true
           schema:
             type: string
-            format: uuid
       requestBody:
         required: true
         content:
@@ -151,7 +149,6 @@ paths:
           required: true
           schema:
             type: string
-            format: uuid
       responses:
         '204':
           description: Project deleted successfully
@@ -189,6 +186,36 @@ paths:
         '409':
           description: Conflict - account already exists
 
+    post:
+      tags:
+        - Account
+      summary: Log in to an account
+      operationId: loginAccount
+      description: Log in to an existing account
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+                  format: password
+      responses:
+        '200':
+          description: Account logged in successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
+        '400':
+          description: Bad request - invalid input data
+        '401':
+          description: Unauthorized - invalid username or password
+
   /account/{adminUsername}/{username}:
     delete:
       tags:
@@ -203,14 +230,12 @@ paths:
           required: true
           schema:
             type: string
-            format: uuid
         - name: username
           in: path
           description: Username of the account to be deleted
           required: true
           schema:
             type: string
-            format: uuid
       responses:
         '204':
           description: Account deleted successfully
@@ -228,6 +253,140 @@ paths:
 #Admin
 
 #Request
+
+  /request/{username}:
+    get:
+      tags:
+        - Request
+      summary: Get requests for a user
+      operationId: getRequestsForUser
+      description: Retrieve all requests associated with a user
+      parameters:
+        - name: username
+          in: path
+          description: Username of the user for which requests are being retrieved
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Requests retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Request'
+        '401':
+          description: Unauthorized - user is not authorized to retrieve requests
+        '404':
+          description: User not found
+
+  /request/{projectId}/{username}:
+
+    get:
+      tags:
+        - Request
+      summary: Get requests for a project
+      operationId: getRequestsForProject
+      description: Retrieve all requests associated with a project
+      parameters:
+        - name: projectId
+          in: path
+          description: ID of the project for which requests are being retrieved
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: username
+          in: path
+          description: Username of the user retrieving the requests
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Requests retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Request'
+        '401':
+          description: Unauthorized - user is not authorized to retrieve requests
+        '404':
+          description: Project not found
+
+    put:
+      tags:
+        - Request
+      summary: Create a request
+      operationId: createRequest
+      description: Create a new request for a project
+      parameters:
+        - name: projectId
+          in: path
+          description: ID of the project for which the request is being created
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: username
+          in: path
+          description: Username of the user creating the request
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Request'
+      responses:
+        '201':
+          description: Request created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Request'
+        '400':
+          description: Bad request - invalid input data
+        '401':
+          description: Unauthorized - user is not authorized to create a request
+        '404':
+          description: Project not found
+
+  /request/{requestId}/{username}:
+    delete:
+      tags:
+        - Request
+      summary: Delete a request
+      operationId: deleteRequest
+      description: Delete a request
+      parameters:
+        - name: requestId
+          in: path
+          description: ID of the request to delete
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: username
+          in: path
+          description: Username of the user deleting the request
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Request deleted successfully
+        '401':
+          description: Unauthorized - user is not authorized to delete the request
+        '404':
+          description: Request not found
+
 
 components:
   schemas:
@@ -325,10 +484,6 @@ components:
           type: boolean
         isPM:
           type: boolean
-        requests:
-          type: array
-          items:
-            $ref: '#/components/schemas/Request'
 
     Collaborator:
       type: object
