@@ -1,0 +1,340 @@
+openapi: '3.0.2'
+info:
+  title: Project Management API
+  description: API for managing projects
+  version: '1.0'
+servers:
+  - url: http://localhost:8080
+tags:
+  - name: Project
+    description: Project specific API
+  - name: Media
+    description: Media specific API
+  - name: Account
+    description: Account specific API
+  - name: Tag
+    description: Tag specific API
+  - name: Link
+    description: Link specific API
+  - name: Collaborator
+    description: Collaborator specific API
+  - name: Admin
+    description: Admin specific API
+  - name: Request
+    description: Request specific API
+
+paths:
+
+#Project
+
+  /project:
+      get:
+        tags:
+          - Project
+        summary: Get all projects
+        operationId: getProjects
+        description: Return a list of all projects
+        responses:
+          '200':
+            description: Successful response
+            content:
+              application/json:
+                schema:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/Project'
+
+  /project/{projectId}:
+    get:
+      tags:
+        - Project
+      summary: Get a project by ID
+      operationId: getProjectById
+      description: Returns a project based on the provided ID
+      parameters:
+        - name: projectId
+          in: path
+          description: ID of the project to retrieve
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+
+  /project/{username}:
+    put:
+      tags:
+        - Project
+      summary: Create a new project
+      operationId: createProject
+      description: Create a new project with the provided ID
+      parameters:
+        - name: username
+          in: path
+          description: Username of the administrator creating the project
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Project'
+      responses:
+        '201':
+          description: Project created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+        '401':
+          description: Unauthorized - user is not an admin
+
+    post:
+      tags:
+        - Project
+      summary: Update an existing project
+      operationId: updateProject
+      description: Update an existing project with the provided ID
+      parameters:
+        - name: username
+          in: path
+          description: Username of the account updating the project
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Project'
+      responses:
+        '200':
+          description: Project updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+        '401':
+          description: Unauthorized - user is does not have permission to edit this project
+        '404':
+          description: Project not found
+
+  /project/{projectId}/{username}:
+    delete:
+      tags:
+        - Project
+      summary: Delete a project
+      operationId: deleteProject
+      description: Delete a project with the provided ID
+      parameters:
+        - name: projectId
+          in: path
+          description: ID of the project to delete
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: username
+          in: path
+          description: Username of the administrator deleting the project
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Project deleted successfully
+        '401':
+          description: Unauthorized - user is not an admin
+        '404':
+          description: Project not found
+
+#Media
+
+#Account
+
+  /account:
+    put:
+      tags:
+        - Account
+      summary: Create an account
+      operationId: createAccount
+      description: Create a new account
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Account'
+      responses:
+        '201':
+          description: Account created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
+        '400':
+          description: Bad request - invalid input data
+        '409':
+          description: Conflict - account already exists
+
+  /account/{adminUsername}/{username}:
+    delete:
+      tags:
+        - Account
+      summary: Delete an account
+      operationId: deleteAccount
+      description: Delete an account
+      parameters:
+        - name: adminUsername
+          in: path
+          description: Username of the administrator deleting the account
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: username
+          in: path
+          description: Username of the account to be deleted
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Account deleted successfully
+        '401':
+          description: Unauthorized - user does not have permission to delete this account
+        '404':
+          description: Account not found
+
+#Tag
+
+#Link
+
+#Collaborator
+
+#Admin
+
+#Request
+
+components:
+  schemas:
+    Project:
+      type: object
+      properties:
+        projectId:
+          type: string
+          format: uuid
+        title:
+          type: string
+        description:
+          type: string
+        bibtex:
+          type: string
+        archived:
+          type: boolean
+        media:
+          type: array
+          items:
+            $ref: '#/components/schemas/Media'
+        links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+        requests:
+          type: array
+          items:
+            $ref: '#/components/schemas/Request'
+        tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/Tag'
+        collaborators:
+          type: array
+          items:
+            $ref: '#/components/schemas/Collaborator'
+
+    Media:
+      type: object
+      properties:
+        mediaId:
+          type: string
+          format: uuid
+        path:
+          type: string
+
+    Link:
+      type: object
+      properties:
+        linkId:
+          type: string
+          format: uuid
+        name:
+          type: string
+        url:
+          type: string
+
+    Request:
+      type: object
+      properties:
+        requestId:
+          type: string
+          format: uuid
+        newTitle:
+          type: string
+        newDescription:
+          type: string
+        newBibtex:
+          type: string
+        isCounterOffer:
+          type: boolean
+        
+    Tag:
+      type: object
+      properties:
+        tagId:
+          type: string
+          format: uuid
+        name:
+          type: string
+        color:
+          type: string
+    
+    Account:
+      type: object
+      properties:
+        username:
+          type: string
+        name:
+          type: string
+        password:
+          type: string
+        isAdministrator:
+          type: boolean
+        isPM:
+          type: boolean
+        requests:
+          type: array
+          items:
+            $ref: '#/components/schemas/Request'
+
+    Collaborator:
+      type: object
+      properties:
+        collaboratorId:
+          type: string
+          format: uuid
+        name:
+          type: string
