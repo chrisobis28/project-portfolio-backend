@@ -12,6 +12,8 @@ tags:
     description: Media specific API
   - name: Account
     description: Account specific API
+  - name: Session
+    description: Session specific API
   - name: Tag
     description: Tag specific API
   - name: Link
@@ -47,13 +49,6 @@ paths:
         summary: Create a new project
         operationId: createProject
         description: Create a new project with the provided ID
-        parameters:
-          - name: username
-            in: path
-            description: Username of the administrator creating the project
-            required: true
-            schema:
-              type: string
         requestBody:
           required: true
           content:
@@ -100,12 +95,13 @@ paths:
       operationId: updateProject
       description: Update an existing project with the provided ID
       parameters:
-        - name: username
+        - name: projectId
           in: path
-          description: Username of the account updating the project
+          description: ID of the project to retrieve
           required: true
           schema:
             type: string
+            format: uuid
       requestBody:
         required: true
         content:
@@ -138,12 +134,6 @@ paths:
           schema:
             type: string
             format: uuid
-        - name: username
-          in: path
-          description: Username of the administrator deleting the project
-          required: true
-          schema:
-            type: string
       responses:
         '204':
           description: Project deleted successfully
@@ -204,10 +194,8 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Media'
-
+                $ref: '#/components/schemas/Media'
+  /media/{mediaId}:
     delete:
       tags:
         - Media
@@ -435,15 +423,14 @@ paths:
             content:
               application/json:
                 schema:
-                  type: array
-                  items:
                     $ref: '#/components/schemas/Tag'
-
+  /tag/{tagId}:
       delete:
         tags:
           - Tag
         summary: Delete a tag.
-        operationId: deleteTagFromProject
+        operationId: deleteTagFromDatabase
+        
         description: Deletes a tag based on its Id.
         parameters:
           - name: tagId
@@ -462,6 +449,39 @@ paths:
                   type: array
                   items:
                     $ref: '#/components/schemas/Tag'
+  /tag/{projectId}/{tagId}:
+      delete:
+        tags:
+          - Tag
+        summary: Delete a tag.
+        operationId: deleteTagFromProject
+        
+        description: Deletes a tag based on its Id.
+        parameters:
+          - name: tagId
+            in: path
+            description: ID of the tag to be deleted.
+            required: true
+            schema:
+              type: string
+              format: uuid
+          - name: projectId
+            in: path
+            description: ID of the projectTag to be deleted.
+            required: true
+            schema:
+              type: string
+              format: uuid
+        responses:
+          '200':
+            description: Successful response
+            content:
+              application/json:
+                schema:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/Tag'
+  
 
 #Link
 
@@ -478,7 +498,7 @@ paths:
               description: ID of the Project whose link to retrieve.
               required: true
               schema:
-                type: string
+                type: string 
                 format: uuid
           responses:
             '200':
@@ -492,7 +512,7 @@ paths:
 
         post:
           tags:
-            - Link
+            - Link 
           summary: Add a new link to a Project.
           operationId: addLinkToProject
           description: Adds the link based on Project Id and returns it.
@@ -518,7 +538,7 @@ paths:
                   schema:
                     type: array
                     items:
-                      $ref: '#/components/schemas/Media'
+                      $ref: '#/components/schemas/Link'
 
         put:
           tags:
@@ -549,7 +569,7 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/Link'
-
+  /link/{linkId}:
         delete:
           tags:
             - Link
@@ -575,24 +595,8 @@ paths:
                       $ref: '#/components/schemas/Link'
 
 #Collaborator
+#Collaborator
 
-  /collaborator:
-    get:
-      tags:
-        - Collaborator
-      summary: Get all collaborators
-      operationId: getCollaborators
-      description: Return a list of all collaborators
-      responses:
-        '200':
-          description: Successful response
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Collaborator'
-  
   /collaborator/{projectId}:
     get:
       tags:
@@ -644,20 +648,19 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Media'
+                $ref: '#/components/schemas/Collaborator'
 
+  /collaborator/{collaboratorId}:
     put:
       tags:
         - Collaborator
-      summary: Edit a collaborator of a Project.
+      summary: Edit a collaborator of the Plaform.
       operationId: editCollaboratorOfProject
-      description: Edits the collaborator based on Project Id and returns it.
+      description: Edits the collaborator based on their Id and returns it.
       parameters:
-        - name: projectId
+        - name: collaboratorId
           in: path
-          description: ID of the Project whose collaborator to add.
+          description: ID of the collaborator to edit.
           required: true
           schema:
             type: string
@@ -674,27 +677,72 @@ paths:
           content:
             application/json:
               schema:
+                $ref: '#/components/schemas/Collaborator'
+
+    delete:
+      tags:
+        - Collaborator
+      summary: Delete a collaborator of the Plaform.
+      operationId: deleteCollaborator
+      description: Delete a collaborator based on their Id.
+      parameters:
+        - name: collaboratorId
+          in: path
+          description: ID of the collaborator to edit.
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/Collaborator'
 
-
+  /collaborator/{projectId}/{collaboratorId}:
+    delete:
+      tags:
+        - Collaborator
+      summary: Delete a collaborator.
+      operationId: deleteCollaboratorFromProject
+      description: Deletes a collaborator based on their and project's Id.
+      parameters:
+        - name: collaboratorId
+          in: path
+          description: ID of the collaborator to be deleted.
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: projectId
+          in: path
+          description: ID of the project where the deletion happens.
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Collaborator'
 #Request
 
-  /request/{username}:
+  /request:
     get:
       tags:
         - Request
       summary: Get requests for a user
       operationId: getRequestsForUser
       description: Retrieve all requests associated with a user
-      parameters:
-        - name: username
-          in: path
-          description: Username of the user for which requests are being retrieved
-          required: true
-          schema:
-            type: string
       responses:
         '200':
           description: Requests retrieved successfully
@@ -709,7 +757,7 @@ paths:
         '404':
           description: User not found
 
-  /request/{projectId}/{username}:
+  /request/{projectId}:
 
     get:
       tags:
@@ -725,12 +773,6 @@ paths:
           schema:
             type: string
             format: uuid
-        - name: username
-          in: path
-          description: Username of the user retrieving the requests
-          required: true
-          schema:
-            type: string
       responses:
         '200':
           description: Requests retrieved successfully
@@ -759,12 +801,6 @@ paths:
           schema:
             type: string
             format: uuid
-        - name: username
-          in: path
-          description: Username of the user creating the request
-          required: true
-          schema:
-            type: string
       requestBody:
         required: true
         content:
@@ -785,7 +821,7 @@ paths:
         '404':
           description: Project not found
 
-  /request/{requestId}/{username}:
+  /request/{requestId}:
     delete:
       tags:
         - Request
@@ -800,12 +836,6 @@ paths:
           schema:
             type: string
             format: uuid
-        - name: username
-          in: path
-          description: Username of the user deleting the request
-          required: true
-          schema:
-            type: string
       responses:
         '204':
           description: Request deleted successfully
