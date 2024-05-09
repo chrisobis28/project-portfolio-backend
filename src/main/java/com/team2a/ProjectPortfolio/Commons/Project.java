@@ -58,6 +58,7 @@ public class Project {
     @Getter
     @Setter
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "project")
+    @OnDelete(action=OnDeleteAction.CASCADE)
     private List<ProjectsToCollaborators> projectsToCollaborators;
 
     @Getter
