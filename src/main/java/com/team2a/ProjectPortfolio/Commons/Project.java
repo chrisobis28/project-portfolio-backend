@@ -82,7 +82,7 @@ public class Project {
     private List<Request> requests;
 
     public Project(String title, String description, String bibtex, Boolean archived, List<Media> media,
-                    List<Link> links, List<Request> requests) {
+                    List<Link> links) {
         this.title = title;
         this.description = description;
         this.bibtex = bibtex;
@@ -92,6 +92,5 @@ public class Project {
         this.projectsToCollaborators = new ArrayList<>();
         this.tagsToProjects = new ArrayList<>();
         this.links = links;
-        this.requests = requests;
     }
 }

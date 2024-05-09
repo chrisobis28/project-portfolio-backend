@@ -42,7 +42,7 @@ class CollaboratorControllerTest {
     @Test
     void testGetCollaboratorsByProjectIdSuccess(){
         
-        Project project = new Project("Test", "Test", "Test", false, null, null, null);
+        Project project = new Project("Test", "Test", "Test", false, null, null);
         project = projectRepository.save(project);
 
         Collaborator collaborator = new Collaborator("Filip");
