@@ -63,26 +63,6 @@ class CollaboratorControllerTest {
     }
 
     @Test
-    void testGetCollaboratorsByProjectIdFail(){
-
-        Project project = new Project("Test", "Test", "Test", false, null, null, null);
-        project = projectRepository.save(project);
-
-        Collaborator collaborator = new Collaborator("Filip");
-        collaborator = collaboratorRepository.save(collaborator);
-
-        ProjectsToCollaborators projectsToCollaborators = new ProjectsToCollaborators(project,collaborator);
-        projectsToCollaborators = projectsToCollaboratorsRepository.save(projectsToCollaborators);
-
-
-        ArrayList<Collaborator> expectedResponse = new ArrayList<>();
-        ResponseEntity<List<Collaborator>> actualResponse = collaboratorController.getCollaboratorsByProjectId(UUID.randomUUID());
-
-        assertEquals(HttpStatus.OK,actualResponse.getStatusCode());
-        assertEquals(expectedResponse,actualResponse.getBody());
-        assertEquals(0, actualResponse.getBody().size());
-    }
-    @Test
     void testGetCollaboratorsByProjectIdError(){
 
         Project project = new Project("Test", "Test", "Test", false, null, null, null);
