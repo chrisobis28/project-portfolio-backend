@@ -33,7 +33,7 @@ public class CollaboratorService {
             throw new IllegalArgumentException();
         }
         List<ProjectsToCollaborators> projectsToCollaborators = projectsToCollaboratorsRepository.
-                findAllByProject_ProjectId(projectId);
+                findAllByProjectProjectId(projectId);
         List<Collaborator> collaborators = projectsToCollaborators.stream()
                 .map(ProjectsToCollaborators::getCollaborator).collect(Collectors.toList());
         if(collaborators.isEmpty()) {
