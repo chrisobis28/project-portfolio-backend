@@ -6,6 +6,7 @@ import lombok.Setter;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -56,9 +57,7 @@ public class Project {
 
     @Getter
     @Setter
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @OnDelete(action=OnDeleteAction.CASCADE)
-    @JoinColumn(name="PROJECT_ID")
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "project")
     private List<ProjectsToCollaborators> projectsToCollaborators;
 
     @Getter
@@ -82,14 +81,17 @@ public class Project {
     @JoinColumn(name="REQUEST_PROJECT")
     private List<Request> requests;
 
-    public Project(UUID projectId, String title, String description, String bibtex, Boolean archived, List<Media> media) {
-        this.projectId = projectId;
+    public Project(String title, String description, String bibtex, Boolean archived, List<Media> media,
+                    List<Link> links, List<Request> requests) {
         this.title = title;
         this.description = description;
         this.bibtex = bibtex;
         this.archived = archived;
         this.media = media;
+        this.projectsToAccounts = new ArrayList<>();
+        this.projectsToCollaborators = new ArrayList<>();
+        this.tagsToProjects = new ArrayList<>();
+        this.links = links;
+        this.requests = requests;
     }
-
-
 }
