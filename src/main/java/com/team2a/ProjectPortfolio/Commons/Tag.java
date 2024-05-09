@@ -44,7 +44,8 @@ public class Tag {
     @JoinColumn(name="TAG_ID")
     private List<TagsToProject> tagsToProjects;
 
-    public Tag(UUID tagId, String name, String color, List<RequestTagProject> requestTagProjects, List<TagsToProject> tagsToProjects) {
+    public Tag(UUID tagId, String name, String color, List<RequestTagProject> requestTagProjects,
+               List<TagsToProject> tagsToProjects) {
         this.tagId = tagId;
         this.name = name;
         this.color = color;
