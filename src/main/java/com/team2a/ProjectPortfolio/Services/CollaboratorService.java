@@ -90,6 +90,5 @@ public class CollaboratorService {
         collaborator.setName(collaboratorName);
         collaborator = collaboratorRepository.save(collaborator);
         return collaborator;
-
     }
 }

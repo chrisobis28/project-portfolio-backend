@@ -27,11 +27,11 @@ import static org.junit.jupiter.api.Assertions.*;
 @DataJpaTest
 class CollaboratorControllerTest {
     @Autowired
-    private transient ProjectsToCollaboratorsRepository projectsToCollaboratorsRepository;
+    private ProjectsToCollaboratorsRepository projectsToCollaboratorsRepository;
     @Autowired
-    private transient ProjectRepository projectRepository;
+    private ProjectRepository projectRepository;
     @Autowired
-    private transient CollaboratorRepository collaboratorRepository;
+    private CollaboratorRepository collaboratorRepository;
     private CollaboratorService collaboratorService;
     private CollaboratorController collaboratorController;
 
