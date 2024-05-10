@@ -20,4 +20,9 @@ public class RequestLinkProject {
     @Getter
     @Setter
     private boolean isRemove;
+
+    public RequestLinkProject(UUID requestLinkProjectId, boolean isRemove) {
+        this.requestLinkProjectId = requestLinkProjectId;
+        this.isRemove = isRemove;
+    }
 }

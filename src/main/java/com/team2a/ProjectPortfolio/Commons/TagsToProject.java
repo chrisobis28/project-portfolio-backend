@@ -15,4 +15,8 @@ public class TagsToProject {
     @Getter
     @Setter
     private UUID tagToProjectId;
+
+    public TagsToProject(UUID tagToProjectId) {
+        this.tagToProjectId = tagToProjectId;
+    }
 }

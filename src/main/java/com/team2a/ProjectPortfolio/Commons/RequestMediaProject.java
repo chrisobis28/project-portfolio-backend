@@ -20,4 +20,9 @@ public class RequestMediaProject {
     @Getter
     @Setter
     private boolean isRemove;
+
+    public RequestMediaProject(UUID requestMediaProjectId, boolean isRemove) {
+        this.requestMediaProjectId = requestMediaProjectId;
+        this.isRemove = isRemove;
+    }
 }

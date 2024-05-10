@@ -35,4 +35,11 @@ public class Link {
     @OnDelete(action= OnDeleteAction.CASCADE)
     @JoinColumn(name="LINK_ID")
     private List<RequestLinkProject> requestLinkProjects;
+
+    public Link(UUID linkId, String name, String url, List<RequestLinkProject> requestLinkProjects) {
+        this.linkId = linkId;
+        this.name = name;
+        this.url = url;
+        this.requestLinkProjects = requestLinkProjects;
+    }
 }

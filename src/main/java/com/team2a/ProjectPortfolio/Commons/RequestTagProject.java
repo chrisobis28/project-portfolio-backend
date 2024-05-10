@@ -20,4 +20,9 @@ public class RequestTagProject {
     @Getter
     @Setter
     private boolean isRemove;
+
+    public RequestTagProject(UUID requestTagProjectID, boolean isRemove) {
+        this.requestTagProjectID = requestTagProjectID;
+        this.isRemove = isRemove;
+    }
 }
