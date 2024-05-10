@@ -18,6 +18,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -79,10 +80,8 @@ class CollaboratorServiceTest {
         project = projectRepository.save(project);
         Collaborator collaborator1 = new Collaborator("Filip");
         collaboratorRepository.save(collaborator1);
-
         Collaborator collaborator2 = new Collaborator("Andrei");
         collaborator2 = collaboratorRepository.save(collaborator2);
-
         Collaborator actualResponse = collaboratorService.addCollaboratorToProject(project.getProjectId(),"Filip");
         assertEquals(collaborator1,actualResponse);
     }
@@ -134,4 +133,31 @@ class CollaboratorServiceTest {
         project = projectRepository.save(project);
         assertThrows(EntityNotFoundException.class, () -> collaboratorService.editCollaboratorOfProject(UUID.randomUUID(),"Test"));
     }
+    @Test
+    void testDeleteCollaboratorSuccess(){
+        Project project = new Project("Test", "Test", "Test", false);
+        project = projectRepository.save(project);
+        Collaborator collaborator = new Collaborator("Filip");
+        collaborator = collaboratorRepository.save(collaborator);
+        String response = collaboratorService.deleteCollaborator(collaborator.getCollaboratorId());
+        assertEquals("Deleted collaborator",response);
+        assertEquals(List.of(),collaboratorRepository.findAll());
+        Collaborator finalCollaborator = collaborator;
+        assertThrows(EntityNotFoundException.class, () -> collaboratorService.getCollaboratorsByProjectId(finalCollaborator.getCollaboratorId()));
+    }
+    @Test
+    void testDeleteCollaboratorNotFound(){
+        Project project = new Project("Test", "Test", "Test", false);
+        project = projectRepository.save(project);
+        Collaborator collaborator = new Collaborator("Filip");
+        Collaborator collaboratorNew = collaboratorRepository.save(collaborator);
+        assertThrows(EntityNotFoundException.class, () -> collaboratorService.deleteCollaborator(UUID.randomUUID()));
+    }
+    @Test
+    void testDeleteCollaboratorIllegal(){
+        Project project = new Project("Test", "Test", "Test", false);
+        project = projectRepository.save(project);
+        assertThrows(IllegalArgumentException.class, () -> collaboratorService.deleteCollaborator(null));
+    }
+
 }
