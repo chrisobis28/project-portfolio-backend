@@ -35,7 +35,7 @@ public class CollaboratorServiceMock {
     private CollaboratorService cs;
 
     @BeforeEach
-    void setUp() {
+    void setUp () {
         cs = new CollaboratorService(ptc, cr, projectRepository);
     }
 
@@ -162,7 +162,8 @@ public class CollaboratorServiceMock {
         Project project = new Project("Test", "Test", "Test", false);
         when(cr.findById(collaboratorId)).thenReturn(java.util.Optional.of(collaborator));
         when(projectRepository.findById(projectId)).thenReturn(java.util.Optional.of(project));
-        when(ptc.findAllByProjectProjectIdAndCollaboratorCollaboratorId(projectId, collaboratorId)).thenReturn(new ArrayList<>());
+        when(ptc.findAllByProjectProjectIdAndCollaboratorCollaboratorId(projectId, collaboratorId)).
+                thenReturn(new ArrayList<>());
         String response = cs.deleteCollaboratorFromProject(projectId, collaboratorId);
         assertEquals("Deleted collaborator", response);
         verify(ptc, times(1)).deleteAll(anyList());
