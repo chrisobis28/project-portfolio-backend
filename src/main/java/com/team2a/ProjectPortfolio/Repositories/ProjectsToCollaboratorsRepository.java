@@ -8,6 +8,5 @@ import java.util.List;
 import java.util.UUID;
 @Repository
 public interface ProjectsToCollaboratorsRepository extends JpaRepository<ProjectsToCollaborators, UUID> {
-    @SuppressWarnings("checkstyle:MethodName")
     List<ProjectsToCollaborators> findAllByProjectProjectId (UUID projectId);
 }
