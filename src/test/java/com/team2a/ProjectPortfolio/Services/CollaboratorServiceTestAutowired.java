@@ -3,7 +3,6 @@ package com.team2a.ProjectPortfolio.Services;
 import com.team2a.ProjectPortfolio.Commons.Collaborator;
 import com.team2a.ProjectPortfolio.Commons.Project;
 import com.team2a.ProjectPortfolio.Commons.ProjectsToCollaborators;
-import com.team2a.ProjectPortfolio.Controllers.CollaboratorController;
 import com.team2a.ProjectPortfolio.Repositories.CollaboratorRepository;
 import com.team2a.ProjectPortfolio.Repositories.ProjectRepository;
 import com.team2a.ProjectPortfolio.Repositories.ProjectsToCollaboratorsRepository;
@@ -14,19 +13,17 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 @ExtendWith(MockitoExtension.class)
 @DataJpaTest
-class CollaboratorServiceTest {
+class CollaboratorServiceTestAutowired {
     @Autowired
     private ProjectsToCollaboratorsRepository projectsToCollaboratorsRepository;
     @Autowired
@@ -37,7 +34,7 @@ class CollaboratorServiceTest {
 
     @BeforeEach
     void setUp() {
-        collaboratorService = new CollaboratorService(projectsToCollaboratorsRepository,collaboratorRepository,projectRepository);
+        collaboratorService = new CollaboratorService(projectsToCollaboratorsRepository, collaboratorRepository, projectRepository);
     }
 
     @Test
@@ -56,105 +53,114 @@ class CollaboratorServiceTest {
 
 
     @Test
-    void testGetCollaboratorsByProjectIdIllegal(){
+    void testGetCollaboratorsByProjectIdIllegal() {
         Project project = new Project("Test", "Test", "Test", false);
         project = projectRepository.save(project);
         assertThrows(IllegalArgumentException.class, () -> collaboratorService.getCollaboratorsByProjectId(null));
     }
+
     @Test
-    void testGetCollaboratorsByProjectIdNotFound(){
+    void testGetCollaboratorsByProjectIdNotFound() {
         Project project = new Project("Test", "Test", "Test", false);
         project = projectRepository.save(project);
         assertThrows(EntityNotFoundException.class, () -> collaboratorService.getCollaboratorsByProjectId(UUID.randomUUID()));
     }
+
     @Test
-    void testGetCollaboratorsByProjectNoResult(){
+    void testGetCollaboratorsByProjectNoResult() {
         Project project = new Project("Test", "Test", "Test", false);
         project = projectRepository.save(project);
         assertEquals(new ArrayList<>(), collaboratorService.getCollaboratorsByProjectId(project.getProjectId()));
     }
 
     @Test
-    void testAddCollaboratorSuccess(){
+    void testAddCollaboratorSuccess() {
         Project project = new Project("Test", "Test", "Test", false);
         project = projectRepository.save(project);
         Collaborator collaborator1 = new Collaborator("Filip");
         collaboratorRepository.save(collaborator1);
         Collaborator collaborator2 = new Collaborator("Andrei");
         collaborator2 = collaboratorRepository.save(collaborator2);
-        Collaborator actualResponse = collaboratorService.addCollaboratorToProject(project.getProjectId(),"Filip");
-        assertEquals(collaborator1,actualResponse);
+        Collaborator actualResponse = collaboratorService.addCollaboratorToProject(project.getProjectId(), "Filip");
+        assertEquals(collaborator1, actualResponse);
     }
 
     @Test
-    void testAddCollaboratorNotFound(){
+    void testAddCollaboratorNotFound() {
         Project project = new Project("Test", "Test", "Test", false);
         project = projectRepository.save(project);
-        assertThrows(IllegalArgumentException.class, () -> collaboratorService.addCollaboratorToProject(null,"Test"));
+        assertThrows(IllegalArgumentException.class, () -> collaboratorService.addCollaboratorToProject(null, "Test"));
     }
+
     @Test
-    void testAddCollaboratorIllegal(){
+    void testAddCollaboratorIllegal() {
         Project project = new Project("Test", "Test", "Test", false);
         project = projectRepository.save(project);
-        assertThrows(EntityNotFoundException.class, () -> collaboratorService.addCollaboratorToProject(UUID.randomUUID(),"Test"));
+        assertThrows(EntityNotFoundException.class, () -> collaboratorService.addCollaboratorToProject(UUID.randomUUID(), "Test"));
     }
+
     @Test
-    void testAddCollaboratorNoResultCreate(){
+    void testAddCollaboratorNoResultCreate() {
         Project project = new Project("Test", "Test", "Test", false);
         project = projectRepository.save(project);
         Collaborator collaborator = new Collaborator("Filip");
         collaborator = collaboratorRepository.save(collaborator);
-        assertEquals(1,collaboratorRepository.findAll().size());
-        Collaborator actualResponse = collaboratorService.addCollaboratorToProject(project.getProjectId(),"Andrei");
-        assertEquals(2,collaboratorRepository.findAll().size());
-        assertEquals("Andrei",actualResponse.getName());
+        assertEquals(1, collaboratorRepository.findAll().size());
+        Collaborator actualResponse = collaboratorService.addCollaboratorToProject(project.getProjectId(), "Andrei");
+        assertEquals(2, collaboratorRepository.findAll().size());
+        assertEquals("Andrei", actualResponse.getName());
     }
+
     @Test
-    void testEditCollaboratorSuccess(){
+    void testEditCollaboratorSuccess() {
         Project project = new Project("Test", "Test", "Test", false);
         project = projectRepository.save(project);
         Collaborator collaborator = new Collaborator("Filip");
         collaborator = collaboratorRepository.save(collaborator);
-        ProjectsToCollaborators projectsToCollaborators = new ProjectsToCollaborators(project,collaborator);
-        projectsToCollaborators = projectsToCollaboratorsRepository.save(projectsToCollaborators);;
-        Collaborator actualResponse = collaboratorService.editCollaboratorOfProject(collaborator.getCollaboratorId(),"Andrei");
-        assertEquals("Andrei",collaboratorRepository.findById(collaborator.getCollaboratorId()).get().getName());
+        ProjectsToCollaborators projectsToCollaborators = new ProjectsToCollaborators(project, collaborator);
+        projectsToCollaborators = projectsToCollaboratorsRepository.save(projectsToCollaborators);
+        Collaborator actualResponse = collaboratorService.editCollaboratorOfProject(collaborator.getCollaboratorId(), "Andrei");
+        assertEquals("Andrei", collaboratorRepository.findById(collaborator.getCollaboratorId()).get().getName());
     }
 
     @Test
-    void testEditCollaboratorNotFound(){
+    void testEditCollaboratorNotFound() {
         Project project = new Project("Test", "Test", "Test", false);
         project = projectRepository.save(project);
-        assertThrows(IllegalArgumentException.class, () -> collaboratorService.editCollaboratorOfProject(null,"Test"));
+        assertThrows(IllegalArgumentException.class, () -> collaboratorService.editCollaboratorOfProject(null, "Test"));
     }
+
     @Test
-    void testEditCollaboratorIllegal(){
+    void testEditCollaboratorIllegal() {
         Project project = new Project("Test", "Test", "Test", false);
         project = projectRepository.save(project);
-        assertThrows(EntityNotFoundException.class, () -> collaboratorService.editCollaboratorOfProject(UUID.randomUUID(),"Test"));
+        assertThrows(EntityNotFoundException.class, () -> collaboratorService.editCollaboratorOfProject(UUID.randomUUID(), "Test"));
     }
+
     @Test
-    void testDeleteCollaboratorSuccess(){
+    void testDeleteCollaboratorSuccess() {
         Project project = new Project("Test", "Test", "Test", false);
         project = projectRepository.save(project);
         Collaborator collaborator = new Collaborator("Filip");
         collaborator = collaboratorRepository.save(collaborator);
         String response = collaboratorService.deleteCollaborator(collaborator.getCollaboratorId());
-        assertEquals("Deleted collaborator",response);
-        assertEquals(List.of(),collaboratorRepository.findAll());
+        assertEquals("Deleted collaborator", response);
+        assertEquals(List.of(), collaboratorRepository.findAll());
         Collaborator finalCollaborator = collaborator;
         assertThrows(EntityNotFoundException.class, () -> collaboratorService.getCollaboratorsByProjectId(finalCollaborator.getCollaboratorId()));
     }
+
     @Test
-    void testDeleteCollaboratorNotFound(){
+    void testDeleteCollaboratorNotFound() {
         Project project = new Project("Test", "Test", "Test", false);
         project = projectRepository.save(project);
         Collaborator collaborator = new Collaborator("Filip");
         Collaborator collaboratorNew = collaboratorRepository.save(collaborator);
         assertThrows(EntityNotFoundException.class, () -> collaboratorService.deleteCollaborator(UUID.randomUUID()));
     }
+
     @Test
-    void testDeleteCollaboratorIllegal(){
+    void testDeleteCollaboratorIllegal() {
         Project project = new Project("Test", "Test", "Test", false);
         project = projectRepository.save(project);
         assertThrows(IllegalArgumentException.class, () -> collaboratorService.deleteCollaborator(null));

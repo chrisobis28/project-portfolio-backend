@@ -97,4 +97,23 @@ public class CollaboratorController {
             return ResponseEntity.notFound().build();
         }
     }
+
+    /**
+     * Deletes a collaborator from a project based on his collaborator id and the project id
+     * @param projectId the project ID
+     * @param collaboratorId the collaborator ID
+     * @return a responseEntity containing an error or a string
+     */
+    @DeleteMapping("/{projectId}/{collaboratorId}")
+    public ResponseEntity<String> deleteCollaboratorFromProject (@PathVariable("projectId") UUID projectId,
+                                                                 @PathVariable("collaboratorId") UUID collaboratorId){
+        try {
+            String response = collaboratorService.deleteCollaboratorFromProject(projectId,collaboratorId);
+            return ResponseEntity.ok(response);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
 }
