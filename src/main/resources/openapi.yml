@@ -740,9 +740,37 @@ paths:
     get:
       tags:
         - Request
+      summary: Get all requests in the system
+      operationId: getRequests
+      description: Retrieve all requests in the database.
+      responses:
+        '200':
+          description: Requests retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Request'
+        '401':
+          description: Unauthorized - user is not authorized to retrieve requests
+        '404':
+          description: User not found
+
+  /request/{username}:
+    get:
+      tags:
+        - Request
       summary: Get requests for a user
       operationId: getRequestsForUser
       description: Retrieve all requests associated with a user
+      parameters:
+        - name: username
+          in: path
+          description: username of the user for which the requests have to be found.
+          required: true
+          schema:
+            type: string
       responses:
         '200':
           description: Requests retrieved successfully

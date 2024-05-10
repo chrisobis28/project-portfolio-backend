@@ -28,7 +28,7 @@ public class CollaboratorController {
     /**
      * Returns a list of Collaborators in a response body that are part of a certain project
      * @param projectId the project id
-     * @return a response entity that contains the list of collaborators
+     * @return a response entity that contains the list of collaborators entities
      */
     @GetMapping("/{projectId}")
     public ResponseEntity<List<Collaborator>> getCollaboratorsByProjectId (@PathVariable("projectId") UUID projectId){
@@ -47,7 +47,7 @@ public class CollaboratorController {
      * link it to the project. Otherwise, we create it and link to the project.
      * @param projectId the projectId
      * @param collaboratorName the collaboratorName
-     * @return the collaborator entity
+     * @return a responseEntity containing a collaborator entity
      */
     @PostMapping("/{projectId}")
     public ResponseEntity<Collaborator> addCollaboratorToProject (@PathVariable("projectId") UUID projectId,
@@ -66,7 +66,7 @@ public class CollaboratorController {
      * Changes the name of a collaborator
      * @param collaboratorId the collaborator id
      * @param collaboratorName the new collaborator name
-     * @return the collaborator entity
+     * @return a responseEntity containing a collaborator entity
      */
     @PutMapping("/{collaboratorId}")
     public ResponseEntity<Collaborator> editCollaboratorOfProject (@PathVariable("collaboratorId") UUID collaboratorId,
@@ -74,6 +74,23 @@ public class CollaboratorController {
         try {
             Collaborator collaborator = collaboratorService.editCollaboratorOfProject(collaboratorId,collaboratorName);
             return ResponseEntity.ok(collaborator);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    /**
+     * Delete a collaborator by his id
+     * @param collaboratorId the collaborator ID
+     * @return a responseEntity containing an error or a string
+     */
+    @DeleteMapping("/{collaboratorId}")
+    public ResponseEntity<String> deleteCollaborator (@PathVariable("collaboratorId") UUID collaboratorId){
+        try {
+            String response = collaboratorService.deleteCollaborator(collaboratorId);
+            return ResponseEntity.ok(response);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().build();
         } catch (EntityNotFoundException e) {

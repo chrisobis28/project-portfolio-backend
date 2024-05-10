@@ -18,6 +18,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -27,11 +28,11 @@ import static org.junit.jupiter.api.Assertions.*;
 @DataJpaTest
 class CollaboratorServiceTest {
     @Autowired
-    private transient ProjectsToCollaboratorsRepository projectsToCollaboratorsRepository;
+    private ProjectsToCollaboratorsRepository projectsToCollaboratorsRepository;
     @Autowired
-    private transient ProjectRepository projectRepository;
+    private ProjectRepository projectRepository;
     @Autowired
-    private transient CollaboratorRepository collaboratorRepository;
+    private CollaboratorRepository collaboratorRepository;
     private CollaboratorService collaboratorService;
 
     @BeforeEach
@@ -40,17 +41,17 @@ class CollaboratorServiceTest {
     }
 
     @Test
-    void testGetCollaboratorsByProjectIdSuccess(){
+    void testGetCollaboratorsByProjectIdSuccess() {
         Project project = new Project("Test", "Test", "Test", false);
         project = projectRepository.save(project);
         Collaborator collaborator = new Collaborator("Filip");
         collaborator = collaboratorRepository.save(collaborator);
-        ProjectsToCollaborators projectsToCollaborators = new ProjectsToCollaborators(project,collaborator);
+        ProjectsToCollaborators projectsToCollaborators = new ProjectsToCollaborators(project, collaborator);
         projectsToCollaborators = projectsToCollaboratorsRepository.save(projectsToCollaborators);
         ArrayList<Collaborator> expectedResponse = new ArrayList<>();
         expectedResponse.add(collaborator);
         List<Collaborator> actualResponse = collaboratorService.getCollaboratorsByProjectId(project.getProjectId());
-        assertEquals(expectedResponse,actualResponse);
+        assertEquals(expectedResponse, actualResponse);
     }
 
 
@@ -77,14 +78,12 @@ class CollaboratorServiceTest {
     void testAddCollaboratorSuccess(){
         Project project = new Project("Test", "Test", "Test", false);
         project = projectRepository.save(project);
-        Collaborator collaborator = new Collaborator("Filip");
-        collaborator = collaboratorRepository.save(collaborator);
-        ProjectsToCollaborators projectsToCollaborators = new ProjectsToCollaborators(project,collaborator);
-        projectsToCollaborators = projectsToCollaboratorsRepository.save(projectsToCollaborators);
-        ArrayList<Collaborator> expectedResponse = new ArrayList<>();
-        expectedResponse.add(collaborator);
-        List<Collaborator> actualResponse = collaboratorService.getCollaboratorsByProjectId(project.getProjectId());
-        assertEquals(expectedResponse,actualResponse);
+        Collaborator collaborator1 = new Collaborator("Filip");
+        collaboratorRepository.save(collaborator1);
+        Collaborator collaborator2 = new Collaborator("Andrei");
+        collaborator2 = collaboratorRepository.save(collaborator2);
+        Collaborator actualResponse = collaboratorService.addCollaboratorToProject(project.getProjectId(),"Filip");
+        assertEquals(collaborator1,actualResponse);
     }
 
     @Test
@@ -105,10 +104,6 @@ class CollaboratorServiceTest {
         project = projectRepository.save(project);
         Collaborator collaborator = new Collaborator("Filip");
         collaborator = collaboratorRepository.save(collaborator);
-        ProjectsToCollaborators projectsToCollaborators = new ProjectsToCollaborators(project,collaborator);
-        projectsToCollaborators = projectsToCollaboratorsRepository.save(projectsToCollaborators);
-        ArrayList<Collaborator> expectedResponse = new ArrayList<>();
-        expectedResponse.add(collaborator);
         assertEquals(1,collaboratorRepository.findAll().size());
         Collaborator actualResponse = collaboratorService.addCollaboratorToProject(project.getProjectId(),"Andrei");
         assertEquals(2,collaboratorRepository.findAll().size());
@@ -138,4 +133,31 @@ class CollaboratorServiceTest {
         project = projectRepository.save(project);
         assertThrows(EntityNotFoundException.class, () -> collaboratorService.editCollaboratorOfProject(UUID.randomUUID(),"Test"));
     }
+    @Test
+    void testDeleteCollaboratorSuccess(){
+        Project project = new Project("Test", "Test", "Test", false);
+        project = projectRepository.save(project);
+        Collaborator collaborator = new Collaborator("Filip");
+        collaborator = collaboratorRepository.save(collaborator);
+        String response = collaboratorService.deleteCollaborator(collaborator.getCollaboratorId());
+        assertEquals("Deleted collaborator",response);
+        assertEquals(List.of(),collaboratorRepository.findAll());
+        Collaborator finalCollaborator = collaborator;
+        assertThrows(EntityNotFoundException.class, () -> collaboratorService.getCollaboratorsByProjectId(finalCollaborator.getCollaboratorId()));
+    }
+    @Test
+    void testDeleteCollaboratorNotFound(){
+        Project project = new Project("Test", "Test", "Test", false);
+        project = projectRepository.save(project);
+        Collaborator collaborator = new Collaborator("Filip");
+        Collaborator collaboratorNew = collaboratorRepository.save(collaborator);
+        assertThrows(EntityNotFoundException.class, () -> collaboratorService.deleteCollaborator(UUID.randomUUID()));
+    }
+    @Test
+    void testDeleteCollaboratorIllegal(){
+        Project project = new Project("Test", "Test", "Test", false);
+        project = projectRepository.save(project);
+        assertThrows(IllegalArgumentException.class, () -> collaboratorService.deleteCollaborator(null));
+    }
+
 }

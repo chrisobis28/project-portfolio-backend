@@ -27,11 +27,11 @@ import static org.junit.jupiter.api.Assertions.*;
 @DataJpaTest
 class CollaboratorControllerTest {
     @Autowired
-    private transient ProjectsToCollaboratorsRepository projectsToCollaboratorsRepository;
+    private ProjectsToCollaboratorsRepository projectsToCollaboratorsRepository;
     @Autowired
-    private transient ProjectRepository projectRepository;
+    private ProjectRepository projectRepository;
     @Autowired
-    private transient CollaboratorRepository collaboratorRepository;
+    private CollaboratorRepository collaboratorRepository;
     private CollaboratorService collaboratorService;
     private CollaboratorController collaboratorController;
 
@@ -153,6 +153,33 @@ class CollaboratorControllerTest {
         ResponseEntity<Collaborator> actualResponse = collaboratorController.editCollaboratorOfProject(null,"Filip");
         assertEquals(HttpStatus.BAD_REQUEST,actualResponse.getStatusCode());
         assertEquals(null,actualResponse.getBody());
+    }
+    @Test
+    void testDeleteCollaboratorSuccess(){
+        Project project = new Project("Test", "Test", "Test", false);
+        project = projectRepository.save(project);
+        Collaborator collaborator = new Collaborator("Filip");
+        collaborator = collaboratorRepository.save(collaborator);
+        ResponseEntity<String> response = collaboratorController.deleteCollaborator(collaborator.getCollaboratorId());
+        assertEquals("Deleted collaborator",response.getBody());
+        assertEquals(HttpStatus.OK,response .getStatusCode());
+        assertEquals(List.of(),collaboratorRepository.findAll());
+        Collaborator finalCollaborator = collaborator;
+        assertEquals(HttpStatus.NOT_FOUND,collaboratorController.getCollaboratorsByProjectId(finalCollaborator.getCollaboratorId()).getStatusCode());
+    }
+    @Test
+    void testDeleteCollaboratorNotFound(){
+        Project project = new Project("Test", "Test", "Test", false);
+        project = projectRepository.save(project);
+        Collaborator collaborator = new Collaborator("Filip");
+        Collaborator collaboratorNew = collaboratorRepository.save(collaborator);
+        assertEquals(HttpStatus.NOT_FOUND,collaboratorController.deleteCollaborator(UUID.randomUUID()).getStatusCode());
+    }
+    @Test
+    void testDeleteCollaboratorIllegal(){
+        Project project = new Project("Test", "Test", "Test", false);
+        project = projectRepository.save(project);
+        assertEquals(HttpStatus.BAD_REQUEST,collaboratorController.deleteCollaborator(null).getStatusCode());
     }
 
 
