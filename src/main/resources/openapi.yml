@@ -754,8 +754,6 @@ paths:
                   $ref: '#/components/schemas/Request'
         '401':
           description: Unauthorized - user is not authorized to retrieve requests
-        '404':
-          description: User not found
 
   /request/{username}:
     get:

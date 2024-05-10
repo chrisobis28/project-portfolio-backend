@@ -4,6 +4,7 @@ import com.team2a.ProjectPortfolio.Commons.Account;
 import com.team2a.ProjectPortfolio.Commons.Request;
 import com.team2a.ProjectPortfolio.Exceptions.NotFoundException;
 import com.team2a.ProjectPortfolio.Repositories.AccountRepository;
+import com.team2a.ProjectPortfolio.Repositories.RequestRepository;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,7 +16,11 @@ public class RequestService {
 
     @Autowired
     @Setter
-    private  AccountRepository accountRepository;
+    private AccountRepository accountRepository;
+
+    @Autowired
+    @Setter
+    private RequestRepository requestRepository;
 
     /**
      * Retrieves all requests made by a specific user
@@ -38,5 +43,13 @@ public class RequestService {
         return  accounts
                 .get(0)
                 .getRequests();
+    }
+
+    /**
+     * Method that gets all requests from the repository
+     * @return List of requests
+     */
+    public List<Request> getRequests () {
+        return requestRepository.findAll();
     }
 }
