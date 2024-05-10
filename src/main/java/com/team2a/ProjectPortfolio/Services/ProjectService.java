@@ -20,6 +20,10 @@ public class ProjectService {
         this.projectRepository = projectRepository;
     }
 
+    /**
+     * Returns a list of all Projects
+     * @return the list of all projects
+     */
     public List<Project> getProjects () {
         List<Project> projects = projectRepository.findAll();
         return projects;
