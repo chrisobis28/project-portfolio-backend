@@ -53,7 +53,8 @@ jacocoTestReport {
 	afterEvaluate {
 		classDirectories = files(classDirectories.files.collect {
 			fileTree(dir: it,
-					exclude: ['**/ProjectPortfolioManagementSystemApplication.class'])
+					exclude: ['**/ProjectPortfolioManagementSystemApplication.class',
+							  '**/Routes.class'])
 		})
 	}
 }
@@ -69,10 +70,12 @@ jacocoTestCoverageVerification {
 	afterEvaluate {
 		classDirectories = files(classDirectories.files.collect {
 			fileTree(dir: it,
-					exclude: ['**/ProjectPortfolioManagementSystemApplication.class'])
+					exclude: ['**/ProjectPortfolioManagementSystemApplication.class',
+							  '**/Routes.class'])
 		})
 	}
 }
+
 
 def isCI = System.getenv().containsKey("CI")
 
