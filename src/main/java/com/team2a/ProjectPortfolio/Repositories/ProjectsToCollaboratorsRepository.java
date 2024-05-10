@@ -9,4 +9,5 @@ import java.util.UUID;
 @Repository
 public interface ProjectsToCollaboratorsRepository extends JpaRepository<ProjectsToCollaborators, UUID> {
     List<ProjectsToCollaborators> findAllByProjectProjectId (UUID projectId);
+    List<ProjectsToCollaborators> findAllByProjectProjectIdAndCollaboratorCollaboratorId(UUID projectId, UUID collaboratorId);
 }

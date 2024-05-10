@@ -15,9 +15,9 @@ import java.util.stream.Collectors;
 
 @Service
 public class CollaboratorService {
-    private final transient ProjectsToCollaboratorsRepository projectsToCollaboratorsRepository;
-    private final transient CollaboratorRepository collaboratorRepository;
-    private final transient ProjectRepository projectRepository;
+    private final ProjectsToCollaboratorsRepository projectsToCollaboratorsRepository;
+    private final CollaboratorRepository collaboratorRepository;
+    private final ProjectRepository projectRepository;
 
     /**
      * The constructor for the Collaborator Service
@@ -104,6 +104,29 @@ public class CollaboratorService {
         Collaborator collaborator = collaboratorRepository.findById(collaboratorId).
                 orElseThrow(EntityNotFoundException::new);
         collaboratorRepository.delete(collaborator);
+        return "Deleted collaborator";
+    }
+
+    /**
+     * Deletes a collaborator from a project based on his collaborator id and the project id
+     * @param projectId the project ID
+     * @param collaboratorId the collaborator ID
+     * @return  a string containing a response
+     */
+    public String deleteCollaboratorFromProject (UUID projectId,UUID collaboratorId) {
+        if(collaboratorId == null) {
+            throw new IllegalArgumentException();
+        }
+        if(projectId == null) {
+            throw new IllegalArgumentException();
+        }
+        Collaborator collaborator = collaboratorRepository.findById(collaboratorId).
+                orElseThrow(EntityNotFoundException::new);
+        Project project = projectRepository.findById(projectId).
+                orElseThrow(EntityNotFoundException::new);
+        List<ProjectsToCollaborators> projectsToCollaboratorsList = projectsToCollaboratorsRepository.findAllByProjectProjectIdAndCollaboratorCollaboratorId(projectId,collaboratorId);
+        projectsToCollaboratorsRepository.deleteAll(projectsToCollaboratorsList);
+
         return "Deleted collaborator";
     }
 }
