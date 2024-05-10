@@ -91,4 +91,19 @@ public class CollaboratorService {
         collaborator = collaboratorRepository.save(collaborator);
         return collaborator;
     }
+
+    /**
+     * Deletes a collaborator based on his ID
+     * @param collaboratorId the collaborator ID
+     * @return a string containing a response
+     */
+    public String deleteCollaborator (UUID collaboratorId) {
+        if(collaboratorId == null) {
+            throw new IllegalArgumentException();
+        }
+        Collaborator collaborator = collaboratorRepository.findById(collaboratorId).
+                orElseThrow(EntityNotFoundException::new);
+        collaboratorRepository.delete(collaborator);
+        return "Deleted collaborator";
+    }
 }
