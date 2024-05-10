@@ -1,16 +1,9 @@
 package com.team2a.ProjectPortfolio.Controllers;
 
 import com.team2a.ProjectPortfolio.Commons.Project;
-import com.team2a.ProjectPortfolio.Repositories.ProjectRepository;
-import com.team2a.ProjectPortfolio.Services.CollaboratorService;
 import com.team2a.ProjectPortfolio.Services.ProjectService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mockito;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -34,7 +27,7 @@ class ProjectControllerTest {
 
     @Test
     void getProjectsEmpty() {
-        List<Project> expected = new ArrayList<Project>();
+        List<Project> expected = new ArrayList<>();
         when(projectService.getProjects()).thenReturn(List.of());
         ResponseEntity<List<Project>> response = projectController.getProjects();
         assertEquals(HttpStatus.OK, response.getStatusCode());

@@ -20,7 +20,7 @@ public class ProjectService {
         this.projectRepository = projectRepository;
     }
 
-    public List<Project> getProjects() {
+    public List<Project> getProjects () {
         List<Project> projects = projectRepository.findAll();
         return projects;
     }

@@ -4,7 +4,6 @@ import com.team2a.ProjectPortfolio.Commons.Project;
 import com.team2a.ProjectPortfolio.Routes;
 import com.team2a.ProjectPortfolio.Services.ProjectService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -32,7 +31,7 @@ public class ProjectController {
      * @return a response entity that contains the list of all projects
      */
     @GetMapping("/")
-    public ResponseEntity<List<Project>> getProjects() {
+    public ResponseEntity<List<Project>> getProjects () {
         List<Project> projects = projectService.getProjects();
         return ResponseEntity.ok(projects);
     }
