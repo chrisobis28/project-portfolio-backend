@@ -42,7 +42,7 @@ class CollaboratorControllerTest {
     @Test
     void testGetCollaboratorsByProjectIdSuccess(){
         
-        Project project = new Project("Test", "Test", "Test", false, null, null);
+        Project project = new Project("Test", "Test", "Test", false);
         project = projectRepository.save(project);
 
         Collaborator collaborator = new Collaborator("Filip");
@@ -65,7 +65,7 @@ class CollaboratorControllerTest {
     @Test
     void testGetCollaboratorsByProjectIdError(){
 
-        Project project = new Project("Test", "Test", "Test", false,  null, null);
+        Project project = new Project("Test", "Test", "Test", false);
         project = projectRepository.save(project);
 
         Collaborator collaborator = new Collaborator("Filip");
@@ -84,7 +84,7 @@ class CollaboratorControllerTest {
     @Test
     void testGetCollaboratorsByProjectNoResult(){
 
-        Project project = new Project("Test", "Test", "Test", false,  null, null);
+        Project project = new Project("Test", "Test", "Test", false);
         project = projectRepository.save(project);
 
         Collaborator collaborator = new Collaborator("Filip");

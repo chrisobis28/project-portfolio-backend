@@ -48,5 +48,4 @@ public class Collaborator {
         this.name = name;
         this.projectsToCollaborators = new ArrayList<>();
     }
-
 }

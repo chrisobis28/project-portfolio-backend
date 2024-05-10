@@ -10,9 +10,11 @@ class ProjectsToCollaboratorsTest {
 
     @Test
     void testConstructor() {
-        UUID id1 = UUID.randomUUID();
-        ProjectsToCollaborators ptc = new ProjectsToCollaborators(id1);
-        assertEquals(ptc.getPtcId(), id1);
+        Collaborator collaborator = new Collaborator("Test");
+        Project project = new Project("Title","Test","Test",false);
+        ProjectsToCollaborators ptc = new ProjectsToCollaborators(project,collaborator);
+        assertEquals(ptc.getCollaborator(), collaborator);
+        assertEquals(ptc.getProject(), project);
     }
 
 }

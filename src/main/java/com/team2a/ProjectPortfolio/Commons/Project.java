@@ -84,16 +84,22 @@ public class Project {
     @JoinColumn(name="REQUEST_PROJECT")
     private List<Request> requests;
 
-    public Project(String title, String description, String bibtex, Boolean archived, List<Media> media,
-                    List<Link> links) {
+    /**
+     * Constructor for a project
+     * @param title the title of the project
+     * @param description the description of the project
+     * @param bibtex the bibtex of the project
+     * @param archived archived
+     */
+    public Project(String title, String description, String bibtex, Boolean archived) {
         this.title = title;
         this.description = description;
         this.bibtex = bibtex;
         this.archived = archived;
-        this.media = media;
+        this.media = new ArrayList<>();
         this.projectsToAccounts = new ArrayList<>();
         this.projectsToCollaborators = new ArrayList<>();
         this.tagsToProjects = new ArrayList<>();
-        this.links = links;
+        this.links = new ArrayList<>();
     }
 }
