@@ -48,4 +48,15 @@ public class RequestController {
     }
 
 
+    /**
+     * Endpoint that retrieves all requests in the database
+     * @return a list of requests
+     */
+    @GetMapping("/")
+    public ResponseEntity<List<Request>> getRequests () {
+        List<Request> requests = requestService.getRequests();
+        return new ResponseEntity<>(requests, HttpStatus.OK);
+    }
+
+
 }
