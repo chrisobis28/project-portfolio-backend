@@ -47,4 +47,5 @@ class ProjectServiceTest {
         List<Project> response = projectService.getProjects();
         assertEquals(projects, response);
     }
+    
 }
