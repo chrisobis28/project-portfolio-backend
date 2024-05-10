@@ -6,10 +6,7 @@ import com.team2a.ProjectPortfolio.Services.CollaboratorService;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.UUID;
@@ -38,6 +35,26 @@ public class CollaboratorController {
         try {
             List<Collaborator> collaboratorsList = collaboratorService.getCollaboratorsByProjectId(projectId);
             return ResponseEntity.ok(collaboratorsList);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    /**
+     * Adds a collaborator to a specified projectId. If the collaborator is already in the database, we just
+     * link it to the project. Otherwise, we create it and link to the project.
+     * @param projectId the projectId
+     * @param collaboratorName the collaboratorName
+     * @return the collaborator entity
+     */
+    @PostMapping("/{projectId}")
+    public ResponseEntity<Collaborator> addCollaboratorToProject (@PathVariable("projectId") UUID projectId,
+                                                                  @RequestBody String collaboratorName){
+        try {
+            Collaborator collaborator = collaboratorService.addCollaboratorToProject(projectId,collaboratorName);
+            return ResponseEntity.ok(collaborator);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().build();
         } catch (EntityNotFoundException e) {
