@@ -105,7 +105,8 @@ public class CollaboratorController {
      * @return a responseEntity containing an error or a string
      */
     @DeleteMapping("/{projectId}/{collaboratorId}")
-    public ResponseEntity<String> deleteCollaboratorFromProject (@PathVariable("projectId") UUID projectId,@PathVariable("collaboratorId") UUID collaboratorId){
+    public ResponseEntity<String> deleteCollaboratorFromProject (@PathVariable("projectId") UUID projectId,
+                                                                 @PathVariable("collaboratorId") UUID collaboratorId){
         try {
             String response = collaboratorService.deleteCollaboratorFromProject(projectId,collaboratorId);
             return ResponseEntity.ok(response);

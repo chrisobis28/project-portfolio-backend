@@ -124,7 +124,8 @@ public class CollaboratorService {
                 orElseThrow(EntityNotFoundException::new);
         Project project = projectRepository.findById(projectId).
                 orElseThrow(EntityNotFoundException::new);
-        List<ProjectsToCollaborators> projectsToCollaboratorsList = projectsToCollaboratorsRepository.findAllByProjectProjectIdAndCollaboratorCollaboratorId(projectId,collaboratorId);
+        List<ProjectsToCollaborators> projectsToCollaboratorsList = projectsToCollaboratorsRepository.
+                findAllByProjectProjectIdAndCollaboratorCollaboratorId(projectId,collaboratorId);
         projectsToCollaboratorsRepository.deleteAll(projectsToCollaboratorsList);
 
         return "Deleted collaborator";
