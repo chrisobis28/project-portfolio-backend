@@ -41,7 +41,6 @@ class CollaboratorServiceTest {
 
     @Test
     void testGetCollaboratorsByProjectIdSuccess(){
-
         Project project = new Project("Test", "Test", "Test", false);
         project = projectRepository.save(project);
         Collaborator collaborator = new Collaborator("Filip");
@@ -57,78 +56,57 @@ class CollaboratorServiceTest {
 
     @Test
     void testGetCollaboratorsByProjectIdIllegal(){
-
         Project project = new Project("Test", "Test", "Test", false);
         project = projectRepository.save(project);
         assertThrows(IllegalArgumentException.class, () -> collaboratorService.getCollaboratorsByProjectId(null));
-
     }
     @Test
     void testGetCollaboratorsByProjectIdNotFound(){
-
         Project project = new Project("Test", "Test", "Test", false);
         project = projectRepository.save(project);
         assertThrows(EntityNotFoundException.class, () -> collaboratorService.getCollaboratorsByProjectId(UUID.randomUUID()));
-
     }
     @Test
     void testGetCollaboratorsByProjectNoResult(){
-
         Project project = new Project("Test", "Test", "Test", false);
         project = projectRepository.save(project);
         assertEquals(new ArrayList<>(), collaboratorService.getCollaboratorsByProjectId(project.getProjectId()));
-
     }
 
     @Test
     void testAddCollaboratorSuccess(){
-
         Project project = new Project("Test", "Test", "Test", false);
         project = projectRepository.save(project);
-
         Collaborator collaborator = new Collaborator("Filip");
         collaborator = collaboratorRepository.save(collaborator);
-
         ProjectsToCollaborators projectsToCollaborators = new ProjectsToCollaborators(project,collaborator);
         projectsToCollaborators = projectsToCollaboratorsRepository.save(projectsToCollaborators);
-
-
         ArrayList<Collaborator> expectedResponse = new ArrayList<>();
         expectedResponse.add(collaborator);
-
         List<Collaborator> actualResponse = collaboratorService.getCollaboratorsByProjectId(project.getProjectId());
-
         assertEquals(expectedResponse,actualResponse);
     }
 
     @Test
     void testAddCollaboratorNotFound(){
-
         Project project = new Project("Test", "Test", "Test", false);
         project = projectRepository.save(project);
         assertThrows(IllegalArgumentException.class, () -> collaboratorService.addCollaboratorToProject(null,"Test"));
-
     }
     @Test
     void testAddCollaboratorIllegal(){
-
         Project project = new Project("Test", "Test", "Test", false);
         project = projectRepository.save(project);
         assertThrows(EntityNotFoundException.class, () -> collaboratorService.addCollaboratorToProject(UUID.randomUUID(),"Test"));
-
     }
     @Test
     void testAddCollaboratorNoResultCreate(){
-
         Project project = new Project("Test", "Test", "Test", false);
         project = projectRepository.save(project);
-
         Collaborator collaborator = new Collaborator("Filip");
         collaborator = collaboratorRepository.save(collaborator);
-
         ProjectsToCollaborators projectsToCollaborators = new ProjectsToCollaborators(project,collaborator);
         projectsToCollaborators = projectsToCollaboratorsRepository.save(projectsToCollaborators);
-
         ArrayList<Collaborator> expectedResponse = new ArrayList<>();
         expectedResponse.add(collaborator);
         assertEquals(1,collaboratorRepository.findAll().size());
@@ -136,5 +114,28 @@ class CollaboratorServiceTest {
         assertEquals(2,collaboratorRepository.findAll().size());
         assertEquals("Andrei",actualResponse.getName());
     }
+    @Test
+    void testEditCollaboratorSuccess(){
+        Project project = new Project("Test", "Test", "Test", false);
+        project = projectRepository.save(project);
+        Collaborator collaborator = new Collaborator("Filip");
+        collaborator = collaboratorRepository.save(collaborator);
+        ProjectsToCollaborators projectsToCollaborators = new ProjectsToCollaborators(project,collaborator);
+        projectsToCollaborators = projectsToCollaboratorsRepository.save(projectsToCollaborators);;
+        Collaborator actualResponse = collaboratorService.editCollaboratorOfProject(collaborator.getCollaboratorId(),"Andrei");
+        assertEquals("Andrei",collaboratorRepository.findById(collaborator.getCollaboratorId()).get().getName());
+    }
 
+    @Test
+    void testEditCollaboratorNotFound(){
+        Project project = new Project("Test", "Test", "Test", false);
+        project = projectRepository.save(project);
+        assertThrows(IllegalArgumentException.class, () -> collaboratorService.editCollaboratorOfProject(null,"Test"));
+    }
+    @Test
+    void testEditCollaboratorIllegal(){
+        Project project = new Project("Test", "Test", "Test", false);
+        project = projectRepository.save(project);
+        assertThrows(EntityNotFoundException.class, () -> collaboratorService.editCollaboratorOfProject(UUID.randomUUID(),"Test"));
+    }
 }

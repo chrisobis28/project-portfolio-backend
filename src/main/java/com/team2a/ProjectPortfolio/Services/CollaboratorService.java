@@ -74,4 +74,22 @@ public class CollaboratorService {
         return collaborators.get(0);
 
     }
+
+    /**
+     * Changes the name of a collaborator
+     * @param collaboratorId the collaborator ID
+     * @param collaboratorName the new collaborator name
+     * @return the collaborator entity
+     */
+    public Collaborator editCollaboratorOfProject (UUID collaboratorId, String collaboratorName) {
+        if(collaboratorId == null) {
+            throw new IllegalArgumentException();
+        }
+        Collaborator collaborator = collaboratorRepository.findById(collaboratorId).
+                orElseThrow(EntityNotFoundException::new);
+        collaborator.setName(collaboratorName);
+        collaborator = collaboratorRepository.save(collaborator);
+        return collaborator;
+
+    }
 }

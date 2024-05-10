@@ -61,4 +61,23 @@ public class CollaboratorController {
             return ResponseEntity.notFound().build();
         }
     }
+
+    /**
+     * Changes the name of a collaborator
+     * @param collaboratorId the collaborator id
+     * @param collaboratorName the new collaborator name
+     * @return the collaborator entity
+     */
+    @PutMapping("/{collaboratorId}")
+    public ResponseEntity<Collaborator> editCollaboratorOfProject (@PathVariable("collaboratorId") UUID collaboratorId,
+                                                                  @RequestBody String collaboratorName){
+        try {
+            Collaborator collaborator = collaboratorService.editCollaboratorOfProject(collaboratorId,collaboratorName);
+            return ResponseEntity.ok(collaborator);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
 }
