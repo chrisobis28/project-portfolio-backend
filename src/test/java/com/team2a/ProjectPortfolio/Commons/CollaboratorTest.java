@@ -12,8 +12,7 @@ class CollaboratorTest {
     @Test
     void testConstructor() {
         UUID id1 = UUID.randomUUID();
-        Collaborator c = new Collaborator(id1, "name", new ArrayList<>());
-        assertEquals(id1, c.getCollaboratorId());
+        Collaborator c = new Collaborator("name");
         assertEquals(c.getName(), "name");
         assertEquals(c.getProjectsToCollaborators(), new ArrayList<>());
     }

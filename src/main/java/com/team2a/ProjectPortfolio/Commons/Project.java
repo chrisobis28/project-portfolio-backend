@@ -2,13 +2,15 @@ package com.team2a.ProjectPortfolio.Commons;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-
+@NoArgsConstructor
 @Entity
 @Table(name = "PROJECT")
 public class Project {
@@ -82,14 +84,22 @@ public class Project {
     @JoinColumn(name="REQUEST_PROJECT")
     private List<Request> requests;
 
-    public Project(UUID projectId, String title, String description, String bibtex, Boolean archived, List<Media> media) {
-        this.projectId = projectId;
+    /**
+     * Constructor for a project
+     * @param title the title of the project
+     * @param description the description of the project
+     * @param bibtex the bibtex of the project
+     * @param archived archived
+     */
+    public Project(String title, String description, String bibtex, Boolean archived) {
         this.title = title;
         this.description = description;
         this.bibtex = bibtex;
         this.archived = archived;
-        this.media = media;
+        this.media = new ArrayList<>();
+        this.projectsToAccounts = new ArrayList<>();
+        this.projectsToCollaborators = new ArrayList<>();
+        this.tagsToProjects = new ArrayList<>();
+        this.links = new ArrayList<>();
     }
-
-
 }

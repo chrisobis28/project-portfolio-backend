@@ -2,13 +2,15 @@ package com.team2a.ProjectPortfolio.Commons;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-
+@NoArgsConstructor
 @Entity
 @Table(name="COLLABORATOR")
 public class Collaborator {
@@ -38,9 +40,12 @@ public class Collaborator {
     @JoinColumn(name="COLLABORATOR_ID")
     private List<RequestCollaboratorsProjects> requestCollaboratorsProjects;
 
-    public Collaborator(UUID collaboratorId, String name, List<ProjectsToCollaborators> projectsToCollaborators) {
-        this.collaboratorId = collaboratorId;
+    /**
+     * Constructor for the collaborator
+     * @param name the collaborator's name
+     */
+    public Collaborator(String name) {
         this.name = name;
-        this.projectsToCollaborators = projectsToCollaborators;
+        this.projectsToCollaborators = new ArrayList<>();
     }
 }
