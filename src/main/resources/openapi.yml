@@ -342,6 +342,29 @@ paths:
 
 #Tag
 
+  /tag/create:
+    post:
+      tags:
+        - Tag
+      summary: Create a new tag.
+      operationId: createTag
+      description: Create a new tag.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Tag'
+      responses:
+        '200':
+          description: Tag created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tag'
+        '409':
+          description: Conflict - tag already exists
+
   /tag/{projectId}:
       get:
         tags:
@@ -366,51 +389,17 @@ paths:
                   type: array
                   items:
                     $ref: '#/components/schemas/Tag'
+          '404':
+            description: Project not found
 
-      post:
-        tags:
-          - Tag
-        summary: Add a new tag to a Project.
-        operationId: addTagToProject
-        description: Adds the tag based on Project Id and returns it.
-        parameters:
-          - name: projectId
-            in: path
-            description: ID of the Project whose tag to add.
-            required: true
-            schema:
-              type: string
-              format: uuid
-        requestBody:
-          required: true
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Tag'
-        responses:
-          '200':
-            description: Successful response
-            content:
-              application/json:
-                schema:
-                  type: array
-                  items:
-                    $ref: '#/components/schemas/Media'
 
+  /tag/edit:
       put:
         tags:
           - Tag
-        summary: Edit a tag of a Project.
-        operationId: editTagOfProject
-        description: Edits the tag based on Project Id and returns it.
-        parameters:
-          - name: projectId
-            in: path
-            description: ID of the Project whose tag to add.
-            required: true
-            schema:
-              type: string
-              format: uuid
+        summary: Edit a tag.
+        operationId: editTag
+        description: Edits the tag.
         requestBody:
           required: true
           content:
@@ -424,12 +413,15 @@ paths:
               application/json:
                 schema:
                     $ref: '#/components/schemas/Tag'
+          '404':
+            description: Tag not found
+
   /tag/{tagId}:
       delete:
         tags:
           - Tag
         summary: Delete a tag.
-        operationId: deleteTagFromDatabase
+        operationId: deleteTag
         
         description: Deletes a tag based on its Id.
         parameters:
@@ -443,44 +435,64 @@ paths:
         responses:
           '200':
             description: Successful response
-            content:
-              application/json:
-                schema:
-                  type: array
-                  items:
-                    $ref: '#/components/schemas/Tag'
+
   /tag/{projectId}/{tagId}:
-      delete:
-        tags:
-          - Tag
-        summary: Delete a tag.
-        operationId: deleteTagFromProject
-        
-        description: Deletes a tag based on its Id.
-        parameters:
-          - name: tagId
-            in: path
-            description: ID of the tag to be deleted.
-            required: true
-            schema:
-              type: string
-              format: uuid
-          - name: projectId
-            in: path
-            description: ID of the projectTag to be deleted.
-            required: true
-            schema:
-              type: string
-              format: uuid
-        responses:
-          '200':
-            description: Successful response
-            content:
-              application/json:
-                schema:
-                  type: array
-                  items:
-                    $ref: '#/components/schemas/Tag'
+
+    post:
+      tags:
+        - Tag
+      summary: Add a tag to a Project.
+      operationId: addTagToProject
+      description: Adds the tag based on Project Id and returns it.
+      parameters:
+        - name: projectId
+          in: path
+          description: ID of the Project whose tag to add.
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: tagId
+          in: path
+          description: ID of the tag to add.
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Successful response
+        '404':
+          description: Project or tag not found
+        '409':
+          description: Conflict - Tag already exists in project
+
+
+    delete:
+      tags:
+        - Tag
+      summary: Remove a tag from a project.
+      operationId: removeTagFromProject
+
+      description: Removes a tag based on its Id from a project.
+      parameters:
+        - name: projectId
+          in: path
+          description: ID of the project.
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: tagId
+          in: path
+          description: ID of the tag to be removed.
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Successful response
   
 
 #Link
@@ -754,8 +766,6 @@ paths:
                   $ref: '#/components/schemas/Request'
         '401':
           description: Unauthorized - user is not authorized to retrieve requests
-        '404':
-          description: User not found
 
   /request/{username}:
     get:

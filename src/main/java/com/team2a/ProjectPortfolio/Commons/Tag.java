@@ -2,6 +2,7 @@ package com.team2a.ProjectPortfolio.Commons;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
@@ -11,6 +12,7 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "TAG")
+@NoArgsConstructor
 public class Tag {
     @Id
     @Column(name="TAG_ID", nullable=false)

@@ -51,4 +51,16 @@ class RequestControllerTest {
 
     }
 
+    @Test
+    void testGetRequests() {
+
+        Request r = new Request(UUID.randomUUID(), "title", "description", "bibtex", false);
+        when(requestService.getRequests()).thenReturn(List.of(r));
+
+        ResponseEntity<List<Request>> res = sut.getRequests();
+
+        assertEquals(res.getStatusCode(), HttpStatus.OK);
+        assertEquals(res.getBody(), List.of(r));
+    }
+
 }
