@@ -12,8 +12,7 @@ class LinkTest {
     @Test
     void testConstructor() {
         UUID id1 = UUID.randomUUID();
-        Link l = new Link(id1, "name", "url", new ArrayList<>());
-        assertEquals(l.getLinkId(), id1);
+        Link l = new Link("name", "url");
         assertEquals(l.getName(), "name");
         assertEquals(l.getUrl(), "url");
         assertEquals(l.getRequestLinkProjects(), new ArrayList<>());

@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping(Routes.COLLABORATORS)
+@RequestMapping(Routes.COLLABORATOR)
 public class CollaboratorController {
     private final CollaboratorService collaboratorService;
 
