@@ -10,9 +10,9 @@ class MediaTest {
 
     @Test
     void testConstructor() {
-        UUID id1 = UUID.randomUUID();
-        Media m = new Media(id1, "path");
-        assertEquals(m.getMediaId(), id1);
+        Project p = new Project("title", "description", "bibtex", false);
+        Media m = new Media(p, "path");
+        assertEquals(m.getProject(), p);
         assertEquals(m.getPath(), "path");
     }
 
