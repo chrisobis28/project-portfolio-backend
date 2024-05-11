@@ -200,7 +200,7 @@ paths:
       tags:
         - Media
       summary: Delete a Media.
-      operationId: deleteMediaFromProject
+      operationId: deleteMedia
       description: Deletes a Media based on its Id.
       parameters:
         - name: mediaId
