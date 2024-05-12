@@ -6,6 +6,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,5 +47,21 @@ class ProjectControllerTest {
         ResponseEntity<List<Project>> response = projectController.getProjects();
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(projects, response.getBody());
+    }
+
+    @Test
+    void createProjectNull() {
+        Project project = null;
+        when(projectService.createProject(project)).thenThrow(IllegalArgumentException.class);
+        ResponseEntity<Project> response = projectController.createProject(project);
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    }
+
+    @Test
+    void createProjectSuccess() {
+        Project project = new Project("title1", "desc1", "bibtex1", false);
+        when(projectService.createProject(project)).thenReturn(project);
+        ResponseEntity<Project> response = projectController.createProject(project);
+        assertEquals(project, response.getBody());
     }
 }
