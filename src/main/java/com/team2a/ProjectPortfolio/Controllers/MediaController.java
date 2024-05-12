@@ -36,9 +36,9 @@ public class MediaController {
     }
 
     /**
-     * Gets all Medias under a certain Project.
-     * @param projectId the id of the Project whose Media to be retrieved.
-     * @return the List of all Medias corresponding to the project.
+     * Gets all Medias under a certain Project
+     * @param projectId the id of the Project whose Media to be retrieved
+     * @return the List of all Medias corresponding to the project
      */
     @GetMapping("/{projectId}")
     public ResponseEntity<List<Media>> getMediaByProjectId (@PathVariable("projectId") UUID projectId) {
@@ -52,10 +52,10 @@ public class MediaController {
     }
 
     /**
-     * Adds a Media associated with an already existing project.
-     * @param projectId the id of the Project that gets the Media.
-     * @param path the path of the Media.
-     * @return the Media instance generated and saved.
+     * Adds a Media associated with an already existing project
+     * @param projectId the id of the Project that gets the Media
+     * @param path the path of the Media
+     * @return the Media instance generated and saved
      */
     @PostMapping("/{projectId}")
     public ResponseEntity<Media> addMediaToProject (@PathVariable("projectId") UUID projectId, @RequestBody String path) {
@@ -71,9 +71,9 @@ public class MediaController {
     }
 
     /**
-     * Deletes a media from the database.
-     * @param mediaId the id of the Media under deletion.
-     * @return the status of the operation.
+     * Deletes a media from the database
+     * @param mediaId the id of the Media under deletion
+     * @return the status of the operation
      */
     @DeleteMapping("/{mediaId}")
     public ResponseEntity<String> deleteMedia (@PathVariable("mediaId") UUID mediaId) {
