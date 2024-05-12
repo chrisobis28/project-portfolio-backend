@@ -497,6 +497,52 @@ paths:
 
 #Link
 
+  /link/create:
+        post:
+          tags:
+            - Link
+          summary: Add a new link to a Project.
+          operationId: addLinkToProject
+          description: Adds the link based on Project Id and returns it.
+          requestBody:
+            required: true
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Link'
+          responses:
+            '200':
+              description: Successful response
+              content:
+                application/json:
+                  schema:
+                      $ref: '#/components/schemas/Link'
+            '409':
+              description: Conflict - Link already exists in project
+
+  /link/edit:
+      put:
+        tags:
+          - Link
+        summary: Edit a link of a project.
+        operationId: editLinkOfProject
+        description: Edits the link of a project.
+        requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Link'
+        responses:
+          '200':
+            description: Successful response
+            content:
+              application/json:
+                schema:
+                    $ref: '#/components/schemas/Link'
+          '404':
+            description: Link not found
+
   /link/{projectId}:
         get:
           tags:
@@ -522,65 +568,6 @@ paths:
                     items:
                       $ref: '#/components/schemas/Link'
 
-        post:
-          tags:
-            - Link 
-          summary: Add a new link to a Project.
-          operationId: addLinkToProject
-          description: Adds the link based on Project Id and returns it.
-          parameters:
-            - name: projectId
-              in: path
-              description: ID of the Project whose link to add.
-              required: true
-              schema:
-                type: string
-                format: uuid
-          requestBody:
-            required: true
-            content:
-              application/json:
-                schema:
-                  $ref: '#/components/schemas/Link'
-          responses:
-            '200':
-              description: Successful response
-              content:
-                application/json:
-                  schema:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/Link'
-
-        put:
-          tags:
-            - Link
-          summary: Edit a link of a Project.
-          operationId: editLinkOfProject
-          description: Edits the link based on Project Id and returns it.
-          parameters:
-            - name: projectId
-              in: path
-              description: ID of the Project whose link to add.
-              required: true
-              schema:
-                type: string
-                format: uuid
-          requestBody:
-            required: true
-            content:
-              application/json:
-                schema:
-                  $ref: '#/components/schemas/Link'
-          responses:
-            '200':
-              description: Successful response
-              content:
-                application/json:
-                  schema:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/Link'
   /link/{linkId}:
         delete:
           tags:

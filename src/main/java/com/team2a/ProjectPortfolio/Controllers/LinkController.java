@@ -8,6 +8,7 @@ import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping(Routes.LINK)
@@ -24,11 +25,25 @@ public class LinkController {
     }
 
     /**
+     * Add a link to the project
+     * @param link the link entity
+     * @return the new link entity
+     */
+    public ResponseEntity<Link> addLinkToProject (@RequestBody Link link) {
+        try {
+            Link newLink = linkService.addLinkToProject(link);
+            return ResponseEntity.ok(newLink);
+        } catch (ResponseStatusException e) {
+            return ResponseEntity.status(e.getStatusCode()).body(null);
+        }
+    }
+
+    /**
      * Edit the link of the project
      * @param link the link entity
      * @return the new link entity
      */
-    @PutMapping("/")
+    @PutMapping("/edit")
     public ResponseEntity<Link> editLinkOfProject (@RequestBody Link link) {
         try {
             Link updatedLink = linkService.editLinkOfProject(link);

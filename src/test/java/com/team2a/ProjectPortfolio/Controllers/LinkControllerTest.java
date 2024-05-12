@@ -28,6 +28,7 @@ import org.springframework.http.ResponseEntity;
 
 import java.util.Optional;
 import java.util.UUID;
+import org.springframework.web.server.ResponseStatusException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -41,6 +42,28 @@ class LinkControllerTest {
 
     @InjectMocks
     private LinkController lc;
+
+    @Test
+    void addLinkSuccess() {
+        Link link = new Link("Test Link", "Test Description");
+        link.setLinkId(UUID.randomUUID());
+        when(ls.addLinkToProject(any(Link.class))).thenReturn(link);
+        ResponseEntity<Link> responseEntity = lc.addLinkToProject(link);
+        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+        assertEquals(link, responseEntity.getBody());
+        verify(ls, times(1)).addLinkToProject(any(Link.class));
+    }
+
+    @Test
+    void addLinkConflict() {
+        Link link = new Link("Test Link", "Test Description");
+        link.setLinkId(UUID.randomUUID());
+        doThrow(new ResponseStatusException(HttpStatus.CONFLICT)).when(ls).addLinkToProject(any(Link.class));
+        ResponseEntity<Link> responseEntity = lc.addLinkToProject(link);
+        assertEquals(HttpStatus.CONFLICT, responseEntity.getStatusCode());
+        assertNull(responseEntity.getBody());
+        verify(ls, times(1)).addLinkToProject(any(Link.class));
+    }
 
     @Test
     void editLinkSuccess() {
