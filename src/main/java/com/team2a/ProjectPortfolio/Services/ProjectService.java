@@ -3,9 +3,7 @@ package com.team2a.ProjectPortfolio.Services;
 import com.team2a.ProjectPortfolio.Commons.Project;
 import com.team2a.ProjectPortfolio.Repositories.ProjectRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;

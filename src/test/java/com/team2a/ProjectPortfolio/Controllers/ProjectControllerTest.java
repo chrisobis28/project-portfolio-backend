@@ -6,7 +6,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,9 +50,8 @@ class ProjectControllerTest {
 
     @Test
     void createProjectNull() {
-        Project project = null;
-        when(projectService.createProject(project)).thenThrow(IllegalArgumentException.class);
-        ResponseEntity<Project> response = projectController.createProject(project);
+        when(projectService.createProject(null)).thenThrow(IllegalArgumentException.class);
+        ResponseEntity<Project> response = projectController.createProject(null);
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 

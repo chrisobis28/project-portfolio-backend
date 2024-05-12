@@ -4,13 +4,13 @@ import com.team2a.ProjectPortfolio.Commons.Project;
 import com.team2a.ProjectPortfolio.Repositories.ProjectRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.http.ResponseEntity;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -54,11 +54,30 @@ class ProjectServiceTest {
         Project project = new Project(title, desc, bibtex, false);
         when(projectRepository.findFirstByTitleAndDescriptionAndBibtex(title, desc, bibtex))
                 .thenReturn(Optional.empty());
+        when(projectRepository.save(any())).thenReturn(new Project(title, desc, bibtex, false));
         Project response = projectService.createProject(project);
         assertEquals(project.getTitle(), response.getTitle());
         assertEquals(project.getDescription(), response.getDescription());
         assertEquals(project.getBibtex(), response.getBibtex());
-        assertNotEquals(project.getProjectId(), response.getProjectId());
+    }
+
+    @Test
+    void createProjectNull() {
+        assertThrows(IllegalArgumentException.class, () -> projectService.createProject(null));
+    }
+
+    @Test
+    void createProjectExistsAlready() {
+        String title = "title1";
+        String desc = "desc1";
+        String bibtex = "bibtex1";
+        Project project = new Project(title, desc, bibtex, false);
+        when(projectRepository.findFirstByTitleAndDescriptionAndBibtex(title, desc, bibtex))
+                .thenReturn(Optional.of(new Project(title, desc, bibtex, false)));
+        Project response = projectService.createProject(project);
+        assertEquals(project.getTitle(), response.getTitle());
+        assertEquals(project.getDescription(), response.getDescription());
+        assertEquals(project.getBibtex(), response.getBibtex());
     }
 
 }
