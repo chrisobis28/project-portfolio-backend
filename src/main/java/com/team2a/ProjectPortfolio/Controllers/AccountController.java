@@ -30,7 +30,7 @@ public class AccountController {
      * @param accountService - the Account Service
      */
     @Autowired
-    public AccountController(AccountService accountService) {
+    public AccountController (AccountService accountService) {
         this.accountService = accountService;
     }
 
@@ -40,7 +40,7 @@ public class AccountController {
      * @return - the Account that was created
      */
     @PostMapping("/")
-    public ResponseEntity<Account> createAccount(@RequestBody Account account) {
+    public ResponseEntity<Account> createAccount (@RequestBody Account account) {
         try {
             return ResponseEntity.ok(accountService.createAccount(account));
         }
@@ -58,7 +58,7 @@ public class AccountController {
      * @return - the Account with the necessary modifications
      */
     @PutMapping("/")
-    public ResponseEntity<Account> editAccount(@RequestBody Account account) {
+    public ResponseEntity<Account> editAccount (@RequestBody Account account) {
         try {
             return ResponseEntity.ok(accountService.editAccount(account));
         }
@@ -76,7 +76,7 @@ public class AccountController {
      * @return - the Account with the given id, provided it exists
      */
     @GetMapping("/{username}")
-    public ResponseEntity<Account> getAccountById(@PathVariable("username") String username) {
+    public ResponseEntity<Account> getAccountById (@PathVariable("username") String username) {
         try {
             return ResponseEntity.ok(accountService.getAccountById(username));
         }
@@ -94,7 +94,7 @@ public class AccountController {
      * @return - the status of the deletion
      */
     @DeleteMapping("/{username}")
-    public ResponseEntity<String> deleteAccount(@PathVariable("username") String username) {
+    public ResponseEntity<String> deleteAccount (@PathVariable("username") String username) {
         try {
             accountService.deleteAccount(username);
             return ResponseEntity.status(HttpStatus.OK).body("Success.");

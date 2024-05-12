@@ -20,7 +20,7 @@ public class AccountService {
      * @param accountRepository - the Account Repository
      */
     @Autowired
-    public AccountService(AccountRepository accountRepository) {
+    public AccountService (AccountRepository accountRepository) {
         this.accountRepository = accountRepository;
     }
 
@@ -30,7 +30,7 @@ public class AccountService {
      * @return - the Account that was created
      * @throws RuntimeException - Duplicated username or the id is null
      */
-    public Account createAccount(Account account) throws RuntimeException {
+    public Account createAccount (Account account) throws RuntimeException {
         nullFieldChecker(account);
         Optional<Account> o = accountRepository.findById(account.getUsername());
         if(o.isPresent()) {
@@ -46,7 +46,7 @@ public class AccountService {
      * @return - the Account with the modifications applied
      * @throws RuntimeException - Account was not found or the id is null
      */
-    public Account editAccount(Account account) throws RuntimeException {
+    public Account editAccount (Account account) throws RuntimeException {
         nullFieldChecker(account);
         Optional<Account> o = accountRepository.findById(account.getUsername());
         if(o.isEmpty()) {
@@ -61,7 +61,7 @@ public class AccountService {
      * @return - the Account desired
      * @throws RuntimeException - the id is null
      */
-    public Account getAccountById(String username) throws RuntimeException {
+    public Account getAccountById (String username) throws RuntimeException {
         return checkAccountExistence(username);
     }
 
@@ -70,7 +70,7 @@ public class AccountService {
      * @param username - the id of the Account to be deleted
      * @throws RuntimeException - the id is null
      */
-    public void deleteAccount(String username) throws RuntimeException {
+    public void deleteAccount (String username) throws RuntimeException {
         Account account = checkAccountExistence(username);
         accountRepository.deleteById(account.getUsername());
     }
@@ -81,7 +81,7 @@ public class AccountService {
      * @return - the Account desired, provided it exists
      * @throws RuntimeException - Account was not found or the id is null
      */
-    public Account checkAccountExistence(String username) throws RuntimeException {
+    public Account checkAccountExistence (String username) throws RuntimeException {
         if(username == null) {
             throw new IdIsNullException("Null id not accepted.");
         }
@@ -97,7 +97,7 @@ public class AccountService {
      * @param account - the Account to verify
      * @throws RuntimeException - A field is null
      */
-    public void nullFieldChecker(Account account) throws RuntimeException {
+    public void nullFieldChecker (Account account) throws RuntimeException {
         if(account.getUsername() == null || account.getName() == null || account.getPassword() == null
             || account.getIsPM() == null || account.getIsAdministrator() == null) {
             throw new FieldNullException("Null fields are not valid.");
