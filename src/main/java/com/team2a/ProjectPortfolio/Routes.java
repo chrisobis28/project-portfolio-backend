@@ -8,4 +8,5 @@ public class Routes {
     public final static String REQUESTS = "/request";
     public final static String LINK = "/link";
     public final static String MEDIA = "/media";
+    public final static String ACCOUNT = "/account";
 }
