@@ -21,8 +21,25 @@ public class RequestLinkProject {
     @Setter
     private boolean isRemove;
 
+    @Getter
+    @Setter
+    @ManyToOne
+    @JoinColumn(name = "LINK_ID")
+    private Link link;
+
+    @Getter
+    @Setter
+    @ManyToOne
+    @JoinColumn(name = "REQUEST_ID")
+    private Request request;
+
     public RequestLinkProject(UUID requestLinkProjectId, boolean isRemove) {
         this.requestLinkProjectId = requestLinkProjectId;
         this.isRemove = isRemove;
+    }
+
+    public RequestLinkProject(Link link, Request request) {
+        this.link = link;
+        this.request = request;
     }
 }

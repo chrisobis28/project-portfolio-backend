@@ -21,8 +21,26 @@ public class RequestTagProject {
     @Setter
     private boolean isRemove;
 
+    @Getter
+    @Setter
+    @ManyToOne
+    @JoinColumn(name = "REQUEST_ID")
+    private Request request;
+
+    @Getter
+    @Setter
+    @ManyToOne
+    @JoinColumn(name = "TAG_ID")
+    private Tag tag;
+
+
     public RequestTagProject(UUID requestTagProjectID, boolean isRemove) {
         this.requestTagProjectID = requestTagProjectID;
         this.isRemove = isRemove;
+    }
+
+    public RequestTagProject(Request request, Tag tag) {
+        this.request = request;
+        this.tag = tag;
     }
 }

@@ -37,4 +37,9 @@ public class RequestCollaboratorsProjects {
         this.id = id;
         this.isRemove = isRemove;
     }
+
+    public RequestCollaboratorsProjects(Request request, Collaborator collaborator) {
+        this.request = request;
+        this.collaborator = collaborator;
+    }
 }

@@ -21,8 +21,26 @@ public class RequestMediaProject {
     @Setter
     private boolean isRemove;
 
+
+    @Getter
+    @Setter
+    @ManyToOne
+    @JoinColumn(name = "REQUEST_ID")
+    private Request request;
+
+    @Getter
+    @Setter
+    @ManyToOne
+    @JoinColumn(name = "MEDIA_ID")
+    private Media media;
+
     public RequestMediaProject(UUID requestMediaProjectId, boolean isRemove) {
         this.requestMediaProjectId = requestMediaProjectId;
         this.isRemove = isRemove;
+    }
+
+    public RequestMediaProject(Request request, Media media) {
+        this.request = request;
+        this.media = media;
     }
 }

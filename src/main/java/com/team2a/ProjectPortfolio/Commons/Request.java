@@ -7,6 +7,7 @@ import lombok.Setter;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -46,6 +47,12 @@ public class Request {
 
     @Getter
     @Setter
+    @ManyToOne
+    @JoinColumn(name="REQUEST_PROJECT")
+    private Project project;
+
+    @Getter
+    @Setter
     @OneToMany(cascade=CascadeType.ALL, orphanRemoval = true)
     @OnDelete(action= OnDeleteAction.CASCADE)
     @JoinColumn(name="REQUEST_ID")
@@ -73,12 +80,40 @@ public class Request {
     @JoinColumn(name="REQUEST_ID")
     private List<RequestCollaboratorsProjects> requestCollaboratorsProjects;
 
-    public Request(UUID requestId, String newTitle, String newDescription, String newBibtex, Boolean isCounterOffer) {
+
+    public Request (UUID requestId, String newTitle, String newDescription, String newBibtex, Boolean isCounterOffer) {
         this.requestId = requestId;
         this.newTitle = newTitle;
         this.newDescription = newDescription;
         this.newBibtex = newBibtex;
         this.isCounterOffer = isCounterOffer;
     }
+
+    public List<Media> getMedia () {
+        if(requestMediaProjects.isEmpty())
+            return new ArrayList<>();
+        return requestMediaProjects.stream().map(RequestMediaProject::getMedia).toList();
+    }
+
+    public List<Tag> getTags () {
+        if(requestTagProjects.isEmpty())
+            return new ArrayList<>();
+        return  requestTagProjects.stream().map(RequestTagProject::getTag).toList();
+    }
+
+    public List<Collaborator> getCollaborators () {
+        if(requestCollaboratorsProjects.isEmpty())
+            return new ArrayList<>();
+        return requestCollaboratorsProjects.stream().map(RequestCollaboratorsProjects::getCollaborator).toList();
+    }
+
+    public List<Link> getLinks () {
+        if(requestLinkProjects.isEmpty())
+            return new ArrayList<>();
+        return requestLinkProjects.stream().map(RequestLinkProject::getLink).toList();
+    }
+
+
+
 
 }
