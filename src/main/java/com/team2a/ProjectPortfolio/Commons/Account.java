@@ -3,6 +3,7 @@ package com.team2a.ProjectPortfolio.Commons;
 import jakarta.persistence.*;
 import java.util.ArrayList;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
@@ -52,6 +53,9 @@ public class Account {
     @OnDelete(action= OnDeleteAction.CASCADE)
     @JoinColumn(name="REQUEST_ACCOUNT")
     private List<Request> requests;
+
+    public Account () {
+    }
 
     public Account(String username, String name, String password, Boolean isAdministrator,
                    Boolean isPM) {
