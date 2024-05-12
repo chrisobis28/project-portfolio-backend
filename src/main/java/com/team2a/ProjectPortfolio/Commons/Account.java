@@ -3,7 +3,6 @@ package com.team2a.ProjectPortfolio.Commons;
 import jakarta.persistence.*;
 import java.util.ArrayList;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
