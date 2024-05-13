@@ -2,15 +2,17 @@ package com.team2a.ProjectPortfolio.Services;
 
 import com.team2a.ProjectPortfolio.Commons.Project;
 import com.team2a.ProjectPortfolio.Repositories.ProjectRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 class ProjectServiceTest {
 
@@ -44,4 +46,25 @@ class ProjectServiceTest {
         assertEquals(projects, response);
     }
 
+    @Test
+    void deleteProjectSuccessful() {
+        UUID projectId = UUID.randomUUID();
+        String expected = "Deleted project with specified ID";
+        Project project1 = new Project("Title1", "Description1", "Bibtex1", false);
+        when(projectRepository.findById(projectId)).thenReturn(Optional.of(project1));
+        String response = projectService.deleteProject(projectId);
+        assertEquals(expected, response);
+        verify(projectRepository,times(1)).delete(project1);
+    }
+
+    @Test
+    void deleteProjectNullId () {
+        assertThrows(IllegalArgumentException.class, () -> projectService.deleteProject(null));
+    }
+
+    @Test
+    void deleteProjectNotFound () {
+        UUID projectId = UUID.randomUUID();
+        assertThrows(EntityNotFoundException.class, () -> projectService.deleteProject(projectId));
+    }
 }
