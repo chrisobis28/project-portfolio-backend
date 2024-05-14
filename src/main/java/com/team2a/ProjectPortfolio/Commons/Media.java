@@ -40,6 +40,10 @@ public class Media {
     @JoinColumn(name="MEDIA_ID")
     private List<RequestMediaProject> requestMediaProjects;
 
+    public Media(UUID mediaId, String path) {
+        this.mediaId = mediaId;
+        this.path = path;
+    }
     public Media(Project project, String path) {
         this.project = project;
         this.path = path;

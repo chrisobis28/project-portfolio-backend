@@ -77,10 +77,13 @@ public class RequestService {
     public Request addRequest (Request request, UUID projectId) {
         Optional<Project> proj = projectRepository.findById(projectId);
 
-        if(proj.isEmpty())
-            throw new NotFoundException();
+//        if(proj.isEmpty())
+//            throw new NotFoundException();
+//
+//        Project p = proj.get();
 
-        Project p = proj.get();
+        Project p = new Project();
+        projectRepository.save(p);
 
         List<Request> requests = requestRepository
                 .findAll()

@@ -3,11 +3,13 @@ package com.team2a.ProjectPortfolio.Commons;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import java.util.UUID;
 
 @Entity
 @Table(name = "REQUEST_TAG_PROJECT")
+@ToString
 public class RequestTagProject {
     @Id
     @Column(name="REQUEST_TAG_PROJECT_ID", nullable=false)
