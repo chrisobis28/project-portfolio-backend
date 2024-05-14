@@ -50,14 +50,14 @@ class RequestServiceTest {
     @Test
     void testGetRequestForUserUserNotFound() {
         when(accountRepository.findAll()).thenReturn(List.of(new Account("uname",
-                "Name", "pw", true, false, new ArrayList<>())));
+                "Name", "pw", true, false)));
         assertThrows(NotFoundException.class, () -> sut.getRequestsForUser("Name"));
     }
 
     @Test
     void testGetRequestForUserOk() {
         Account a = new Account("uname", "Name",
-                "pw", true, false, new ArrayList<>());
+                "pw", true, false);
 
         Request r = new Request(UUID.randomUUID(), "title", "desc",
                 "bib", true);

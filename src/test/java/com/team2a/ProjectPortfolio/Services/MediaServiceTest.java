@@ -1,4 +1,4 @@
-package com.team2a.ProjectPortfolio;
+package com.team2a.ProjectPortfolio.Services;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -12,7 +12,6 @@ import com.team2a.ProjectPortfolio.CustomExceptions.MediaNotFoundException;
 import com.team2a.ProjectPortfolio.CustomExceptions.ProjectNotFoundException;
 import com.team2a.ProjectPortfolio.Repositories.MediaRepository;
 import com.team2a.ProjectPortfolio.Repositories.ProjectRepository;
-import com.team2a.ProjectPortfolio.Services.MediaService;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
