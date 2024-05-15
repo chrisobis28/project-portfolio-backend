@@ -1,0 +1,1003 @@
+openapi: '3.0.2'
+info:
+  title: Project Management API
+  description: API for managing projects
+  version: '1.0'
+servers:
+  - url: http://localhost:8080
+tags:
+  - name: Project
+    description: Project specific API
+  - name: Media
+    description: Media specific API
+  - name: Account
+    description: Account specific API
+  - name: Session
+    description: Session specific API
+  - name: Tag
+    description: Tag specific API
+  - name: Link
+    description: Link specific API
+  - name: Collaborator
+    description: Collaborator specific API
+  - name: Request
+    description: Request specific API
+
+paths:
+
+#Project
+
+  /project:
+      get:
+        tags:
+          - Project
+        summary: Get all projects
+        operationId: getProjects
+        description: Return a list of all projects
+        responses:
+          '200':
+            description: Successful response
+            content:
+              application/json:
+                schema:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/Project'
+      post:
+        tags:
+          - Project
+        summary: Create a new project
+        operationId: createProject
+        description: Create a new project with the provided ID
+        requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+        responses:
+          '201':
+            description: Project created successfully
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Project'
+          '401':
+            description: Unauthorized - user is not an admin
+
+  /project/{projectId}:
+    get:
+      tags:
+        - Project
+      summary: Get a project by ID
+      operationId: getProjectById
+      description: Returns a project based on the provided ID
+      parameters:
+        - name: projectId
+          in: path
+          description: ID of the project to retrieve
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+
+    put:
+      tags:
+        - Project
+      summary: Update an existing project
+      operationId: updateProject
+      description: Update an existing project with the provided ID
+      parameters:
+        - name: projectId
+          in: path
+          description: ID of the project to retrieve
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Project'
+      responses:
+        '200':
+          description: Project updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+        '401':
+          description: Unauthorized - user is does not have permission to edit this project
+        '404':
+          description: Project not found
+
+    delete:
+      tags:
+        - Project
+      summary: Delete a project
+      operationId: deleteProject
+      description: Delete a project with the provided ID
+      parameters:
+        - name: projectId
+          in: path
+          description: ID of the project to delete
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Project deleted successfully
+        '401':
+          description: Unauthorized - user is not an admin
+        '404':
+          description: Project not found
+
+#Media
+  /media/{projectId}:
+    get:
+      tags:
+        - Media
+      summary: Get all the Media of a specific project.
+      operationId: getMediaByProjectId
+      description: Returns the Media based on the provided Project ID.
+      parameters:
+        - name: projectId
+          in: path
+          description: ID of the Project whose Media to retrieve.
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Media'
+
+    post:
+      tags:
+        - Media
+      summary: Add a new Media to a Project.
+      operationId: addMediaToProject
+      description: Adds the Media based on Project Id and returns it.
+      parameters:
+        - name: projectId
+          in: path
+          description: ID of the Project whose Media to add.
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Media'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Media'
+  /media/{mediaId}:
+    delete:
+      tags:
+        - Media
+      summary: Delete a Media.
+      operationId: deleteMedia
+      description: Deletes a Media based on its Id.
+      parameters:
+        - name: mediaId
+          in: path
+          description: ID of the Media to be deleted.
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Media'
+
+#Account
+
+  /account:
+    post:
+      tags:
+        - Account
+      summary: Create an account.
+      operationId: createAccount
+      description: Create a new account.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Account'
+      responses:
+        '201':
+          description: Account created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
+        '400':
+          description: Bad Request - Invalid fields
+        '403':
+          description: Forbidden - Account with that username already exists
+
+    put:
+      tags:
+        - Account
+      summary: Edit an account.
+      operationId: editAccount
+      description: Edit an account.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Account'
+      responses:
+        '201':
+          description: Account edited successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
+        '400':
+          description: Bad request - Invalid fields
+        '404':
+          description: Not Found - Account with the given username no found
+
+  /account/{username}:
+    get:
+      tags:
+        - Account
+      summary: Get an Account by id.
+      operationId: getAccountById
+      description: Retrieve an account from the database.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: string
+      responses:
+        '201':
+          description: Account retrieved successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
+        '400':
+          description: Bad Request - Invalid input data
+        '404':
+          description: Not Found - Account could not be found
+
+    delete:
+      tags:
+        - Account
+      summary: Delete an account
+      operationId: deleteAccount
+      description: Delete an account
+      parameters:
+        - name: username
+          in: path
+          description: Username of the account to delete
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+                  format: password
+                token:
+                  type: string
+      responses:
+        '200':
+          description: OK - Account deleted successfully
+        '400':
+          description: Bad Request - Invalid input data
+        '404':
+          description: Not Found - Account could not be found
+
+#Session
+  /session:
+    post:
+      tags:
+        - Session
+      summary: Log in to an account
+      operationId: loginAccount
+      description: Log in to an existing account
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+                  format: password
+      responses:
+        '201':
+          description: Token created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+        '400':
+          description: Bad request - invalid input data
+        '401':
+          description: Unauthorized - invalid username or password
+
+#Tag
+
+  /tag/create:
+    post:
+      tags:
+        - Tag
+      summary: Create a new tag.
+      operationId: createTag
+      description: Create a new tag.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Tag'
+      responses:
+        '200':
+          description: Tag created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tag'
+        '409':
+          description: Conflict - tag already exists
+
+  /tag/{projectId}:
+      get:
+        tags:
+          - Tag
+        summary: Get all the tags of a specific project.
+        operationId: getTagsByProjectId
+        description: Returns the tags based on the provided Project ID.
+        parameters:
+          - name: projectId
+            in: path
+            description: ID of the Project whose tag to retrieve.
+            required: true
+            schema:
+              type: string
+              format: uuid
+        responses:
+          '200':
+            description: Successful response
+            content:
+              application/json:
+                schema:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/Tag'
+          '404':
+            description: Project not found
+
+
+  /tag/edit:
+      put:
+        tags:
+          - Tag
+        summary: Edit a tag.
+        operationId: editTag
+        description: Edits the tag.
+        requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tag'
+        responses:
+          '200':
+            description: Successful response
+            content:
+              application/json:
+                schema:
+                    $ref: '#/components/schemas/Tag'
+          '404':
+            description: Tag not found
+
+  /tag/{tagId}:
+      delete:
+        tags:
+          - Tag
+        summary: Delete a tag.
+        operationId: deleteTag
+        
+        description: Deletes a tag based on its Id.
+        parameters:
+          - name: tagId
+            in: path
+            description: ID of the tag to be deleted.
+            required: true
+            schema:
+              type: string
+              format: uuid
+        responses:
+          '200':
+            description: Successful response
+
+  /tag/{projectId}/{tagId}:
+
+    post:
+      tags:
+        - Tag
+      summary: Add a tag to a Project.
+      operationId: addTagToProject
+      description: Adds the tag based on Project Id and returns it.
+      parameters:
+        - name: projectId
+          in: path
+          description: ID of the Project whose tag to add.
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: tagId
+          in: path
+          description: ID of the tag to add.
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Successful response
+        '404':
+          description: Project or tag not found
+        '409':
+          description: Conflict - Tag already exists in project
+
+
+    delete:
+      tags:
+        - Tag
+      summary: Remove a tag from a project.
+      operationId: removeTagFromProject
+
+      description: Removes a tag based on its Id from a project.
+      parameters:
+        - name: projectId
+          in: path
+          description: ID of the project.
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: tagId
+          in: path
+          description: ID of the tag to be removed.
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Successful response
+  
+
+#Link
+
+  /link/create:
+        post:
+          tags:
+            - Link
+          summary: Add a new link to a Project.
+          operationId: addLinkToProject
+          description: Adds the link based on Project Id and returns it.
+          requestBody:
+            required: true
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Link'
+          responses:
+            '200':
+              description: Successful response
+              content:
+                application/json:
+                  schema:
+                      $ref: '#/components/schemas/Link'
+            '409':
+              description: Conflict - Link already exists in project
+
+  /link/edit:
+      put:
+        tags:
+          - Link
+        summary: Edit a link of a project.
+        operationId: editLinkOfProject
+        description: Edits the link of a project.
+        requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Link'
+        responses:
+          '200':
+            description: Successful response
+            content:
+              application/json:
+                schema:
+                    $ref: '#/components/schemas/Link'
+          '404':
+            description: Link not found
+
+  /link/{projectId}:
+        get:
+          tags:
+            - Link
+          summary: Get all the links of a specific project.
+          operationId: getLinksByProjectId
+          description: Returns the links based on the provided Project ID.
+          parameters:
+            - name: projectId
+              in: path
+              description: ID of the Project whose link to retrieve.
+              required: true
+              schema:
+                type: string 
+                format: uuid
+          responses:
+            '200':
+              description: Successful response
+              content:
+                application/json:
+                  schema:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Link'
+
+  /link/{linkId}:
+        delete:
+          tags:
+            - Link
+          summary: Delete a link.
+          operationId: deleteLinkFromProject
+          description: Deletes a link based on its Id.
+          parameters:
+            - name: linkId
+              in: path
+              description: ID of the link to be deleted.
+              required: true
+              schema:
+                type: string
+                format: uuid
+          responses:
+            '200':
+              description: Successful response
+              content:
+                application/json:
+                  schema:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Link'
+
+#Collaborator
+#Collaborator
+
+  /collaborator/{projectId}:
+    get:
+      tags:
+        - Collaborator
+      summary: Get all the collaborators of a specific project.
+      operationId: getCollaboratorsByProjectId
+      description: Returns the collaborators based on the provided Project ID.
+      parameters:
+        - name: projectId
+          in: path
+          description: ID of the Project whose collaborators to retrieve.
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Collaborator'
+
+    post:
+      tags:
+        - Collaborator
+      summary: Add a new collaborator to a Project.
+      operationId: addCollaboratorToProject
+      description: Adds the collaborator based on Project Id and returns it.
+      parameters:
+        - name: projectId
+          in: path
+          description: ID of the Project whose collaborator to add.
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Collaborator'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Collaborator'
+
+  /collaborator/{collaboratorId}:
+    put:
+      tags:
+        - Collaborator
+      summary: Edit a collaborator of the Plaform.
+      operationId: editCollaboratorOfProject
+      description: Edits the collaborator based on their Id and returns it.
+      parameters:
+        - name: collaboratorId
+          in: path
+          description: ID of the collaborator to edit.
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Collaborator'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Collaborator'
+
+    delete:
+      tags:
+        - Collaborator
+      summary: Delete a collaborator of the Plaform.
+      operationId: deleteCollaborator
+      description: Delete a collaborator based on their Id.
+      parameters:
+        - name: collaboratorId
+          in: path
+          description: ID of the collaborator to edit.
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Collaborator'
+
+  /collaborator/{projectId}/{collaboratorId}:
+    delete:
+      tags:
+        - Collaborator
+      summary: Delete a collaborator.
+      operationId: deleteCollaboratorFromProject
+      description: Deletes a collaborator based on their and project's Id.
+      parameters:
+        - name: collaboratorId
+          in: path
+          description: ID of the collaborator to be deleted.
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: projectId
+          in: path
+          description: ID of the project where the deletion happens.
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Collaborator'
+#Request
+
+  /request:
+    get:
+      tags:
+        - Request
+      summary: Get all requests in the system
+      operationId: getRequests
+      description: Retrieve all requests in the database.
+      responses:
+        '200':
+          description: Requests retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Request'
+        '401':
+          description: Unauthorized - user is not authorized to retrieve requests
+
+  /request/{username}:
+    get:
+      tags:
+        - Request
+      summary: Get requests for a user
+      operationId: getRequestsForUser
+      description: Retrieve all requests associated with a user
+      parameters:
+        - name: username
+          in: path
+          description: username of the user for which the requests have to be found.
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Requests retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Request'
+        '401':
+          description: Unauthorized - user is not authorized to retrieve requests
+        '404':
+          description: User not found
+
+  /request/{projectId}:
+
+    get:
+      tags:
+        - Request
+      summary: Get requests for a project
+      operationId: getRequestsForProject
+      description: Retrieve all requests associated with a project
+      parameters:
+        - name: projectId
+          in: path
+          description: ID of the project for which requests are being retrieved
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Requests retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Request'
+        '401':
+          description: Unauthorized - user is not authorized to retrieve requests
+        '404':
+          description: Project not found
+
+    put:
+      tags:
+        - Request
+      summary: Create a request
+      operationId: createRequest
+      description: Create a new request for a project
+      parameters:
+        - name: projectId
+          in: path
+          description: ID of the project for which the request is being created
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Request'
+      responses:
+        '201':
+          description: Request created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Request'
+        '400':
+          description: Bad request - invalid input data
+        '401':
+          description: Unauthorized - user is not authorized to create a request
+        '404':
+          description: Project not found
+
+  /request/{requestId}:
+    delete:
+      tags:
+        - Request
+      summary: Delete a request
+      operationId: deleteRequest
+      description: Delete a request
+      parameters:
+        - name: requestId
+          in: path
+          description: ID of the request to delete
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Request deleted successfully
+        '401':
+          description: Unauthorized - user is not authorized to delete the request
+        '404':
+          description: Request not found
+
+
+components:
+  schemas:
+    Project:
+      type: object
+      properties:
+        projectId:
+          type: string
+          format: uuid
+        title:
+          type: string
+        description:
+          type: string
+        bibtex:
+          type: string
+        archived:
+          type: boolean
+        media:
+          type: array
+          items:
+            $ref: '#/components/schemas/Media'
+        links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+        requests:
+          type: array
+          items:
+            $ref: '#/components/schemas/Request'
+        tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/Tag'
+        collaborators:
+          type: array
+          items:
+            $ref: '#/components/schemas/Collaborator'
+
+    Media:
+      type: object
+      properties:
+        mediaId:
+          type: string
+          format: uuid
+        path:
+          type: string
+
+    Link:
+      type: object
+      properties:
+        linkId:
+          type: string
+          format: uuid
+        name:
+          type: string
+        url:
+          type: string
+
+    Request:
+      type: object
+      properties:
+        requestId:
+          type: string
+          format: uuid
+        newTitle:
+          type: string
+        newDescription:
+          type: string
+        newBibtex:
+          type: string
+        isCounterOffer:
+          type: boolean
+        
+    Tag:
+      type: object
+      properties:
+        tagId:
+          type: string
+          format: uuid
+        name:
+          type: string
+        color:
+          type: string
+    
+    Account:
+      type: object
+      properties:
+        username:
+          type: string
+        name:
+          type: string
+        password:
+          type: string
+        isAdministrator:
+          type: boolean
+        isPM:
+          type: boolean
+
+    Collaborator:
+      type: object
+      properties:
+        collaboratorId:
+          type: string
+          format: uuid
+        name:
+          type: string
