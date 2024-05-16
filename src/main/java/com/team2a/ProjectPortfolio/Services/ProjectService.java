@@ -7,9 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.UUID;
 import java.util.Optional;
-
+import java.util.UUID;
 
 @Service
 public class ProjectService {
@@ -30,6 +29,20 @@ public class ProjectService {
      */
     public List<Project> getProjects () {
         return projectRepository.findAll();
+    }
+
+    /**
+     * Deletes a project based on its ID
+     * @param projectId the id of the project to be deleted
+     * @return a string stating that the deletion was successful
+     */
+    public String deleteProject (UUID projectId) {
+        if(projectId == null) {
+            throw new IllegalArgumentException();
+        }
+        Project project = projectRepository.findById(projectId).orElseThrow(EntityNotFoundException::new);
+        projectRepository.delete(project);
+        return "Deleted project with specified ID";
     }
 
     /**
