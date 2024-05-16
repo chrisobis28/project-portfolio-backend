@@ -2,7 +2,7 @@ package com.team2a.ProjectPortfolio.Controllers;
 
 
 import com.team2a.ProjectPortfolio.Commons.Request;
-import com.team2a.ProjectPortfolio.Exceptions.NotFoundException;
+import com.team2a.ProjectPortfolio.CustomExceptions.NotFoundException;
 import com.team2a.ProjectPortfolio.Routes;
 import com.team2a.ProjectPortfolio.Services.RequestService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping(Routes.REQUESTS)
@@ -41,6 +42,28 @@ public class RequestController {
 
         try{
             List<Request> requests = requestService.getRequestsForUser (username);
+            return new ResponseEntity<>(requests, HttpStatus.OK);
+        } catch (NotFoundException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+
+    /**
+     * Endpoint that retrieves all requests in the database
+     * @return a list of requests
+     */
+    @GetMapping("/")
+    public ResponseEntity<List<Request>> getRequests () {
+        List<Request> requests = requestService.getRequests();
+        return new ResponseEntity<>(requests, HttpStatus.OK);
+    }
+
+
+    @GetMapping("/{projectId}")
+    public ResponseEntity<List<Request>> getRequestsForProject (@PathVariable UUID projectID) {
+        try{
+            List<Request> requests = requestService.getRequestsForProject(projectID);
             return new ResponseEntity<>(requests, HttpStatus.OK);
         } catch (NotFoundException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);

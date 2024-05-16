@@ -200,7 +200,7 @@ paths:
       tags:
         - Media
       summary: Delete a Media.
-      operationId: deleteMediaFromProject
+      operationId: deleteMedia
       description: Deletes a Media based on its Id.
       parameters:
         - name: mediaId
@@ -243,9 +243,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/Account'
         '400':
-          description: Bad request - invalid input data
-        '409':
-          description: Conflict - account already exists
+          description: Bad Request - Invalid fields
+        '403':
+          description: Forbidden - Account with that username already exists
 
     put:
       tags:
@@ -267,9 +267,35 @@ paths:
               schema:
                 $ref: '#/components/schemas/Account'
         '400':
-          description: Bad request - invalid input data
+          description: Bad request - Invalid fields
+        '404':
+          description: Not Found - Account with the given username no found
 
-  /account/delete/{username}:
+  /account/{username}:
+    get:
+      tags:
+        - Account
+      summary: Get an Account by id.
+      operationId: getAccountById
+      description: Retrieve an account from the database.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: string
+      responses:
+        '201':
+          description: Account retrieved successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
+        '400':
+          description: Bad Request - Invalid input data
+        '404':
+          description: Not Found - Account could not be found
+
     delete:
       tags:
         - Account
@@ -298,12 +324,12 @@ paths:
                 token:
                   type: string
       responses:
-        '204':
-          description: Account deleted successfully
-        '401':
-          description: Unauthorized - user does not have permission to delete this account
+        '200':
+          description: OK - Account deleted successfully
+        '400':
+          description: Bad Request - Invalid input data
         '404':
-          description: Account not found
+          description: Not Found - Account could not be found
 
 #Session
   /session:
@@ -342,6 +368,29 @@ paths:
 
 #Tag
 
+  /tag/create:
+    post:
+      tags:
+        - Tag
+      summary: Create a new tag.
+      operationId: createTag
+      description: Create a new tag.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Tag'
+      responses:
+        '200':
+          description: Tag created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tag'
+        '409':
+          description: Conflict - tag already exists
+
   /tag/{projectId}:
       get:
         tags:
@@ -366,51 +415,17 @@ paths:
                   type: array
                   items:
                     $ref: '#/components/schemas/Tag'
+          '404':
+            description: Project not found
 
-      post:
-        tags:
-          - Tag
-        summary: Add a new tag to a Project.
-        operationId: addTagToProject
-        description: Adds the tag based on Project Id and returns it.
-        parameters:
-          - name: projectId
-            in: path
-            description: ID of the Project whose tag to add.
-            required: true
-            schema:
-              type: string
-              format: uuid
-        requestBody:
-          required: true
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Tag'
-        responses:
-          '200':
-            description: Successful response
-            content:
-              application/json:
-                schema:
-                  type: array
-                  items:
-                    $ref: '#/components/schemas/Media'
 
+  /tag/edit:
       put:
         tags:
           - Tag
-        summary: Edit a tag of a Project.
-        operationId: editTagOfProject
-        description: Edits the tag based on Project Id and returns it.
-        parameters:
-          - name: projectId
-            in: path
-            description: ID of the Project whose tag to add.
-            required: true
-            schema:
-              type: string
-              format: uuid
+        summary: Edit a tag.
+        operationId: editTag
+        description: Edits the tag.
         requestBody:
           required: true
           content:
@@ -424,12 +439,15 @@ paths:
               application/json:
                 schema:
                     $ref: '#/components/schemas/Tag'
+          '404':
+            description: Tag not found
+
   /tag/{tagId}:
       delete:
         tags:
           - Tag
         summary: Delete a tag.
-        operationId: deleteTagFromDatabase
+        operationId: deleteTag
         
         description: Deletes a tag based on its Id.
         parameters:
@@ -443,47 +461,113 @@ paths:
         responses:
           '200':
             description: Successful response
-            content:
-              application/json:
-                schema:
-                  type: array
-                  items:
-                    $ref: '#/components/schemas/Tag'
+
   /tag/{projectId}/{tagId}:
-      delete:
-        tags:
-          - Tag
-        summary: Delete a tag.
-        operationId: deleteTagFromProject
-        
-        description: Deletes a tag based on its Id.
-        parameters:
-          - name: tagId
-            in: path
-            description: ID of the tag to be deleted.
-            required: true
-            schema:
-              type: string
-              format: uuid
-          - name: projectId
-            in: path
-            description: ID of the projectTag to be deleted.
-            required: true
-            schema:
-              type: string
-              format: uuid
-        responses:
-          '200':
-            description: Successful response
-            content:
-              application/json:
-                schema:
-                  type: array
-                  items:
-                    $ref: '#/components/schemas/Tag'
+
+    post:
+      tags:
+        - Tag
+      summary: Add a tag to a Project.
+      operationId: addTagToProject
+      description: Adds the tag based on Project Id and returns it.
+      parameters:
+        - name: projectId
+          in: path
+          description: ID of the Project whose tag to add.
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: tagId
+          in: path
+          description: ID of the tag to add.
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Successful response
+        '404':
+          description: Project or tag not found
+        '409':
+          description: Conflict - Tag already exists in project
+
+
+    delete:
+      tags:
+        - Tag
+      summary: Remove a tag from a project.
+      operationId: removeTagFromProject
+
+      description: Removes a tag based on its Id from a project.
+      parameters:
+        - name: projectId
+          in: path
+          description: ID of the project.
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: tagId
+          in: path
+          description: ID of the tag to be removed.
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Successful response
   
 
 #Link
+
+  /link/create:
+        post:
+          tags:
+            - Link
+          summary: Add a new link to a Project.
+          operationId: addLinkToProject
+          description: Adds the link based on Project Id and returns it.
+          requestBody:
+            required: true
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Link'
+          responses:
+            '200':
+              description: Successful response
+              content:
+                application/json:
+                  schema:
+                      $ref: '#/components/schemas/Link'
+            '409':
+              description: Conflict - Link already exists in project
+
+  /link/edit:
+      put:
+        tags:
+          - Link
+        summary: Edit a link of a project.
+        operationId: editLinkOfProject
+        description: Edits the link of a project.
+        requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Link'
+        responses:
+          '200':
+            description: Successful response
+            content:
+              application/json:
+                schema:
+                    $ref: '#/components/schemas/Link'
+          '404':
+            description: Link not found
 
   /link/{projectId}:
         get:
@@ -510,65 +594,6 @@ paths:
                     items:
                       $ref: '#/components/schemas/Link'
 
-        post:
-          tags:
-            - Link 
-          summary: Add a new link to a Project.
-          operationId: addLinkToProject
-          description: Adds the link based on Project Id and returns it.
-          parameters:
-            - name: projectId
-              in: path
-              description: ID of the Project whose link to add.
-              required: true
-              schema:
-                type: string
-                format: uuid
-          requestBody:
-            required: true
-            content:
-              application/json:
-                schema:
-                  $ref: '#/components/schemas/Link'
-          responses:
-            '200':
-              description: Successful response
-              content:
-                application/json:
-                  schema:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/Link'
-
-        put:
-          tags:
-            - Link
-          summary: Edit a link of a Project.
-          operationId: editLinkOfProject
-          description: Edits the link based on Project Id and returns it.
-          parameters:
-            - name: projectId
-              in: path
-              description: ID of the Project whose link to add.
-              required: true
-              schema:
-                type: string
-                format: uuid
-          requestBody:
-            required: true
-            content:
-              application/json:
-                schema:
-                  $ref: '#/components/schemas/Link'
-          responses:
-            '200':
-              description: Successful response
-              content:
-                application/json:
-                  schema:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/Link'
   /link/{linkId}:
         delete:
           tags:
@@ -754,8 +779,6 @@ paths:
                   $ref: '#/components/schemas/Request'
         '401':
           description: Unauthorized - user is not authorized to retrieve requests
-        '404':
-          description: User not found
 
   /request/{username}:
     get:

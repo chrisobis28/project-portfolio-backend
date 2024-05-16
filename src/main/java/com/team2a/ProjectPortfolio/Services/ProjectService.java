@@ -2,11 +2,13 @@ package com.team2a.ProjectPortfolio.Services;
 
 import com.team2a.ProjectPortfolio.Commons.Project;
 import com.team2a.ProjectPortfolio.Repositories.ProjectRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class ProjectService {
@@ -48,5 +50,18 @@ public class ProjectService {
                 project.getBibtex(), project.getArchived());
         result = projectRepository.save(result);
         return result;
+    }
+
+    /**
+     * Returns a project given an id
+     * @param projectId the id of the project
+     * @return a project queried by its id
+     */
+    public Project getProjectById (UUID projectId) {
+        if (projectId == null) {
+            throw new IllegalArgumentException();
+        }
+        Project project = projectRepository.findById(projectId).orElseThrow(EntityNotFoundException::new);
+        return project;
     }
 }

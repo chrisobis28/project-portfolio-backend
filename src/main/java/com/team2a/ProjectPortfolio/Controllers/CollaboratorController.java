@@ -12,9 +12,9 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping(Routes.COLLABORATORS)
+@RequestMapping(Routes.COLLABORATOR)
 public class CollaboratorController {
-    private final transient CollaboratorService collaboratorService;
+    private final CollaboratorService collaboratorService;
 
     /**
      * Constructor for the collaborator controller

@@ -1,6 +1,7 @@
 package com.team2a.ProjectPortfolio.Commons;
 
 import jakarta.persistence.*;
+import java.util.ArrayList;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.OnDelete;
@@ -52,13 +53,17 @@ public class Account {
     @JoinColumn(name="REQUEST_ACCOUNT")
     private List<Request> requests;
 
+    public Account () {
+    }
+
     public Account(String username, String name, String password, Boolean isAdministrator,
-                   Boolean isPM, List<ProjectsToAccounts> projectsToAccounts) {
+                   Boolean isPM) {
         this.username = username;
         this.name = name;
         this.password = password;
         this.isAdministrator = isAdministrator;
         this.isPM = isPM;
-        this.projectsToAccounts = projectsToAccounts;
+        this.projectsToAccounts = new ArrayList<>();
+        this.requests = new ArrayList<>();
     }
 }
