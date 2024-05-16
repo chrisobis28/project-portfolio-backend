@@ -118,4 +118,31 @@ class ProjectControllerTest {
         ResponseEntity<Project> response = projectController.getProjectById(projectId);
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     }
+
+    @Test
+    void deleteProjectSuccessful() {
+        UUID projectId = UUID.randomUUID();
+        String expected = "Deleted project with specified ID";
+        when(projectService.deleteProject(projectId)).thenReturn(expected);
+        ResponseEntity<String> response = projectController.deleteProject(projectId);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(expected, response.getBody());
+    }
+
+    @Test
+    void deleteProjectNullId() {
+        when(projectService.deleteProject(null)).thenThrow(IllegalArgumentException.class);
+        ResponseEntity<String> response = projectController.deleteProject(null);
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertNull(response.getBody());
+    }
+
+    @Test
+    void deleteProjectNotFound() {
+        UUID projectId = UUID.randomUUID();
+        when(projectService.deleteProject(projectId)).thenThrow(EntityNotFoundException.class);
+        ResponseEntity<String> response = projectController.deleteProject(projectId);
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertNull(response.getBody());
+    }
 }

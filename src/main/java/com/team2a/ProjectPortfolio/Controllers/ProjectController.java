@@ -37,6 +37,23 @@ public class ProjectController {
     }
 
     /**
+     * Delete a project by its ID
+     * @param projectId the id of the project to be deleted
+     * @return a response entity containing a string
+     */
+    @DeleteMapping("/{projectId}")
+    public ResponseEntity<String> deleteProject (@PathVariable("projectId") UUID projectId){
+        try {
+            String response = projectService.deleteProject(projectId);
+            return ResponseEntity.ok(response);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    /**
      * Returns a an updated project given an ID
      * @param projectId the id of a project
      * @param project the project updates that will be persisted in the DB
