@@ -63,8 +63,8 @@ public class RequestController {
      * @return Response entity containing the request as a body.
      */
 
-    @PutMapping("/{projectId}")
-    public ResponseEntity<Request> addRequest (@PathVariable(name="projectId") UUID projectId,
+    @PutMapping("/{requestId}")
+    public ResponseEntity<Request> addRequest (@PathVariable(name="requestId") UUID projectId,
                                                @RequestBody Request request) {
         try{
 //            Logger logger = LoggerFactory.getLogger(RequestController.class);
@@ -82,8 +82,8 @@ public class RequestController {
      * @param projectID the id of the project
      * @return response entity with body as the list of requests
      */
-    @GetMapping("/{projectId}")
-    public ResponseEntity<List<Request>> getRequestsForProject (@PathVariable UUID projectID) {
+    @GetMapping("/{requestId}")
+    public ResponseEntity<List<Request>> getRequestsForProject (@PathVariable(name = "requestId") UUID projectID) {
         try{
             List<Request> requests = requestService.getRequestsForProject(projectID);
             return new ResponseEntity<>(requests, HttpStatus.OK);
@@ -97,8 +97,8 @@ public class RequestController {
      * @param projectId the id of the project to remove
      * @return response entity showing status of the removal
      */
-    @DeleteMapping("/{projectId}")
-    public ResponseEntity<Void> deleteRequest (@PathVariable UUID projectId) {
+    @DeleteMapping("/{requestId}")
+    public ResponseEntity<Void> deleteRequest (@PathVariable(name = "requestId") UUID projectId) {
         try {
             requestService.deleteRequest(projectId);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
