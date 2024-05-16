@@ -243,9 +243,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/Account'
         '400':
-          description: Bad request - invalid input data
-        '409':
-          description: Conflict - account already exists
+          description: Bad Request - Invalid fields
+        '403':
+          description: Forbidden - Account with that username already exists
 
     put:
       tags:
@@ -267,9 +267,35 @@ paths:
               schema:
                 $ref: '#/components/schemas/Account'
         '400':
-          description: Bad request - invalid input data
+          description: Bad request - Invalid fields
+        '404':
+          description: Not Found - Account with the given username no found
 
-  /account/delete/{username}:
+  /account/{username}:
+    get:
+      tags:
+        - Account
+      summary: Get an Account by id.
+      operationId: getAccountById
+      description: Retrieve an account from the database.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: string
+      responses:
+        '201':
+          description: Account retrieved successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
+        '400':
+          description: Bad Request - Invalid input data
+        '404':
+          description: Not Found - Account could not be found
+
     delete:
       tags:
         - Account
@@ -298,12 +324,12 @@ paths:
                 token:
                   type: string
       responses:
-        '204':
-          description: Account deleted successfully
-        '401':
-          description: Unauthorized - user does not have permission to delete this account
+        '200':
+          description: OK - Account deleted successfully
+        '400':
+          description: Bad Request - Invalid input data
         '404':
-          description: Account not found
+          description: Not Found - Account could not be found
 
 #Session
   /session:
@@ -497,6 +523,52 @@ paths:
 
 #Link
 
+  /link/create:
+        post:
+          tags:
+            - Link
+          summary: Add a new link to a Project.
+          operationId: addLinkToProject
+          description: Adds the link based on Project Id and returns it.
+          requestBody:
+            required: true
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Link'
+          responses:
+            '200':
+              description: Successful response
+              content:
+                application/json:
+                  schema:
+                      $ref: '#/components/schemas/Link'
+            '409':
+              description: Conflict - Link already exists in project
+
+  /link/edit:
+      put:
+        tags:
+          - Link
+        summary: Edit a link of a project.
+        operationId: editLinkOfProject
+        description: Edits the link of a project.
+        requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Link'
+        responses:
+          '200':
+            description: Successful response
+            content:
+              application/json:
+                schema:
+                    $ref: '#/components/schemas/Link'
+          '404':
+            description: Link not found
+
   /link/{projectId}:
         get:
           tags:
@@ -522,65 +594,6 @@ paths:
                     items:
                       $ref: '#/components/schemas/Link'
 
-        post:
-          tags:
-            - Link 
-          summary: Add a new link to a Project.
-          operationId: addLinkToProject
-          description: Adds the link based on Project Id and returns it.
-          parameters:
-            - name: projectId
-              in: path
-              description: ID of the Project whose link to add.
-              required: true
-              schema:
-                type: string
-                format: uuid
-          requestBody:
-            required: true
-            content:
-              application/json:
-                schema:
-                  $ref: '#/components/schemas/Link'
-          responses:
-            '200':
-              description: Successful response
-              content:
-                application/json:
-                  schema:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/Link'
-
-        put:
-          tags:
-            - Link
-          summary: Edit a link of a Project.
-          operationId: editLinkOfProject
-          description: Edits the link based on Project Id and returns it.
-          parameters:
-            - name: projectId
-              in: path
-              description: ID of the Project whose link to add.
-              required: true
-              schema:
-                type: string
-                format: uuid
-          requestBody:
-            required: true
-            content:
-              application/json:
-                schema:
-                  $ref: '#/components/schemas/Link'
-          responses:
-            '200':
-              description: Successful response
-              content:
-                application/json:
-                  schema:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/Link'
   /link/{linkId}:
         delete:
           tags:

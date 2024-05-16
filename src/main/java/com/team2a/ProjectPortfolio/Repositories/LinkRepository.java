@@ -8,5 +8,7 @@ import java.util.List;
 import java.util.UUID;
 @Repository
 public interface LinkRepository extends JpaRepository<Link, UUID> {
+
+    boolean existsByProjectProjectIdAndUrl (UUID projectId, String url);
     List<Link> findAllByLinkId (UUID linkId);
 }
