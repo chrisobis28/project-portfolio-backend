@@ -2,7 +2,7 @@ package com.team2a.ProjectPortfolio.Controllers;
 
 
 import com.team2a.ProjectPortfolio.Commons.Request;
-import com.team2a.ProjectPortfolio.Exceptions.NotFoundException;
+import com.team2a.ProjectPortfolio.CustomExceptions.NotFoundException;
 import com.team2a.ProjectPortfolio.Routes;
 import com.team2a.ProjectPortfolio.Services.RequestService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,6 +71,17 @@ public class RequestController {
 //            logger.info(request.toString());
             Request r = requestService.addRequest(request, projectId);
             return new ResponseEntity<>(r, HttpStatus.CREATED);
+        } catch (NotFoundException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+
+    @GetMapping("/{projectId}")
+    public ResponseEntity<List<Request>> getRequestsForProject (@PathVariable UUID projectID) {
+        try{
+            List<Request> requests = requestService.getRequestsForProject(projectID);
+            return new ResponseEntity<>(requests, HttpStatus.OK);
         } catch (NotFoundException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }

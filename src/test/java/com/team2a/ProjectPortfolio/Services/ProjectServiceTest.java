@@ -2,11 +2,16 @@ package com.team2a.ProjectPortfolio.Services;
 
 import com.team2a.ProjectPortfolio.Commons.Project;
 import com.team2a.ProjectPortfolio.Repositories.ProjectRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
@@ -42,6 +47,26 @@ class ProjectServiceTest {
 
         List<Project> response = projectService.getProjects();
         assertEquals(projects, response);
+    }
+
+    @Test
+    void getProjectByIdSuccess() {
+        UUID projectId = UUID.randomUUID();
+        Project project1 = new Project("Title1", "Description1", "Bibtex1", false);
+        when(projectRepository.findById(projectId)).thenReturn(Optional.of(project1));
+        Project response = projectService.getProjectById(projectId);
+        assertEquals(project1, response);
+    }
+
+    @Test
+    void getProjectByIdNull() {
+        assertThrows(IllegalArgumentException.class, () -> projectService.getProjectById(null));
+    }
+
+    @Test
+    void getProjectByIdNotFound() {
+        UUID projectId = UUID.randomUUID();
+        assertThrows(EntityNotFoundException.class, () -> projectService.getProjectById(projectId));
     }
 
 }

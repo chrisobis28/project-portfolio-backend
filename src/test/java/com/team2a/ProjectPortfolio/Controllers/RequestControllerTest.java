@@ -1,7 +1,7 @@
 package com.team2a.ProjectPortfolio.Controllers;
 
 import com.team2a.ProjectPortfolio.Commons.Request;
-import com.team2a.ProjectPortfolio.Exceptions.NotFoundException;
+import com.team2a.ProjectPortfolio.CustomExceptions.NotFoundException;
 import com.team2a.ProjectPortfolio.Services.RequestService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -52,13 +52,33 @@ class RequestControllerTest {
     }
 
     @Test
-    void testGetRequests() {
+    void testGetRequests () {
 
         Request r = new Request(UUID.randomUUID(), "title", "description", "bibtex", false);
         when(requestService.getRequests()).thenReturn(List.of(r));
 
         ResponseEntity<List<Request>> res = sut.getRequests();
 
+        assertEquals(res.getStatusCode(), HttpStatus.OK);
+        assertEquals(res.getBody(), List.of(r));
+    }
+
+    @Test
+    void testGetRequestsForProjectNotFound () {
+        UUID id1 = UUID.randomUUID();
+        when(requestService.getRequestsForProject(id1)).thenThrow(new NotFoundException());
+        ResponseEntity<List<Request>> res = sut.getRequestsForProject(id1);
+
+        assertEquals(res.getStatusCode(), HttpStatus.NOT_FOUND);
+    }
+
+    @Test
+    void testGetRequestsForProjectFound () {
+        UUID id1 = UUID.randomUUID();
+        Request r = new Request(UUID.randomUUID(), "title", "desc",
+                "bib", true);
+        when(requestService.getRequestsForProject(id1)).thenReturn(List.of(r));
+        ResponseEntity<List<Request>> res = sut.getRequestsForProject(id1);
         assertEquals(res.getStatusCode(), HttpStatus.OK);
         assertEquals(res.getBody(), List.of(r));
     }

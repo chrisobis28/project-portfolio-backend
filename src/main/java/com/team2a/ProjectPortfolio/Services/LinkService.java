@@ -9,6 +9,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.List;
+import java.util.UUID;
+
 
 @Service
 public class LinkService {
@@ -58,5 +61,22 @@ public class LinkService {
             throw new EntityNotFoundException();
         return link;
     }
+
+    /**
+     * Gets all the links associated to a project given its id
+     * @param projectId the id of the project
+     * @return a list of links associated with the project
+     */
+    public List<Link> getLinksByProjectId (UUID projectId) {
+        if (projectId == null) {
+            throw new IllegalArgumentException();
+        }
+        List<Link> links = linkRepository.findAllByProjectProjectId(projectId);
+        if (links.isEmpty()) {
+            throw new EntityNotFoundException();
+        }
+        return links;
+    }
+
 
 }

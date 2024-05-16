@@ -3,7 +3,7 @@ package com.team2a.ProjectPortfolio.Services;
 import com.team2a.ProjectPortfolio.Commons.Account;
 import com.team2a.ProjectPortfolio.Commons.Project;
 import com.team2a.ProjectPortfolio.Commons.Request;
-import com.team2a.ProjectPortfolio.Exceptions.NotFoundException;
+import com.team2a.ProjectPortfolio.CustomExceptions.NotFoundException;
 import com.team2a.ProjectPortfolio.Repositories.AccountRepository;
 import com.team2a.ProjectPortfolio.Repositories.ProjectRepository;
 import com.team2a.ProjectPortfolio.Repositories.RequestRepository;
@@ -134,7 +134,60 @@ class RequestServiceTest {
 
     }
 
+    @Test
+    void testGetRequestsForProjectNull () {
+        assertThrows(NotFoundException.class, () -> sut.getRequestsForProject(null));
+    }
 
+    @Test
+    void testGetRequestsForProjectNotFound () {
+        UUID id1 = UUID.randomUUID();
+        UUID id2 = UUID.randomUUID();
+
+        while(id2.equals(id1)){
+            id2 = UUID.randomUUID();
+        }
+
+        Project p = new Project("title", "desc", "bibtex", false);
+        p.setProjectId(id1);
+        when(projectRepository.findAll()).thenReturn(List.of(p));
+        UUID finalId = id2;
+        assertThrows(NotFoundException.class, () -> sut.getRequestsForProject(finalId));
+    }
+
+    @Test
+    void testGetRequestsForProjectEmptyList () {
+        UUID id1 = UUID.randomUUID();
+        UUID id2 = UUID.randomUUID();
+
+        while(id2.equals(id1)){
+            id2 = UUID.randomUUID();
+        }
+
+        Project p = new Project("title", "desc", "bibtex", false);
+        p.setProjectId(id1);
+        p.setRequests(new ArrayList<>());
+        when(projectRepository.findAll()).thenReturn(List.of(p));
+        assertEquals(sut.getRequestsForProject(id1), new ArrayList<>());
+    }
+
+    @Test
+    void testGetRequestsForProjectNonEmptyList () {
+        UUID id1 = UUID.randomUUID();
+        UUID id2 = UUID.randomUUID();
+
+        while(id2.equals(id1)){
+            id2 = UUID.randomUUID();
+        }
+
+        Project p = new Project("title", "desc", "bibtex", false);
+        p.setProjectId(id1);
+        Request r = new Request(UUID.randomUUID(), "title", "description", "bibtex", false);
+
+        p.setRequests(List.of(r));
+        when(projectRepository.findAll()).thenReturn(List.of(p));
+        assertEquals(sut.getRequestsForProject(id1), List.of(r));
+    }
 
 
 

@@ -1,7 +1,7 @@
 package com.team2a.ProjectPortfolio.Services;
 
 import com.team2a.ProjectPortfolio.Commons.*;
-import com.team2a.ProjectPortfolio.Exceptions.NotFoundException;
+import com.team2a.ProjectPortfolio.CustomExceptions.NotFoundException;
 import com.team2a.ProjectPortfolio.Repositories.*;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -124,5 +124,25 @@ public class RequestService {
 
             return request;
         }
+    }
+
+    public List<Request> getRequestsForProject (UUID projectId) {
+
+        if(projectId == null)
+            throw new NotFoundException();
+
+        List<Project> projects = projectRepository
+                .findAll()
+                .stream()
+                .filter(x -> x.getProjectId().equals(projectId))
+                .toList();
+        if(projects.isEmpty())
+            throw new NotFoundException();
+
+        Project p = projects.get(0);
+
+        return p.getRequests();
+
+
     }
 }
