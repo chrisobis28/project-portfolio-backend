@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 class RequestControllerTest {
 
@@ -103,6 +103,24 @@ class RequestControllerTest {
         ResponseEntity<Request> response = sut.addRequest(id1, r);
         assertEquals(response.getStatusCode(), HttpStatus.NOT_FOUND);
 
+    }
+
+    @Test
+    void testDeleteRequestNotFound () {
+        UUID id1 = UUID.randomUUID();
+        doThrow(NotFoundException.class).when(requestService).deleteRequest(id1);
+        ResponseEntity<Void> res = sut.deleteRequest(id1);
+        assertEquals(res.getStatusCode(), HttpStatus.NOT_FOUND);
+    }
+
+    @Test
+    void testDeleteRequestOk () {
+        UUID id1 = UUID.randomUUID();
+
+        doNothing().when(requestService).deleteRequest(id1);
+
+        ResponseEntity<Void> res = sut.deleteRequest(id1);
+        assertEquals(res.getStatusCode(), HttpStatus.NO_CONTENT);
     }
 
 }
