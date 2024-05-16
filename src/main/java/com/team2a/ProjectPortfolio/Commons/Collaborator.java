@@ -1,6 +1,9 @@
 package com.team2a.ProjectPortfolio.Commons;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -13,6 +16,8 @@ import java.util.UUID;
 @NoArgsConstructor
 @Entity
 @Table(name="COLLABORATOR")
+@AllArgsConstructor
+@JsonSerialize
 public class Collaborator {
     @Id
     @Column(name="COLLABORATOR_ID")
@@ -31,6 +36,7 @@ public class Collaborator {
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @OnDelete(action= OnDeleteAction.CASCADE)
     @JoinColumn(name="COLLABORATOR_ID")
+    @JsonIgnore
     private List<ProjectsToCollaborators> projectsToCollaborators;
 
     @Getter

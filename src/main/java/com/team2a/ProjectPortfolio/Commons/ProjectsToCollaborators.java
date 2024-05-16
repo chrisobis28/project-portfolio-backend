@@ -1,13 +1,17 @@
 package com.team2a.ProjectPortfolio.Commons;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.UUID;
 
 @Entity
 @Table(name="PROJECTS_TO_COLLABORATORS")
+@AllArgsConstructor
+@NoArgsConstructor
 public class ProjectsToCollaborators {
     @Id
     @Column(name="PTC_ID")

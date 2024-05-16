@@ -11,4 +11,5 @@ public interface ProjectsToCollaboratorsRepository extends JpaRepository<Project
     List<ProjectsToCollaborators> findAllByProjectProjectId (UUID projectId);
     List<ProjectsToCollaborators> findAllByProjectProjectIdAndCollaboratorCollaboratorId
             (UUID projectId, UUID collaboratorId);
+    List<ProjectsToCollaborators> findAllByCollaboratorCollaboratorId (UUID collaboratorId);
 }

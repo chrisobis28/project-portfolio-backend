@@ -40,9 +40,6 @@ public class CollaboratorService {
      * @return the list of Collaborators
      */
     public List<Collaborator> getCollaboratorsByProjectId (UUID projectId) {
-        if(projectId == null) {
-            throw new IllegalArgumentException();
-        }
         Project project = projectRepository.findById(projectId).orElseThrow(EntityNotFoundException::new);
         List<ProjectsToCollaborators> projectsToCollaborators = projectsToCollaboratorsRepository.
                 findAllByProjectProjectId(projectId);
@@ -59,9 +56,6 @@ public class CollaboratorService {
      * @return the collaborator entity
      */
     public Collaborator addCollaboratorToProject (UUID projectId, String collaboratorName) {
-        if(projectId == null) {
-            throw new IllegalArgumentException();
-        }
         Project project = projectRepository.findById(projectId).orElseThrow(EntityNotFoundException::new);
         List<Collaborator> collaborators = collaboratorRepository.findAllByName(collaboratorName);
         if(collaborators.isEmpty()) {
@@ -71,6 +65,8 @@ public class CollaboratorService {
             projectsToCollaborators = projectsToCollaboratorsRepository.save(projectsToCollaborators);
             return collaborator;
         }
+        ProjectsToCollaborators projectsToCollaborators = new ProjectsToCollaborators(project, collaborators.get(0));
+        projectsToCollaborators = projectsToCollaboratorsRepository.save(projectsToCollaborators);
         return collaborators.get(0);
 
     }
@@ -82,9 +78,6 @@ public class CollaboratorService {
      * @return the collaborator entity
      */
     public Collaborator editCollaboratorOfProject (UUID collaboratorId, String collaboratorName) {
-        if(collaboratorId == null) {
-            throw new IllegalArgumentException();
-        }
         Collaborator collaborator = collaboratorRepository.findById(collaboratorId).
                 orElseThrow(EntityNotFoundException::new);
         collaborator.setName(collaboratorName);
@@ -98,9 +91,6 @@ public class CollaboratorService {
      * @return a string containing a response
      */
     public String deleteCollaborator (UUID collaboratorId) {
-        if(collaboratorId == null) {
-            throw new IllegalArgumentException();
-        }
         Collaborator collaborator = collaboratorRepository.findById(collaboratorId).
                 orElseThrow(EntityNotFoundException::new);
         collaboratorRepository.delete(collaborator);
@@ -114,12 +104,6 @@ public class CollaboratorService {
      * @return  a string containing a response
      */
     public String deleteCollaboratorFromProject (UUID projectId,UUID collaboratorId) {
-        if(collaboratorId == null) {
-            throw new IllegalArgumentException();
-        }
-        if(projectId == null) {
-            throw new IllegalArgumentException();
-        }
         Collaborator collaborator = collaboratorRepository.findById(collaboratorId).
                 orElseThrow(EntityNotFoundException::new);
         Project project = projectRepository.findById(projectId).

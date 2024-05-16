@@ -35,8 +35,6 @@ public class CollaboratorController {
         try {
             List<Collaborator> collaboratorsList = collaboratorService.getCollaboratorsByProjectId(projectId);
             return ResponseEntity.ok(collaboratorsList);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().build();
         } catch (EntityNotFoundException e) {
             return ResponseEntity.notFound().build();
         }
@@ -55,8 +53,6 @@ public class CollaboratorController {
         try {
             Collaborator collaborator = collaboratorService.addCollaboratorToProject(projectId,collaboratorName);
             return ResponseEntity.ok(collaborator);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().build();
         } catch (EntityNotFoundException e) {
             return ResponseEntity.notFound().build();
         }
@@ -74,8 +70,6 @@ public class CollaboratorController {
         try {
             Collaborator collaborator = collaboratorService.editCollaboratorOfProject(collaboratorId,collaboratorName);
             return ResponseEntity.ok(collaborator);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().build();
         } catch (EntityNotFoundException e) {
             return ResponseEntity.notFound().build();
         }
@@ -91,8 +85,6 @@ public class CollaboratorController {
         try {
             String response = collaboratorService.deleteCollaborator(collaboratorId);
             return ResponseEntity.ok(response);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().build();
         } catch (EntityNotFoundException e) {
             return ResponseEntity.notFound().build();
         }
@@ -110,8 +102,6 @@ public class CollaboratorController {
         try {
             String response = collaboratorService.deleteCollaboratorFromProject(projectId,collaboratorId);
             return ResponseEntity.ok(response);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().build();
         } catch (EntityNotFoundException e) {
             return ResponseEntity.notFound().build();
         }
