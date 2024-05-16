@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class CollaboratorController {
+class CollaboratorControllerTest {
     @Mock
     private CollaboratorService cs;
 
@@ -82,7 +82,6 @@ class CollaboratorController {
     void editCollaboratorOfProjectINotFound () {
         UUID collaboratorId = UUID.randomUUID();
         String collaboratorName = "Filip";
-        Collaborator expectedCollaborator = new Collaborator("Andrei");
         when(cs.editCollaboratorOfProject(collaboratorId, collaboratorName)).thenThrow(EntityNotFoundException.class);
         ResponseEntity<Collaborator> responseEntity = cc.editCollaboratorOfProject(collaboratorId, collaboratorName);
         assertNull(responseEntity.getBody());
