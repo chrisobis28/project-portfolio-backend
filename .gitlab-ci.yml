@@ -23,11 +23,12 @@ build:
 test:
   stage: test
   script:
-    - ./gradlew test
-    - |
-      if [[ "$CI_COMMIT_BRANCH" == "main" || "$CI_COMMIT_BRANCH" == "dev" ]]; then
-        ./gradlew jacocoTestCoverageVerification
-      fi
+    - ./gradlew test jacocoTestCoverageVerification integrationTest
+  only:
+    - dev
+    - main
   artifacts:
     paths:
+      - build/reports/tests/test
+      - build/reports/tests/integrationTest
       - build/reports/jacoco/test/html/
