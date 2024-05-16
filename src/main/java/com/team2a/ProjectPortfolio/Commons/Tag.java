@@ -1,5 +1,6 @@
 package com.team2a.ProjectPortfolio.Commons;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -44,6 +45,7 @@ public class Tag {
     @OneToMany(cascade=CascadeType.ALL, orphanRemoval = true)
     @OnDelete(action=OnDeleteAction.CASCADE)
     @JoinColumn(name="TAG_ID")
+    @JsonIgnore
     private List<TagsToProject> tagsToProjects;
 
     public Tag(UUID tagId, String name, String color, List<RequestTagProject> requestTagProjects,
