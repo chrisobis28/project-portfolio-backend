@@ -77,6 +77,11 @@ public class RequestController {
     }
 
 
+    /**
+     * Controller method for getting all requests for a project
+     * @param projectID the id of the project
+     * @return response entity with body as the list of requests
+     */
     @GetMapping("/{projectId}")
     public ResponseEntity<List<Request>> getRequestsForProject (@PathVariable UUID projectID) {
         try{
@@ -85,6 +90,22 @@ public class RequestController {
         } catch (NotFoundException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
+    }
+
+    /**
+     * controller method for deleting a request
+     * @param projectId the id of the project to remove
+     * @return response entity showing status of the removal
+     */
+    @DeleteMapping("/{projectId}")
+    public ResponseEntity<Void> deleteRequest (@PathVariable UUID projectId) {
+        try {
+            requestService.deleteRequest(projectId);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } catch (NotFoundException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
     }
 
 

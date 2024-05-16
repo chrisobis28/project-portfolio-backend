@@ -189,6 +189,28 @@ class RequestServiceTest {
         assertEquals(sut.getRequestsForProject(id1), List.of(r));
     }
 
+    @Test
+    void testDeleteIdNull () {
+        assertThrows(NotFoundException.class, () -> sut.deleteRequest(null));
+    }
+
+    @Test
+    void testDeleteNotFound () {
+        UUID id1 = UUID.randomUUID();
+        when(requestRepository.findById(id1)).thenReturn(Optional.empty());
+        assertThrows(NotFoundException.class, () -> sut.deleteRequest(id1));
+    }
+
+    @Test
+    void testDeleteOk () {
+        UUID id1 = UUID.randomUUID();
+
+        Request r = new Request(id1, "newTitle", "newDesc", "newBib", false);
+        when(requestRepository.findById(id1)).thenReturn(Optional.of(r));
+        sut.deleteRequest(id1);
+        verify(requestRepository).delete(r);
+    }
+
 
 
 }

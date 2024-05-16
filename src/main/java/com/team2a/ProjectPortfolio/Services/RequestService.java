@@ -126,6 +126,11 @@ public class RequestService {
         }
     }
 
+    /**
+     * Get requests for a project
+     * @param projectId the id of the project to be queried
+     * @return the list of requests or exception if not found
+     */
     public List<Request> getRequestsForProject (UUID projectId) {
 
         if(projectId == null)
@@ -144,5 +149,21 @@ public class RequestService {
         return p.getRequests();
 
 
+    }
+
+    /**
+     * Method for deleting a specific request
+     * @param requestId the id of the request to be deleted
+     */
+    public void deleteRequest (UUID requestId) {
+        if(requestId == null)
+            throw new NotFoundException();
+
+        Optional<Request> request = requestRepository.findById(requestId);
+
+        if(request.isEmpty())
+            throw new NotFoundException();
+
+        requestRepository.delete(request.get());
     }
 }
