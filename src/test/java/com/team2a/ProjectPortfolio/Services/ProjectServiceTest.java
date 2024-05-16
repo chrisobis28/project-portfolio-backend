@@ -68,6 +68,29 @@ class ProjectServiceTest {
         assertThrows(EntityNotFoundException.class, () -> projectService.deleteProject(projectId));
     }
     @Test
+    void updateProjectSuccess() {
+        UUID projectId = UUID.randomUUID();
+        Project project1 = new Project("Title1", "Description1", "Bibtex1", false);
+        Project project2 = new Project("Title2", "Description2", "Bibtex2", false);
+        when(projectRepository.findById(projectId)).thenReturn(Optional.of(project1));
+        when(projectRepository.save(project1)).thenReturn(project2);
+        Project response = projectService.updateProject(projectId, project2);
+        assertEquals(project2, response);
+    }
+
+    @Test
+    void updateProjectNullId() {
+        Project project1 = new Project("Title1", "Description1", "Bibtex1", false);
+        assertThrows(IllegalArgumentException.class, () -> projectService.updateProject(null, project1));
+    }
+
+    @Test
+    void updateProjectNotFound() {
+        UUID projectId = UUID.randomUUID();
+        Project project1 = new Project("Title1", "Description1", "Bibtex1", false);
+        assertThrows(EntityNotFoundException.class, () -> projectService.updateProject(projectId, project1));
+    }
+    @Test
     void createProjectSuccess() {
         String title = "title1";
         String desc = "desc1";

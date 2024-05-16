@@ -7,8 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.UUID;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class ProjectService {
@@ -43,6 +43,25 @@ public class ProjectService {
         Project project = projectRepository.findById(projectId).orElseThrow(EntityNotFoundException::new);
         projectRepository.delete(project);
         return "Deleted project with specified ID";
+    }
+
+    /**
+     * Returns an updated project given an id and new features
+     * @param projectId the id of the project
+     * @param project the project updates to be persisted
+     * @return the changed project with the specified ID
+     */
+    public Project updateProject (UUID projectId, Project project) {
+        if (projectId == null) {
+            throw new IllegalArgumentException();
+        }
+        Project existingProject = projectRepository.findById(projectId).orElseThrow(EntityNotFoundException::new);
+        existingProject.setTitle(project.getTitle());
+        existingProject.setDescription(project.getDescription());
+        existingProject.setBibtex(project.getBibtex());
+        existingProject.setArchived(project.getArchived());
+        existingProject = projectRepository.save(existingProject);
+        return existingProject;
     }
 
     /**

@@ -10,5 +10,6 @@ import java.util.UUID;
 public interface LinkRepository extends JpaRepository<Link, UUID> {
 
     boolean existsByProjectProjectIdAndUrl (UUID projectId, String url);
+
     List<Link> findAllByProjectProjectId (UUID projectId);
 }
