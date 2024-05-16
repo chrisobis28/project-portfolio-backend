@@ -2,11 +2,13 @@ package com.team2a.ProjectPortfolio.Commons;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import java.util.UUID;
 
 @Entity
 @Table(name = "TAGS_TO_PROJECT")
+@NoArgsConstructor
 public class TagsToProject {
 
     @ManyToOne

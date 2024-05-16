@@ -967,7 +967,23 @@ components:
           type: string
         isCounterOffer:
           type: boolean
-        
+        linksChanged:
+          type: array
+          items:
+              $ref: '#/components/schemas/Link'
+        mediaChanged:
+          type: array
+          items:
+            $ref: '#/components/schemas/Media'
+        tagsChanged:
+          type: array
+          items:
+            $ref: '#/components/schemas/Tag'
+        collaboratorsChanged:
+          type: array
+          items:
+            $ref: '#/components/schemas/Collaborator'
+
     Tag:
       type: object
       properties:
