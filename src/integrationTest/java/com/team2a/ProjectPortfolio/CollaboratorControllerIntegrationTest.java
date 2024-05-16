@@ -2,7 +2,6 @@ package com.team2a.ProjectPortfolio;
 
 import com.team2a.ProjectPortfolio.Commons.*;
 import com.team2a.ProjectPortfolio.Repositories.*;
-import com.team2a.ProjectPortfolio.Routes;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -86,7 +85,7 @@ public class CollaboratorControllerIntegrationTest {
         assertThat(collaboratorRepository.findAllByName("newName").size()).isEqualTo(0);
         mockMvc.perform(post(Routes.COLLABORATOR + "/" + projectId)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("newName".toString()))
+                        .content("newName"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name", is("newName" )));
         assertThat(collaboratorRepository.findAllByName("newName").size()).isEqualTo(1);
@@ -97,7 +96,7 @@ public class CollaboratorControllerIntegrationTest {
         assertThat(collaboratorRepository.findAll().size()).isEqualTo(3);
         mockMvc.perform(put(Routes.COLLABORATOR +"/"+ collaborator1.getCollaboratorId())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("New Name".toString()))
+                        .content("New Name"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath( "$.name", is("New Name")));
         assertThat(collaboratorRepository.findAll().size()).isEqualTo(3);
@@ -145,7 +144,7 @@ public class CollaboratorControllerIntegrationTest {
         assertThat(collaboratorRepository.findAllByName("newName").size()).isEqualTo(0);
         mockMvc.perform(post(Routes.COLLABORATOR + "/" + UUID.randomUUID())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("newName".toString()));
+                        .content("newName"));
         assertThat(collaboratorRepository.findAllByName("newName").size()).isEqualTo(0);
         assertThat(collaboratorRepository.findAll().size()).isEqualTo(3);
     }
@@ -154,7 +153,7 @@ public class CollaboratorControllerIntegrationTest {
         assertThat(collaboratorRepository.findAll().size()).isEqualTo(3);
         mockMvc.perform(put(Routes.COLLABORATOR +"/"+ UUID.randomUUID())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("New Name".toString()));
+                        .content("New Name"));
         assertThat(collaboratorRepository.findAll().size()).isEqualTo(3);
     }
     @Test
