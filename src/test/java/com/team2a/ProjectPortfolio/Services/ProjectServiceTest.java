@@ -5,12 +5,9 @@ import com.team2a.ProjectPortfolio.Repositories.ProjectRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -51,6 +48,29 @@ class ProjectServiceTest {
         assertEquals(projects, response);
     }
 
+    @Test
+    void updateProjectSuccess() {
+        UUID projectId = UUID.randomUUID();
+        Project project1 = new Project("Title1", "Description1", "Bibtex1", false);
+        Project project2 = new Project("Title2", "Description2", "Bibtex2", false);
+        when(projectRepository.findById(projectId)).thenReturn(Optional.of(project1));
+        when(projectRepository.save(project1)).thenReturn(project2);
+        Project response = projectService.updateProject(projectId, project2);
+        assertEquals(project2, response);
+    }
+
+    @Test
+    void updateProjectNullId() {
+        Project project1 = new Project("Title1", "Description1", "Bibtex1", false);
+        assertThrows(IllegalArgumentException.class, () -> projectService.updateProject(null, project1));
+    }
+
+    @Test
+    void updateProjectNotFound() {
+        UUID projectId = UUID.randomUUID();
+        Project project1 = new Project("Title1", "Description1", "Bibtex1", false);
+        assertThrows(EntityNotFoundException.class, () -> projectService.updateProject(projectId, project1));
+    }
     @Test
     void createProjectSuccess() {
         String title = "title1";

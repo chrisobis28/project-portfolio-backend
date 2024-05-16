@@ -86,7 +86,6 @@ class LinkControllerTest {
     @Test
     void getLinksByProjectIdSuccess() {
         UUID projectId = UUID.randomUUID();
-        Link link1 = new Link("link1", "desc1");
         Link link2 = new Link("link2", "desc2");
         when(ls.getLinksByProjectId(projectId)).thenReturn(List.of(link2));
         ResponseEntity<List<Link>> response = lc.getLinksByProjectId(projectId);

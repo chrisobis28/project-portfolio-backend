@@ -37,6 +37,25 @@ public class ProjectController {
     }
 
     /**
+     * Returns a an updated project given an ID
+     * @param projectId the id of a project
+     * @param project the project updates that will be persisted in the DB
+     * @return the changed project with the specified ID
+     */
+    @PutMapping("/{projectId}")
+    public ResponseEntity<Project> updateProject (@PathVariable("projectId") UUID projectId,
+                                                  @RequestBody Project project) {
+        try {
+            Project result = projectService.updateProject(projectId, project);
+            return ResponseEntity.ok(result);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    /**
      * Returns a Project queried by its ID
      * @param projectId the id of the project
      * @return a response entity that contains the project with the specified id

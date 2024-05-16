@@ -103,7 +103,6 @@ public class LinkServiceTest {
     @Test
     void getLinksByProjectIdSuccess() {
         UUID projectId = UUID.randomUUID();
-        Link link1 = new Link("link1", "desc1");
         Link link2 = new Link("link2", "desc2");
         when(lr.findAllByProjectProjectId(projectId)).thenReturn(List.of(link2));
         List<Link> response = ls.getLinksByProjectId(projectId);
