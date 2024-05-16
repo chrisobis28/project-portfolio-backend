@@ -1,6 +1,8 @@
 package com.team2a.ProjectPortfolio.Commons;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
+import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -13,22 +15,26 @@ import java.util.UUID;
 @Entity
 @Table(name = "TAG")
 @NoArgsConstructor
+@Data
 public class Tag {
     @Id
     @Column(name="TAG_ID", nullable=false)
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Getter
     @Setter
+    @JsonProperty
     private UUID tagId;
 
     @Column(name="NAME")
     @Getter
     @Setter
+    @JsonProperty
     private String name;
 
     @Column(name="COLOR")
     @Getter
     @Setter
+    @JsonProperty
     private String color;
 
 
@@ -54,4 +60,5 @@ public class Tag {
         this.requestTagProjects = requestTagProjects;
         this.tagsToProjects = tagsToProjects;
     }
+
 }

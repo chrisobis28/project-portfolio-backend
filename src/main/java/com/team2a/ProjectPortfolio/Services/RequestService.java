@@ -26,22 +26,6 @@ public class RequestService {
     @Setter
     private ProjectRepository projectRepository;
 
-    @Autowired
-    @Setter
-    private RequestCollaboratorsProjectsRepository requestCollaboratorsProjectsRepository;
-
-    @Autowired
-    @Setter
-    private RequestLinkProjectRepository requestLinkProjectRepository;
-
-    @Autowired
-    @Setter
-    private RequestMediaProjectRepository requestMediaProjectRepository;
-
-    @Autowired
-    @Setter
-    private RequestTagProjectRepository requestTagProjectRepository;
-
     /**
      * Retrieves all requests made by a specific user
      * @param username the username to be queried
@@ -74,16 +58,24 @@ public class RequestService {
     }
 
 
+    /**
+     * Method for adding a request to the database
+     * @param request the request to be added
+     * @param projectId the id of the project changed in a request
+     * @return the Request added or NotFoundException, if no project found
+     */
     public Request addRequest (Request request, UUID projectId) {
         Optional<Project> proj = projectRepository.findById(projectId);
 
-//        if(proj.isEmpty())
-//            throw new NotFoundException();
-//
-//        Project p = proj.get();
+        if(proj.isEmpty())
+            throw new NotFoundException();
 
-        Project p = new Project();
-        projectRepository.save(p);
+        Project p = proj.get();
+
+        //Project p = new Project();
+        //projectRepository.save(p);
+
+        // if you want to test in isolation, uncomment lines above and comment the three lines above it
 
         List<Request> requests = requestRepository
                 .findAll()
@@ -103,15 +95,33 @@ public class RequestService {
             return requests.get(0);
         else {
             request.setProject(p);
+
+//            //delete later - Just for testing
+
+//            //You need to have these in the database in order to add this request to the db.
+//            //In the final product, the client will send these to you and guarantee they
+//            //  are in the db. ATM, you can not test this endpoint in isolation
+//            // if you do not first add these to the db. To test with postman, uncomment below.
+
+//            for (Media m : request.getMedia()) {
+//                request.setMediaChanged(List.of(mediaRepository.save(m)));
+//            }
+//            for (Link l : request.getLinks()) {
+//                request.setLinksChanged(List.of(linkRepository.save(l)));
+//            }
+//            for (Tag t : request.getTags()) {
+//                request.setTagsChanged(List.of(tagRepository.save(t)));
+//            }
+//            for (Collaborator c : request.getCollaborators()) {
+//                request.setCollaboratorsChanged(List.of(collaboratorRepository.save(c)));
+//            }
+
+//            //delete later
+
+
             requestRepository.save(request);
-            for (Media m : request.getMedia())
-                requestMediaProjectRepository.save(new RequestMediaProject(request, m));
-            for (Link l : request.getLinks())
-                requestLinkProjectRepository.save(new RequestLinkProject(l, request));
-            for (Tag t : request.getTags())
-                requestTagProjectRepository.save(new RequestTagProject(request, t));
-            for (Collaborator c : request.getCollaborators())
-                requestCollaboratorsProjectsRepository.save(new RequestCollaboratorsProjects(request, c));
+
+
             return request;
         }
     }

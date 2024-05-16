@@ -2,6 +2,7 @@ package com.team2a.ProjectPortfolio.Commons;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
@@ -10,6 +11,7 @@ import java.util.UUID;
 @Entity
 @Table(name = "REQUEST_MEDIA_PROJECT")
 @ToString
+@NoArgsConstructor
 public class RequestMediaProject {
     @Id
     @Column(name="REQUEST_MEDIA_PROJECT_ID", nullable=false)
@@ -24,11 +26,6 @@ public class RequestMediaProject {
     private boolean isRemove;
 
 
-    @Getter
-    @Setter
-    @ManyToOne
-    @JoinColumn(name = "REQUEST_ID")
-    private Request request;
 
     @Getter
     @Setter
@@ -41,8 +38,7 @@ public class RequestMediaProject {
         this.isRemove = isRemove;
     }
 
-    public RequestMediaProject(Request request, Media media) {
-        this.request = request;
+    public RequestMediaProject(Media media) {
         this.media = media;
     }
 }

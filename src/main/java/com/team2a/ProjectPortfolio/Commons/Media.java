@@ -1,6 +1,8 @@
 package com.team2a.ProjectPortfolio.Commons;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
+import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -13,17 +15,20 @@ import java.util.UUID;
 @Entity
 @NoArgsConstructor
 @Table(name="MEDIA")
+@Data
 public class Media {
     @Id
     @Column(name="MEDIA_ID")
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Getter
     @Setter
+    @JsonProperty
     private UUID mediaId;
 
     @Column(name="PATH")
     @Getter
     @Setter
+    @JsonProperty
     private String path;
 
     @Getter
@@ -40,10 +45,6 @@ public class Media {
     @JoinColumn(name="MEDIA_ID")
     private List<RequestMediaProject> requestMediaProjects;
 
-    public Media(UUID mediaId, String path) {
-        this.mediaId = mediaId;
-        this.path = path;
-    }
     public Media(Project project, String path) {
         this.project = project;
         this.path = path;
