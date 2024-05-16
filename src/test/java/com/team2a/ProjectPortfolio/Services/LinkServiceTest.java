@@ -11,12 +11,14 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import com.team2a.ProjectPortfolio.Commons.Link;
 import jakarta.persistence.EntityNotFoundException;
+
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+
 import org.springframework.web.server.ResponseStatusException;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -96,6 +98,28 @@ public class LinkServiceTest {
         assertThrows(IllegalArgumentException.class, () -> ls.editLinkOfProject(null));
         verify(lr, never()).findById(any(UUID.class));
         verify(lr, never()).save(any(Link.class));
+    }
+
+    @Test
+    void getLinksByProjectIdSuccess() {
+        UUID projectId = UUID.randomUUID();
+        Link link2 = new Link("link2", "desc2");
+        when(lr.findAllByProjectProjectId(projectId)).thenReturn(List.of(link2));
+        List<Link> response = ls.getLinksByProjectId(projectId);
+        assertEquals(List.of(link2), response);
+    }
+
+    @Test
+    void getLinksByProjectIdNullId() {
+        assertThrows(IllegalArgumentException.class, () -> ls.getLinksByProjectId(null));
+        verify(lr, never()).findAllByProjectProjectId(any(UUID.class));
+    }
+
+    @Test
+    void getLinksByProjectIdNotFound() {
+        UUID projectId = UUID.randomUUID();
+        when(lr.findAllByProjectProjectId(projectId)).thenReturn(List.of());
+        assertThrows(EntityNotFoundException.class, () -> ls.getLinksByProjectId(projectId));
     }
 
 }

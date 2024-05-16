@@ -12,6 +12,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -70,4 +71,58 @@ class ProjectServiceTest {
         Project project1 = new Project("Title1", "Description1", "Bibtex1", false);
         assertThrows(EntityNotFoundException.class, () -> projectService.updateProject(projectId, project1));
     }
+    @Test
+    void createProjectSuccess() {
+        String title = "title1";
+        String desc = "desc1";
+        String bibtex = "bibtex1";
+        Project project = new Project(title, desc, bibtex, false);
+        when(projectRepository.findFirstByTitleAndDescriptionAndBibtex(title, desc, bibtex))
+                .thenReturn(Optional.empty());
+        when(projectRepository.save(any())).thenReturn(new Project(title, desc, bibtex, false));
+        Project response = projectService.createProject(project);
+        assertEquals(project.getTitle(), response.getTitle());
+        assertEquals(project.getDescription(), response.getDescription());
+        assertEquals(project.getBibtex(), response.getBibtex());
+    }
+
+    @Test
+    void createProjectNull() {
+        assertThrows(IllegalArgumentException.class, () -> projectService.createProject(null));
+    }
+
+    @Test
+    void createProjectExistsAlready() {
+        String title = "title1";
+        String desc = "desc1";
+        String bibtex = "bibtex1";
+        Project project = new Project(title, desc, bibtex, false);
+        when(projectRepository.findFirstByTitleAndDescriptionAndBibtex(title, desc, bibtex))
+                .thenReturn(Optional.of(new Project(title, desc, bibtex, false)));
+        Project response = projectService.createProject(project);
+        assertEquals(project.getTitle(), response.getTitle());
+        assertEquals(project.getDescription(), response.getDescription());
+        assertEquals(project.getBibtex(), response.getBibtex());
+    }
+
+    @Test
+    void getProjectByIdSuccess() {
+        UUID projectId = UUID.randomUUID();
+        Project project1 = new Project("Title1", "Description1", "Bibtex1", false);
+        when(projectRepository.findById(projectId)).thenReturn(Optional.of(project1));
+        Project response = projectService.getProjectById(projectId);
+        assertEquals(project1, response);
+    }
+
+    @Test
+    void getProjectByIdNull() {
+        assertThrows(IllegalArgumentException.class, () -> projectService.getProjectById(null));
+    }
+
+    @Test
+    void getProjectByIdNotFound() {
+        UUID projectId = UUID.randomUUID();
+        assertThrows(EntityNotFoundException.class, () -> projectService.getProjectById(projectId));
+    }
+
 }

@@ -27,7 +27,7 @@ public class ProjectController {
     }
 
     /**
-     * Returns a list of all Projects in a response body
+     * Returns a list of all Projects in a response entity
      * @return a response entity that contains the list of all projects
      */
     @GetMapping("/")
@@ -52,6 +52,38 @@ public class ProjectController {
             return ResponseEntity.badRequest().build();
         } catch (EntityNotFoundException e) {
             return ResponseEntity.notFound().build();
+        }
+    }
+
+    /**
+     * Returns a Project queried by its ID
+     * @param projectId the id of the project
+     * @return a response entity that contains the project with the specified id
+     */
+    @GetMapping("/{projectId}")
+    public ResponseEntity<Project> getProjectById (@PathVariable("projectId") UUID projectId) {
+        try {
+            Project project = projectService.getProjectById(projectId);
+            return ResponseEntity.ok(project);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    /**
+     * Creates a new project and returns it in a response entity
+     * @param project A json deserialized object with the attributes for the project
+     * @return a response entity that contains the added project
+     */
+    @PostMapping("/")
+    public ResponseEntity<Project> createProject (@RequestBody Project project) {
+        try {
+            Project response = projectService.createProject(project);
+            return ResponseEntity.ok(response);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
         }
     }
 
