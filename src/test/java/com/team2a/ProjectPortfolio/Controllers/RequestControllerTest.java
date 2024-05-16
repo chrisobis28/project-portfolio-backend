@@ -83,4 +83,26 @@ class RequestControllerTest {
         assertEquals(res.getBody(), List.of(r));
     }
 
+    @Test
+    void testAddRequestOk() {
+
+        Request r = new Request(UUID.randomUUID(), "title", "description", "bibtex", false);
+        UUID id1 = UUID.randomUUID();
+        when(requestService.addRequest(r, id1)).thenReturn(r);
+        ResponseEntity<Request> res = sut.addRequest(id1, r);
+        assertEquals(res.getStatusCode(), HttpStatus.CREATED);
+        assertEquals(res.getBody(), r);
+    }
+
+    @Test
+    void testAddRequestNotFound() {
+
+        Request r = new Request(UUID.randomUUID(), "title", "description", "bibtex", false);
+        UUID id1 = UUID.randomUUID();
+        when(requestService.addRequest(r, id1)).thenThrow(NotFoundException.class);
+        ResponseEntity<Request> response = sut.addRequest(id1, r);
+        assertEquals(response.getStatusCode(), HttpStatus.NOT_FOUND);
+
+    }
+
 }

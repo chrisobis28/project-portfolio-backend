@@ -8,10 +8,7 @@ import com.team2a.ProjectPortfolio.Services.RequestService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.UUID;
 
@@ -57,6 +54,26 @@ public class RequestController {
     public ResponseEntity<List<Request>> getRequests () {
         List<Request> requests = requestService.getRequests();
         return new ResponseEntity<>(requests, HttpStatus.OK);
+    }
+
+    /**
+     * Controller method which adds a request to the database
+     * @param projectId the project which the request would modify
+     * @param request The body of the request which we want to add
+     * @return Response entity containing the request as a body.
+     */
+
+    @PutMapping("/{projectId}")
+    public ResponseEntity<Request> addRequest (@PathVariable(name="projectId") UUID projectId,
+                                               @RequestBody Request request) {
+        try{
+//            Logger logger = LoggerFactory.getLogger(RequestController.class);
+//            logger.info(request.toString());
+            Request r = requestService.addRequest(request, projectId);
+            return new ResponseEntity<>(r, HttpStatus.CREATED);
+        } catch (NotFoundException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 
 
