@@ -6,10 +6,7 @@ import com.team2a.ProjectPortfolio.Services.ProjectService;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.UUID;
@@ -30,7 +27,7 @@ public class ProjectController {
     }
 
     /**
-     * Returns a list of all Projects in a response body
+     * Returns a list of all Projects in a response entity
      * @return a response entity that contains the list of all projects
      */
     @GetMapping("/")
@@ -53,6 +50,21 @@ public class ProjectController {
             return ResponseEntity.badRequest().build();
         } catch (EntityNotFoundException e) {
             return ResponseEntity.notFound().build();
+        }
+    }
+
+    /**
+     * Creates a new project and returns it in a response entity
+     * @param project A json deserialized object with the attributes for the project
+     * @return a response entity that contains the added project
+     */
+    @PostMapping("/")
+    public ResponseEntity<Project> createProject (@RequestBody Project project) {
+        try {
+            Project response = projectService.createProject(project);
+            return ResponseEntity.ok(response);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
         }
     }
 
