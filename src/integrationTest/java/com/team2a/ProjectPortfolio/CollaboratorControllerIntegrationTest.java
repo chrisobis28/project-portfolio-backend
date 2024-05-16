@@ -1,4 +1,4 @@
-package com.team2a.ProjectPortfolio.integration;
+package com.team2a.ProjectPortfolio;
 
 import com.team2a.ProjectPortfolio.Commons.*;
 import com.team2a.ProjectPortfolio.Repositories.*;
