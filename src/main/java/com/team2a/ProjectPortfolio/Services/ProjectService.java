@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.Optional;
 
 @Service
 public class ProjectService {
@@ -27,8 +28,7 @@ public class ProjectService {
      * @return the list of all projects
      */
     public List<Project> getProjects () {
-        List<Project> projects = projectRepository.findAll();
-        return projects;
+        return projectRepository.findAll();
     }
 
     /**
@@ -43,5 +43,37 @@ public class ProjectService {
         Project project = projectRepository.findById(projectId).orElseThrow(EntityNotFoundException::new);
         projectRepository.delete(project);
         return "Deleted project with specified ID";
+    }
+
+    /**
+     * Instantiates a new project and returns it
+     * @param project A json deserialized object with the attributes for the project
+     * @return the project added
+     */
+    public Project createProject (Project project) {
+        if (project == null) {
+            throw new IllegalArgumentException();
+        }
+        Optional<Project> existing = projectRepository.findFirstByTitleAndDescriptionAndBibtex(project.getTitle(),
+                project.getDescription(), project.getBibtex());
+        if (existing.isPresent()) {
+            return existing.get();
+        }
+        Project result = new Project(project.getTitle(), project.getDescription(),
+                project.getBibtex(), project.getArchived());
+        result = projectRepository.save(result);
+        return result;
+    }
+
+    /**
+     * Returns a project given an id
+     * @param projectId the id of the project
+     * @return a project queried by its id
+     */
+    public Project getProjectById (UUID projectId) {
+        if (projectId == null) {
+            throw new IllegalArgumentException();
+        }
+        return projectRepository.findById(projectId).orElseThrow(EntityNotFoundException::new);
     }
 }

@@ -51,6 +51,46 @@ class ProjectControllerTest {
     }
 
     @Test
+    void createProjectNull() {
+        when(projectService.createProject(null)).thenThrow(IllegalArgumentException.class);
+        ResponseEntity<Project> response = projectController.createProject(null);
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    }
+
+    @Test
+    void createProjectSuccess() {
+        Project project = new Project("title1", "desc1", "bibtex1", false);
+        when(projectService.createProject(project)).thenReturn(project);
+        ResponseEntity<Project> response = projectController.createProject(project);
+        assertEquals(project, response.getBody());
+    }
+
+    @Test
+    void getProjectByIdSuccess() {
+        UUID projectId = UUID.randomUUID();
+        Project project1 = new Project("Title1", "Description1", "Bibtex1", false);
+        when(projectService.getProjectById(projectId)).thenReturn(project1);
+        ResponseEntity<Project> response = projectController.getProjectById(projectId);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(project1, response.getBody());
+    }
+
+    @Test
+    void getProjectByIdNull() {
+        when(projectService.getProjectById(null)).thenThrow(IllegalArgumentException.class);
+        ResponseEntity<Project> response = projectController.getProjectById(null);
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    }
+
+    @Test
+    void getProjectByIdNotFound() {
+        UUID projectId = UUID.randomUUID();
+        when(projectService.getProjectById(projectId)).thenThrow(EntityNotFoundException.class);
+        ResponseEntity<Project> response = projectController.getProjectById(projectId);
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+    }
+
+    @Test
     void deleteProjectSuccessful() {
         UUID projectId = UUID.randomUUID();
         String expected = "Deleted project with specified ID";

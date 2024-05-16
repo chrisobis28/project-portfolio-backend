@@ -10,6 +10,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.List;
+import java.util.UUID;
+
 @RestController
 @RequestMapping(Routes.LINK)
 public class LinkController {
@@ -48,6 +51,23 @@ public class LinkController {
         try {
             Link updatedLink = linkService.editLinkOfProject(link);
             return ResponseEntity.ok(updatedLink);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    /**
+     * Get the links of a project given its ID
+     * @param projectId the id of the project
+     * @return the links associated with a project given the id of the project
+     */
+    @GetMapping("/{projectId}")
+    public ResponseEntity<List<Link>> getLinksByProjectId (@PathVariable("projectId") UUID projectId) {
+        try {
+            List<Link> links = linkService.getLinksByProjectId(projectId);
+            return ResponseEntity.ok(links);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().build();
         } catch (EntityNotFoundException e) {
