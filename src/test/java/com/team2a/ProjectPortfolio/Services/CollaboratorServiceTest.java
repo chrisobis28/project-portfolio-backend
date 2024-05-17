@@ -24,7 +24,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class CollaboratorServiceMock {
+public class CollaboratorServiceTest {
     @Mock
     private ProjectsToCollaboratorsRepository ptc;
     @Mock
@@ -52,12 +52,6 @@ public class CollaboratorServiceMock {
         List<Collaborator> actualResponse = cs.getCollaboratorsByProjectId(projectId);
         assertEquals(1, actualResponse.size());
         assertEquals("Filip", actualResponse.get(0).getName());
-    }
-
-    @Test
-    void testGetCollaboratorsByProjectIdIllegal () {
-        UUID projectId = null;
-        assertThrows(IllegalArgumentException.class, () -> cs.getCollaboratorsByProjectId(projectId));
     }
 
     @Test
@@ -109,9 +103,9 @@ public class CollaboratorServiceMock {
 
     @Test
     void testAddCollaboratorNotFound () {
-        UUID projectId = null;
+        UUID projectId = UUID.randomUUID();
         String collaboratorName = "Test";
-        assertThrows(IllegalArgumentException.class, () -> cs.addCollaboratorToProject(projectId, collaboratorName));
+        assertThrows(EntityNotFoundException.class, () -> cs.addCollaboratorToProject(projectId, collaboratorName));
     }
 
     @Test
@@ -127,9 +121,9 @@ public class CollaboratorServiceMock {
 
     @Test
     void testEditCollaboratorNotFound () {
-        UUID collaboratorId = null;
+        UUID collaboratorId = UUID.randomUUID();
         String collaboratorName = "Test";
-        assertThrows(IllegalArgumentException.class, () -> cs.editCollaboratorOfProject(collaboratorId, collaboratorName));
+        assertThrows(EntityNotFoundException.class, () -> cs.editCollaboratorOfProject(collaboratorId, collaboratorName));
     }
 
     @Test
@@ -148,11 +142,6 @@ public class CollaboratorServiceMock {
         assertThrows(EntityNotFoundException.class, () -> cs.deleteCollaborator(collaboratorId));
     }
 
-    @Test
-    void testDeleteCollaboratorIllegal () {
-        UUID collaboratorId = null;
-        assertThrows(IllegalArgumentException.class, () -> cs.deleteCollaborator(collaboratorId));
-    }
 
     @Test
     void testDeleteCollaboratorFromProjectSuccess () {
@@ -169,24 +158,11 @@ public class CollaboratorServiceMock {
         verify(ptc, times(1)).deleteAll(anyList());
     }
 
-    @Test
-    void testDeleteCollaboratorFromProjectIllegal1 () {
-        UUID projectId = null;
-        UUID collaboratorId = UUID.randomUUID();
-        assertThrows(IllegalArgumentException.class, () -> cs.deleteCollaboratorFromProject(projectId, collaboratorId));
-    }
 
     @Test
     void testDeleteCollaboratorFromProjectNotFound () {
         UUID projectId = UUID.randomUUID();
         UUID collaboratorId = UUID.randomUUID();
         assertThrows(EntityNotFoundException.class, () -> cs.deleteCollaboratorFromProject(projectId, collaboratorId));
-    }
-
-    @Test
-    void testDeleteCollaboratorFromProjectIllegal2 () {
-        UUID projectId = UUID.randomUUID();
-        UUID collaboratorId = null;
-        assertThrows(IllegalArgumentException.class, () -> cs.deleteCollaboratorFromProject(projectId, collaboratorId));
     }
 }

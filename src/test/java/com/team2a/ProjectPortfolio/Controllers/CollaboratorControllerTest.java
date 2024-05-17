@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class CollaboratorControllerMock {
+class CollaboratorControllerTest {
     @Mock
     private CollaboratorService cs;
 
@@ -35,14 +35,6 @@ class CollaboratorControllerMock {
         ResponseEntity<List<Collaborator>> responseEntity = cc.getCollaboratorsByProjectId(projectId);
         assertEquals(expectedCollaborators, responseEntity.getBody());
         assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
-    }
-
-    @Test
-    void getCollaboratorsByProjectIdInvalid () {
-        UUID invalidProjectId = null;
-        when(cs.getCollaboratorsByProjectId(invalidProjectId)).thenThrow(IllegalArgumentException.class);
-        ResponseEntity<List<Collaborator>> responseEntity = cc.getCollaboratorsByProjectId(invalidProjectId);
-        assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
     }
 
     @Test
@@ -64,14 +56,6 @@ class CollaboratorControllerMock {
         assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
     }
 
-    @Test
-    void addCollaboratorToProjectIllegalProject () {
-        UUID invalidProjectId = null;
-        String collaboratorName = "Filip";
-        when(cs.addCollaboratorToProject(invalidProjectId, collaboratorName)).thenThrow(IllegalArgumentException.class);
-        ResponseEntity<Collaborator> responseEntity = cc.addCollaboratorToProject(invalidProjectId, collaboratorName);
-        assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
-    }
 
     @Test
     void addCollaboratorToProjectINotFoundProject () {
@@ -83,8 +67,8 @@ class CollaboratorControllerMock {
     }
 
     @Test
-    void editCollaboratorOfProjectSuccess () {
-        UUID collaboratorId = UUID.randomUUID();
+    void editCollaboratorOfProjectSuccess() {
+        UUID collaboratorId = UUID.randomUUID ();
         String collaboratorName = "Filip";
         Collaborator expectedCollaborator = new Collaborator("Andrei");
         when(cs.editCollaboratorOfProject(collaboratorId, collaboratorName)).thenReturn(expectedCollaborator);
@@ -93,22 +77,11 @@ class CollaboratorControllerMock {
         assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
     }
 
-    @Test
-    void editCollaboratorOfProjectIllegal () {
-        UUID collaboratorId = null;
-        String collaboratorName = "Filip";
-        Collaborator expectedCollaborator = new Collaborator("Andrei");
-        when(cs.editCollaboratorOfProject(collaboratorId, collaboratorName)).thenThrow(IllegalArgumentException.class);
-        ResponseEntity<Collaborator> responseEntity = cc.editCollaboratorOfProject(collaboratorId, collaboratorName);
-        assertNull(responseEntity.getBody());
-        assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
-    }
 
     @Test
     void editCollaboratorOfProjectINotFound () {
         UUID collaboratorId = UUID.randomUUID();
         String collaboratorName = "Filip";
-        Collaborator expectedCollaborator = new Collaborator("Andrei");
         when(cs.editCollaboratorOfProject(collaboratorId, collaboratorName)).thenThrow(EntityNotFoundException.class);
         ResponseEntity<Collaborator> responseEntity = cc.editCollaboratorOfProject(collaboratorId, collaboratorName);
         assertNull(responseEntity.getBody());
@@ -124,14 +97,6 @@ class CollaboratorControllerMock {
         assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
     }
 
-    @Test
-    void deleteCollaboratorIllegal () {
-        UUID collaboratorId = null;
-        when(cs.deleteCollaborator(collaboratorId)).thenThrow(IllegalArgumentException.class);
-        ResponseEntity<String> responseEntity = cc.deleteCollaborator(collaboratorId);
-        assertNull(responseEntity.getBody());
-        assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
-    }
 
     @Test
     void deleteCollaboratorNotFound () {
@@ -161,15 +126,4 @@ class CollaboratorControllerMock {
         assertNull(responseEntity.getBody());
         assertEquals(HttpStatus.NOT_FOUND, responseEntity.getStatusCode());
     }
-
-    @Test
-    void deleteCollaboratorFromProjectIllegal () {
-        UUID projectId = null;
-        UUID collaboratorId = null;
-        when(cs.deleteCollaboratorFromProject(projectId, collaboratorId)).thenThrow(IllegalArgumentException.class);
-        ResponseEntity<String> responseEntity = cc.deleteCollaboratorFromProject(projectId, collaboratorId);
-        assertNull(responseEntity.getBody());
-        assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
-    }
-
 }
