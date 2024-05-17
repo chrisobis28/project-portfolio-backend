@@ -34,23 +34,25 @@ class LinkControllerTest {
     @Test
     void addLinkSuccess() {
         Link link = new Link("Test Link", "Test Description");
+        UUID projectId = UUID.randomUUID();
         link.setLinkId(UUID.randomUUID());
-        when(ls.addLinkToProject(any(Link.class))).thenReturn(link);
-        ResponseEntity<Link> responseEntity = lc.addLinkToProject(link);
+        when(ls.addLinkToProject(any(Link.class),any(UUID.class))).thenReturn(link);
+        ResponseEntity<Link> responseEntity = lc.addLinkToProject(link,projectId);
         assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
         assertEquals(link, responseEntity.getBody());
-        verify(ls, times(1)).addLinkToProject(any(Link.class));
+        verify(ls, times(1)).addLinkToProject(any(Link.class),any(UUID.class));
     }
 
     @Test
     void addLinkConflict() {
         Link link = new Link("Test Link", "Test Description");
+        UUID projectId = UUID.randomUUID();
         link.setLinkId(UUID.randomUUID());
-        doThrow(new ResponseStatusException(HttpStatus.CONFLICT)).when(ls).addLinkToProject(any(Link.class));
-        ResponseEntity<Link> responseEntity = lc.addLinkToProject(link);
+        doThrow(new ResponseStatusException(HttpStatus.CONFLICT)).when(ls).addLinkToProject(any(Link.class),any(UUID.class));
+        ResponseEntity<Link> responseEntity = lc.addLinkToProject(link,projectId);
         assertEquals(HttpStatus.CONFLICT, responseEntity.getStatusCode());
         assertNull(responseEntity.getBody());
-        verify(ls, times(1)).addLinkToProject(any(Link.class));
+        verify(ls, times(1)).addLinkToProject(any(Link.class),any(UUID.class));
     }
 
     @Test
@@ -62,15 +64,6 @@ class LinkControllerTest {
         assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
         assertEquals(link, responseEntity.getBody());
         verify(ls, times(1)).editLinkOfProject(any(Link.class));
-    }
-    @Test
-    void editLinkBadRequest() {
-        Link link = null;
-        when(ls.editLinkOfProject(null)).thenThrow(IllegalArgumentException.class);
-        ResponseEntity<Link> responseEntity = lc.editLinkOfProject(link);
-        assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
-        assertNull(responseEntity.getBody());
-        verify(ls, times(1)).editLinkOfProject(null);
     }
     @Test
     void editLinkNotFound() {
@@ -92,15 +85,6 @@ class LinkControllerTest {
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(List.of(link2), response.getBody());
     }
-
-    @Test
-    void getLinksByProjectIdNullId() {
-        when(ls.getLinksByProjectId(null)).thenThrow(IllegalArgumentException.class);
-        ResponseEntity<List<Link>> response = lc.getLinksByProjectId(null);
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        assertNull(response.getBody());
-    }
-
     @Test
     void getLinksByProjectIdNotFound() {
         UUID projectId = UUID.randomUUID();

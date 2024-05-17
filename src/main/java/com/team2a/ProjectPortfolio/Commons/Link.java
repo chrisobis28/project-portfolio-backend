@@ -1,5 +1,6 @@
 package com.team2a.ProjectPortfolio.Commons;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -42,6 +43,7 @@ public class Link {
     @JoinColumn(name="PROJECT_ID")
     @Getter
     @Setter
+    @JsonBackReference
     private Project project;
 
     @Getter

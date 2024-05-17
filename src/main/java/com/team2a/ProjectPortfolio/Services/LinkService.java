@@ -33,13 +33,14 @@ public class LinkService {
     /**
      * Add a link to the project
      * @param link the link entity
+     * @param projectId the project ID
      * @return the new link entity
      */
-    public Link addLinkToProject (Link link) {
-        if(!projectRepository.existsById(link.getProject().getProjectId())) {
+    public Link addLinkToProject (Link link,UUID projectId) {
+        if(!projectRepository.existsById(projectId)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Project not found");
         }
-        if(linkRepository.existsByProjectProjectIdAndUrl(link.getProject().getProjectId(), link.getUrl())) {
+        if(linkRepository.existsByProjectProjectIdAndUrl(projectId, link.getUrl())) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Link already exists");
         }
         return linkRepository.saveAndFlush(link);
@@ -51,9 +52,6 @@ public class LinkService {
      * @return the new link entity
      */
     public Link editLinkOfProject (Link link) {
-        if(link == null) {
-            throw new IllegalArgumentException();
-        }
         if(linkRepository.findById(link.getLinkId()).isPresent()) {
             linkRepository.save (link);
         }
@@ -68,9 +66,6 @@ public class LinkService {
      * @return a list of links associated with the project
      */
     public List<Link> getLinksByProjectId (UUID projectId) {
-        if (projectId == null) {
-            throw new IllegalArgumentException();
-        }
         List<Link> links = linkRepository.findAllByProjectProjectId(projectId);
         if (links.isEmpty()) {
             throw new EntityNotFoundException();

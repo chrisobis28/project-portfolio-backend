@@ -40,13 +40,14 @@ public class LinkServiceTest {
     @Test
     void addLinkSuccess(){
         Link link = new Link("Test","Test");
+        UUID projectId  = UUID.randomUUID();
         link.setLinkId(UUID.randomUUID());
         link.setProject(new Project());
         link.getProject().setProjectId(UUID.randomUUID());
         when(pr.existsById(any(UUID.class))).thenReturn(true);
         when(lr.existsByProjectProjectIdAndUrl(any(UUID.class), any(String.class))).thenReturn(false);
         when(lr.saveAndFlush(any(Link.class))).thenReturn(link);
-        Link addedLink = ls.addLinkToProject(link);
+        Link addedLink = ls.addLinkToProject(link,projectId);
         assertEquals(link, addedLink);
         verify(lr, times(1)).saveAndFlush(any(Link.class));
     }
@@ -54,21 +55,23 @@ public class LinkServiceTest {
     @Test
     void addLinkProjectNotFound(){
         Link link = new Link("Test","Test");
+        UUID projectId  = UUID.randomUUID();
         link.setProject(new Project());
         link.getProject().setProjectId(UUID.randomUUID());
         when(pr.existsById(any(UUID.class))).thenReturn(false);
-        assertThrows(ResponseStatusException.class, () -> ls.addLinkToProject(link));
+        assertThrows(ResponseStatusException.class, () -> ls.addLinkToProject(link,projectId));
         verify(lr, never()).saveAndFlush(any(Link.class));
     }
 
     @Test
     void addLinkConflict(){
         Link link = new Link("Test","Test");
+        UUID projectId  = UUID.randomUUID();
         link.setProject(new Project());
         link.getProject().setProjectId(UUID.randomUUID());
         when(pr.existsById(any(UUID.class))).thenReturn(true);
         when(lr.existsByProjectProjectIdAndUrl(any(UUID.class), any(String.class))).thenReturn(true);
-        assertThrows(ResponseStatusException.class, () -> ls.addLinkToProject(link));
+        assertThrows(ResponseStatusException.class, () -> ls.addLinkToProject(link,projectId));
         verify(lr, never()).saveAndFlush(any(Link.class));
     }
 
@@ -92,14 +95,6 @@ public class LinkServiceTest {
         verify(lr, times(1)).findById(any(UUID.class));
         verify(lr, never()).save(any(Link.class));
     }
-
-    @Test
-    void editLinkNull() {
-        assertThrows(IllegalArgumentException.class, () -> ls.editLinkOfProject(null));
-        verify(lr, never()).findById(any(UUID.class));
-        verify(lr, never()).save(any(Link.class));
-    }
-
     @Test
     void getLinksByProjectIdSuccess() {
         UUID projectId = UUID.randomUUID();
@@ -108,13 +103,6 @@ public class LinkServiceTest {
         List<Link> response = ls.getLinksByProjectId(projectId);
         assertEquals(List.of(link2), response);
     }
-
-    @Test
-    void getLinksByProjectIdNullId() {
-        assertThrows(IllegalArgumentException.class, () -> ls.getLinksByProjectId(null));
-        verify(lr, never()).findAllByProjectProjectId(any(UUID.class));
-    }
-
     @Test
     void getLinksByProjectIdNotFound() {
         UUID projectId = UUID.randomUUID();

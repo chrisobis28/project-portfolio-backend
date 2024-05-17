@@ -30,11 +30,13 @@ public class LinkController {
     /**
      * Add a link to the project
      * @param link the link entity
+     * @param projectId the project ID
      * @return the new link entity
      */
-    public ResponseEntity<Link> addLinkToProject (@RequestBody Link link) {
+    @PostMapping("/{projectId}")
+    public ResponseEntity<Link> addLinkToProject (@RequestBody Link link,@PathVariable("projectId") UUID projectId) {
         try {
-            Link newLink = linkService.addLinkToProject(link);
+            Link newLink = linkService.addLinkToProject(link,projectId);
             return ResponseEntity.ok(newLink);
         } catch (ResponseStatusException e) {
             return ResponseEntity.status(e.getStatusCode()).body(null);
@@ -46,13 +48,11 @@ public class LinkController {
      * @param link the link entity
      * @return the new link entity
      */
-    @PutMapping("/edit")
+    @PutMapping("/")
     public ResponseEntity<Link> editLinkOfProject (@RequestBody Link link) {
         try {
             Link updatedLink = linkService.editLinkOfProject(link);
             return ResponseEntity.ok(updatedLink);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().build();
         } catch (EntityNotFoundException e) {
             return ResponseEntity.notFound().build();
         }
@@ -68,8 +68,6 @@ public class LinkController {
         try {
             List<Link> links = linkService.getLinksByProjectId(projectId);
             return ResponseEntity.ok(links);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().build();
         } catch (EntityNotFoundException e) {
             return ResponseEntity.notFound().build();
         }
