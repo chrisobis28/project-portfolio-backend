@@ -35,7 +35,7 @@ public class Collaborator {
     @Setter
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @OnDelete(action= OnDeleteAction.CASCADE)
-    @JoinColumn(name="COLLABORATOR_ID")
+    @JoinColumn(name="COLLABORATOR_ID",updatable = false,insertable = false)
     @JsonIgnore
     private List<ProjectsToCollaborators> projectsToCollaborators;
 
