@@ -11,9 +11,7 @@ class TagTest {
 
     @Test
     void testConstructor() {
-        UUID id1 = UUID.randomUUID();
-        Tag t = new Tag(id1, "name", "color", new ArrayList<>(), new ArrayList<>());
-        assertEquals(t.getTagId(), id1);
+        Tag t = new Tag("name", "color");
         assertEquals(t.getName(), "name");
         assertEquals(t.getColor(), "color");
         assertEquals(t.getTagsToProjects(), new ArrayList<>());

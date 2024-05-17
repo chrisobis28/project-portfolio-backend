@@ -48,14 +48,14 @@ public class Project {
     @OneToMany(cascade=CascadeType.ALL, orphanRemoval = true)
     @OnDelete(action=OnDeleteAction.CASCADE)
     @JoinColumn(name="PROJECT_ID")
-    private List<Media> media;
+    private List<Media> media = new ArrayList<>();
 
     @Getter
     @Setter
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @OnDelete(action=OnDeleteAction.CASCADE)
     @JoinColumn(name="PROJECT_ID")
-    private List<ProjectsToAccounts> projectsToAccounts;
+    private List<ProjectsToAccounts> projectsToAccounts = new ArrayList<>();
 
 
     @Getter
@@ -63,28 +63,28 @@ public class Project {
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @OnDelete(action=OnDeleteAction.CASCADE)
     @JoinColumn(name="PROJECT_ID")
-    private List<ProjectsToCollaborators> projectsToCollaborators;
+    private List<ProjectsToCollaborators> projectsToCollaborators = new ArrayList<>();
 
     @Getter
     @Setter
     @OneToMany(cascade=CascadeType.ALL, orphanRemoval = true)
     @OnDelete(action=OnDeleteAction.CASCADE)
     @JoinColumn(name="PROJECT_ID")
-    private List<TagsToProject> tagsToProjects;
+    private List<TagsToProject> tagsToProjects = new ArrayList<>();
 
     @Getter
     @Setter
     @OneToMany(cascade=CascadeType.ALL, orphanRemoval = true)
     @OnDelete(action=OnDeleteAction.CASCADE)
     @JoinColumn(name="PROJECT_ID")
-    private List<Link> links;
+    private List<Link> links = new ArrayList<>();
 
     @Getter
     @Setter
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @OnDelete(action= OnDeleteAction.CASCADE)
     @JoinColumn(name="REQUEST_PROJECT")
-    private List<Request> requests;
+    private List<Request> requests = new ArrayList<>();
 
     /**
      * Constructor for a project
@@ -98,10 +98,5 @@ public class Project {
         this.description = description;
         this.bibtex = bibtex;
         this.archived = archived;
-        this.media = new ArrayList<>();
-        this.projectsToAccounts = new ArrayList<>();
-        this.projectsToCollaborators = new ArrayList<>();
-        this.tagsToProjects = new ArrayList<>();
-        this.links = new ArrayList<>();
     }
 }

@@ -52,7 +52,7 @@ class RequestTest {
         UUID id1 = UUID.randomUUID();
         Request r = new Request(id1, "newTitle", "newDescription", "newBibtex", true);
 
-        Tag t = new Tag(id1, "name", "color", new ArrayList<>(), new ArrayList<>());
+        Tag t = new Tag("name", "color");
 
         r.setTagsChanged(List.of(t));
         assertEquals(r.getTags(), List.of(t));

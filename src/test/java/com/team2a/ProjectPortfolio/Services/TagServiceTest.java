@@ -42,7 +42,7 @@ class TagServiceTest {
 
     @Test
     void testCreateTag() {
-        Tag tag = new Tag(UUID.randomUUID(), "Test Tag", "Red", null, null);
+        Tag tag = new Tag("Test Tag", "Red");
         when(tagRepository.findByNameAndColor(tag.getName(), tag.getColor())).thenReturn(Optional.empty());
         when(tagRepository.saveAndFlush(tag)).thenReturn(tag);
 
@@ -53,7 +53,7 @@ class TagServiceTest {
 
     @Test
     void testCreateTagConflict() {
-        Tag tag = new Tag(UUID.randomUUID(), "Test Tag", "Red", null, null);
+        Tag tag = new Tag("Test Tag", "Red");
         when(tagRepository.findByNameAndColor(tag.getName(), tag.getColor())).thenReturn(Optional.of(tag));
 
         assertThrows(ResponseStatusException.class, () -> tagService.createTag(tag));
@@ -62,7 +62,7 @@ class TagServiceTest {
     @Test
     void testGetTagsByProjectId() {
         UUID projectId = UUID.randomUUID();
-        Tag tag = new Tag(UUID.randomUUID(), "Test Tag", "Red", null, null);
+        Tag tag = new Tag("Test Tag", "Red");
         TagsToProject tagsToProject = new TagsToProject(tag, new Project());
         when(projectRepository.findById(projectId)).thenReturn(Optional.of(new Project()));
         when(tagToProjectRepository.findAllByProjectProjectId(projectId)).thenReturn(Collections.singletonList(tagsToProject));
@@ -85,7 +85,7 @@ class TagServiceTest {
     void testAddTagToProject() {
         UUID projectId = UUID.randomUUID();
         UUID tagId = UUID.randomUUID();
-        Tag tag = new Tag(tagId, "Test Tag", "Red", null, null);
+        Tag tag = new Tag("Test Tag", "Red");
         Project project = new Project();
         when(tagRepository.findById(tagId)).thenReturn(Optional.of(tag));
         when(projectRepository.findById(projectId)).thenReturn(Optional.of(project));
@@ -127,7 +127,7 @@ class TagServiceTest {
 
     @Test
     void testEditTag() {
-        Tag tag = new Tag(UUID.randomUUID(), "Test Tag", "Red", null, null);
+        Tag tag = new Tag("Test Tag", "Red");
         when(tagRepository.findById(tag.getTagId())).thenReturn(Optional.of(tag));
         when(tagRepository.saveAndFlush(tag)).thenReturn(tag);
 
@@ -138,7 +138,7 @@ class TagServiceTest {
 
     @Test
     void testEditTagNotFound() {
-        Tag tag = new Tag(UUID.randomUUID(), "Test Tag", "Red", null, null);
+        Tag tag = new Tag("Test Tag", "Red");
         when(tagRepository.findById(tag.getTagId())).thenReturn(Optional.empty());
 
         assertThrows(ResponseStatusException.class, () -> tagService.editTag(tag));
@@ -148,8 +148,12 @@ class TagServiceTest {
     void testDeleteTag() {
         UUID tagId = UUID.randomUUID();
 
-        assertDoesNotThrow(() -> tagService.deleteTag(tagId));
-        verify(tagRepository, times(1)).deleteById(tagId);
+        when(tagRepository.existsById(tagId)).thenReturn(false);
+        assertThrows(ResponseStatusException.class, () -> tagService.deleteTag(tagId));
+        Tag tag = new Tag("Test Tag", "Red");
+        when(tagRepository.existsById(tag.getTagId())).thenReturn(true);
+        tagService.deleteTag(tag.getTagId());
+        verify(tagRepository, times(1)).deleteById(tag.getTagId());
     }
 
     @Test
@@ -157,7 +161,21 @@ class TagServiceTest {
         UUID projectId = UUID.randomUUID();
         UUID tagId = UUID.randomUUID();
 
-        assertDoesNotThrow(() -> tagService.removeTagFromProject(projectId, tagId));
+        when(tagRepository.existsById(tagId)).thenReturn(false);
+        when(projectRepository.existsById(projectId)).thenReturn(false);
+        assertThrows(ResponseStatusException.class, () -> tagService.removeTagFromProject(projectId, tagId));
+        when(tagRepository.existsById(tagId)).thenReturn(true);
+        when(projectRepository.existsById(projectId)).thenReturn(false);
+        assertThrows(ResponseStatusException.class, () -> tagService.removeTagFromProject(projectId, tagId));
+        when(tagRepository.existsById(tagId)).thenReturn(false);
+        when(projectRepository.existsById(projectId)).thenReturn(true);
+        assertThrows(ResponseStatusException.class, () -> tagService.removeTagFromProject(projectId, tagId));
+        when(tagRepository.existsById(tagId)).thenReturn(true);
+        when(projectRepository.existsById(projectId)).thenReturn(true);
+        when(tagToProjectRepository.existsByProjectProjectIdAndTagTagId(projectId, tagId)).thenReturn(false);
+        assertThrows(ResponseStatusException.class, () -> tagService.removeTagFromProject(projectId, tagId));
+        when(tagToProjectRepository.existsByProjectProjectIdAndTagTagId(projectId, tagId)).thenReturn(true);
+        tagService.removeTagFromProject(projectId, tagId);
         verify(tagToProjectRepository, times(1)).deleteByProjectProjectIdAndTagTagId(projectId, tagId);
     }
 }
