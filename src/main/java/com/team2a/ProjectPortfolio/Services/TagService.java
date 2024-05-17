@@ -6,6 +6,7 @@ import com.team2a.ProjectPortfolio.Commons.TagsToProject;
 import com.team2a.ProjectPortfolio.Repositories.ProjectRepository;
 import com.team2a.ProjectPortfolio.Repositories.TagRepository;
 import com.team2a.ProjectPortfolio.Repositories.TagToProjectRepository;
+import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -100,6 +101,9 @@ public class TagService {
      * @param tagId the tag id
      */
     public void deleteTag (UUID tagId) {
+        if(!tagRepository.existsById(tagId)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
         tagRepository.deleteById(tagId);
     }
 
@@ -109,7 +113,14 @@ public class TagService {
      * @param projectId the project id
      * @param tagId the tag id
      */
+    @Transactional
     public void removeTagFromProject (UUID projectId, UUID tagId) {
+        if(!tagRepository.existsById(tagId) || !projectRepository.existsById(projectId)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Tag or project does not exist");
+        }
+        if(!tagToProjectRepository.existsByProjectProjectIdAndTagTagId(projectId, tagId)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Tag does not belong to project");
+        }
         tagToProjectRepository.deleteByProjectProjectIdAndTagTagId(projectId, tagId);
     }
 }

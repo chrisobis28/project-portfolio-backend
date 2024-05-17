@@ -3,6 +3,7 @@ package com.team2a.ProjectPortfolio.Commons;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
+import java.util.ArrayList;
 import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -43,24 +44,21 @@ public class Tag {
     @Setter
     @OneToMany(cascade=CascadeType.ALL, orphanRemoval = true)
     @OnDelete(action=OnDeleteAction.CASCADE)
-    @JoinColumn(name="TAG_ID")
-    private List<RequestTagProject> requestTagProjects;
+    @JoinColumn(name="TAG_ID", updatable = false, insertable = false)
+    @JsonIgnore
+    private List<RequestTagProject> requestTagProjects = new ArrayList<>();
 
     @Getter
     @Setter
     @OneToMany(cascade=CascadeType.ALL, orphanRemoval = true)
     @OnDelete(action=OnDeleteAction.CASCADE)
-    @JoinColumn(name="TAG_ID")
+    @JoinColumn(name="TAG_ID", updatable = false, insertable = false)
     @JsonIgnore
-    private List<TagsToProject> tagsToProjects;
+    private List<TagsToProject> tagsToProjects = new ArrayList<>();
 
-    public Tag(UUID tagId, String name, String color, List<RequestTagProject> requestTagProjects,
-               List<TagsToProject> tagsToProjects) {
-        this.tagId = tagId;
+    public Tag(String name, String color) {
         this.name = name;
         this.color = color;
-        this.requestTagProjects = requestTagProjects;
-        this.tagsToProjects = tagsToProjects;
     }
 
 }

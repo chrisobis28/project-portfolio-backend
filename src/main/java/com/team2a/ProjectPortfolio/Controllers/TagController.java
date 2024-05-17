@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping(Routes.TAGS)
@@ -42,12 +41,8 @@ public class TagController {
      */
     @GetMapping("/{projectId}")
     public ResponseEntity<List<Tag>> getTagsByProjectId (@PathVariable("projectId") UUID projectId) {
-        try {
-            List<Tag> tagsList = tagService.getTagsByProjectId(projectId);
-            return ResponseEntity.ok(tagsList);
-        } catch (ResponseStatusException e) {
-            return ResponseEntity.status(e.getStatusCode()).body(null);
-        }
+        List<Tag> tagsList = tagService.getTagsByProjectId(projectId);
+        return ResponseEntity.ok(tagsList);
     }
 
 
@@ -59,12 +54,8 @@ public class TagController {
      */
     @PostMapping("/create")
     public ResponseEntity<Tag> createTag (@RequestBody Tag tag) {
-        try {
-            Tag newTag = tagService.createTag(tag);
-            return ResponseEntity.ok(newTag);
-        } catch (ResponseStatusException e) {
-            return ResponseEntity.status(e.getStatusCode()).body(null);
-        }
+        Tag newTag = tagService.createTag(tag);
+        return ResponseEntity.ok(newTag);
     }
 
     /**
@@ -77,12 +68,8 @@ public class TagController {
     @PostMapping("/{projectId}/{tagId}")
     public ResponseEntity<String> addTagToProject
     (@PathVariable("projectId") UUID projectId, @PathVariable("tagId") UUID tagId) {
-        try {
-            tagService.addTagToProject(projectId, tagId);
-            return ResponseEntity.ok().build();
-        } catch (ResponseStatusException e) {
-            return ResponseEntity.status(e.getStatusCode()).body(e.getReason());
-        }
+        tagService.addTagToProject(projectId, tagId);
+        return ResponseEntity.ok().build();
     }
 
     /**
@@ -93,12 +80,8 @@ public class TagController {
      */
     @PutMapping("/edit")
     public ResponseEntity<Tag> editTag (@RequestBody Tag tag) {
-        try {
-            Tag newTag = tagService.editTag(tag);
-            return ResponseEntity.ok(newTag);
-        } catch (ResponseStatusException e) {
-            return ResponseEntity.status(e.getStatusCode()).body(null);
-        }
+        Tag newTag = tagService.editTag(tag);
+        return ResponseEntity.ok(newTag);
     }
 
     /**

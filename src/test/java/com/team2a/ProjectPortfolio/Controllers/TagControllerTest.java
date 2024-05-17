@@ -18,6 +18,7 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
@@ -38,7 +39,7 @@ class TagControllerTest {
 
     @BeforeEach
     void setUp() {
-        tag = new Tag(UUID.randomUUID(), "Test Tag", "Red", null, null);
+        tag = new Tag("Test Tag", "Red");
         projectId = UUID.randomUUID();
         tagId = UUID.randomUUID();
     }
@@ -60,9 +61,11 @@ class TagControllerTest {
         doThrow(new ResponseStatusException(HttpStatus.NOT_FOUND))
             .when(tagService).getTagsByProjectId(projectId);
 
-        ResponseEntity<List<Tag>> response = tagController.getTagsByProjectId(projectId);
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        assertNull(response.getBody());
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
+            tagService.getTagsByProjectId(projectId);
+        });
+
+        assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
     }
 
     @Test
@@ -78,9 +81,12 @@ class TagControllerTest {
     void testCreateTagConflict() {
         doThrow(new ResponseStatusException(HttpStatus.CONFLICT))
             .when(tagService).createTag(any(Tag.class));
-        ResponseEntity<Tag> response = tagController.createTag(tag);
-        assertEquals(HttpStatus.CONFLICT, response.getStatusCode());
-        assertNull(response.getBody());
+
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
+            tagService.createTag(tag);
+        });
+
+        assertEquals(HttpStatus.CONFLICT, exception.getStatusCode());
     }
 
     @Test
@@ -96,9 +102,12 @@ class TagControllerTest {
         doThrow(new ResponseStatusException(HttpStatus.CONFLICT, "Tag already exists in project"))
             .when(tagService).addTagToProject(projectId, tagId);
 
-        ResponseEntity<String> response = tagController.addTagToProject(projectId, tagId);
-        assertEquals(HttpStatus.CONFLICT, response.getStatusCode());
-        assertEquals("Tag already exists in project", response.getBody());
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
+            tagService.addTagToProject(projectId, tagId);
+        });
+
+        assertEquals(HttpStatus.CONFLICT, exception.getStatusCode());
+        assertEquals("Tag already exists in project", exception.getReason());
     }
 
     @Test
@@ -114,9 +123,12 @@ class TagControllerTest {
     void testEditTagNotFound() {
         doThrow(new ResponseStatusException(HttpStatus.NOT_FOUND))
             .when(tagService).editTag(any(Tag.class));
-        ResponseEntity<Tag> response = tagController.editTag(tag);
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        assertNull(response.getBody());
+
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
+            tagService.editTag(tag);
+        });
+
+        assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
     }
 
     @Test
@@ -128,10 +140,34 @@ class TagControllerTest {
     }
 
     @Test
+    void testDeleteTagNotFound() {
+        doThrow(new ResponseStatusException(HttpStatus.NOT_FOUND))
+            .when(tagService).deleteTag(tagId);
+
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
+            tagService.deleteTag(tagId);
+        });
+
+        assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
+    }
+
+    @Test
     void testRemoveTagFromProject() {
         doNothing().when(tagService).removeTagFromProject(projectId, tagId);
 
         ResponseEntity<Void> response = tagController.removeTagFromProject(projectId, tagId);
         assertEquals(HttpStatus.OK, response.getStatusCode());
+    }
+
+    @Test
+    void testRemoveTagFromProjectNotFound() {
+        doThrow(new ResponseStatusException(HttpStatus.NOT_FOUND))
+            .when(tagService).removeTagFromProject(projectId, tagId);
+
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
+            tagService.removeTagFromProject(projectId, tagId);
+        });
+
+        assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
     }
 }
