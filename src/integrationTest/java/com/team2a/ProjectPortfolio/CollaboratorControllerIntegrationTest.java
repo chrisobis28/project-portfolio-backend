@@ -144,7 +144,8 @@ public class CollaboratorControllerIntegrationTest {
         assertThat(collaboratorRepository.findAllByName("newName").size()).isEqualTo(0);
         mockMvc.perform(post(Routes.COLLABORATOR + "/" + UUID.randomUUID())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("newName"));
+                        .content("newName"))
+                .andExpect(status().isNotFound());
         assertThat(collaboratorRepository.findAllByName("newName").size()).isEqualTo(0);
         assertThat(collaboratorRepository.findAll().size()).isEqualTo(3);
     }
@@ -153,7 +154,8 @@ public class CollaboratorControllerIntegrationTest {
         assertThat(collaboratorRepository.findAll().size()).isEqualTo(3);
         mockMvc.perform(put(Routes.COLLABORATOR +"/"+ UUID.randomUUID())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("New Name"));
+                        .content("New Name"))
+                .andExpect(status().isNotFound());
         assertThat(collaboratorRepository.findAll().size()).isEqualTo(3);
     }
     @Test
