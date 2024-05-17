@@ -105,10 +105,12 @@ public class CollaboratorControllerIntegrationTest {
     public void deleteCollaborator() throws Exception {
         assertThat(collaboratorRepository.findAll().size()).isEqualTo(3);
         assertThat(projectsToCollaboratorsRepository.findAllByCollaboratorCollaboratorId(collaborator2.getCollaboratorId()).size()).isEqualTo(1);
+        assertThat(projectsToCollaboratorsRepository.findAll().size()).isEqualTo(2);
         mockMvc.perform(delete(Routes.COLLABORATOR +"/"+ collaborator2.getCollaboratorId())
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath( "$", is("Deleted collaborator")));
+        assertThat(projectsToCollaboratorsRepository.findAll().size()).isEqualTo(1);
         assertThat(projectsToCollaboratorsRepository.findAllByCollaboratorCollaboratorId(collaborator2.getCollaboratorId()).size()).isEqualTo(0);
         assertThat(collaboratorRepository.findAll().size()).isEqualTo(2);
     }
