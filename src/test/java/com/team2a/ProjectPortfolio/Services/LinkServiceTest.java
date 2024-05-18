@@ -40,13 +40,16 @@ public class LinkServiceTest {
     @Test
     void addLinkSuccess(){
         Link link = new Link("Test","Test");
+        Project project = new Project("test","test","test",false);
         UUID projectId  = UUID.randomUUID();
+        project.setProjectId(projectId);
         link.setLinkId(UUID.randomUUID());
         link.setProject(new Project());
         link.getProject().setProjectId(UUID.randomUUID());
         when(pr.existsById(any(UUID.class))).thenReturn(true);
         when(lr.existsByProjectProjectIdAndUrl(any(UUID.class), any(String.class))).thenReturn(false);
         when(lr.saveAndFlush(any(Link.class))).thenReturn(link);
+        when(pr.findById(any(UUID.class))).thenReturn(Optional.of(project));
         Link addedLink = ls.addLinkToProject(link,projectId);
         assertEquals(link, addedLink);
         verify(lr, times(1)).saveAndFlush(any(Link.class));
