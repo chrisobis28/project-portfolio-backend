@@ -3,6 +3,8 @@ package com.team2a.ProjectPortfolio.Services;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.team2a.ProjectPortfolio.Commons.Media;
@@ -57,24 +59,27 @@ public class MediaServiceTest {
   void testGetMediaByProjectIdProjectSuccess() {
     UUID x = UUID.randomUUID();
     Project p = new Project("title", "description", "bibtex", false);
+    p.setProjectId(x);
     when(projectRepository.findById(x)).thenReturn(Optional.of(p));
-    Media m1 = new Media(p, "path1");
-    Media m2 = new Media(p, "path2");
-    Media m3 = new Media(p, "path3");
+    Media m1 = new Media(p, "name1", "path1");
+    Media m2 = new Media(p, "name2", "path2");
+    Media m3 = new Media(p, "name3", "path3");
     when(mediaRepository.findAllByProjectProjectId(x)).thenReturn(List.of(m1, m2, m3));
+    System.out.println(mediaService.getMediaByProjectId(x));
+    System.out.println(List.of(m1, m2, m3));
     assertEquals(List.of(m1, m2, m3), mediaService.getMediaByProjectId(x));
   }
 
   @Test
   void testAddMediaToProjectIdNull() {
-    assertThrows(IdIsNullException.class, () -> mediaService.addMediaToProject(null, "path"));
+    assertThrows(IdIsNullException.class, () -> mediaService.addMediaToProject(null, new Media()));
   }
 
   @Test
   void testAddMediaToProjectNotFound() {
     UUID x = UUID.randomUUID();
     when(projectRepository.findById(x)).thenReturn(Optional.empty());
-    assertThrows(ProjectNotFoundException.class, () -> mediaService.addMediaToProject(x, "path"));
+    assertThrows(ProjectNotFoundException.class, () -> mediaService.addMediaToProject(x, new Media()));
   }
 
   @Test
@@ -82,9 +87,12 @@ public class MediaServiceTest {
     UUID x = UUID.randomUUID();
     Project p = new Project();
     when(projectRepository.findById(x)).thenReturn(Optional.of(p));
-    Media m2 = mediaService.addMediaToProject(x, "path");
-    assertEquals(m2.getProject(), p);
-    assertEquals(m2.getPath(), "path");
+    Media m = new Media(new Project(), "name", "path");
+    when(mediaRepository.save(m)).thenReturn(m);
+    Media m2 = mediaService.addMediaToProject(x, m);
+    assertEquals(p, m2.getProject());
+    assertEquals("name", m2.getName());
+    assertEquals("path", m2.getPath());
   }
 
   @Test
@@ -102,10 +110,11 @@ public class MediaServiceTest {
   @Test
   void testDeleteMediaFromProjectSuccess(){
     UUID x = UUID.randomUUID();
-    Media m = new Media(new Project(), "path");
+    Media m = new Media(new Project(), "name", "path");
     when(mediaRepository.findById(x)).thenReturn(Optional.of(m));
     doNothing().when(mediaRepository).deleteById(x);
     mediaService.deleteMedia(x);
+    verify(mediaRepository, times(1)).deleteById(x);
   }
 
 }

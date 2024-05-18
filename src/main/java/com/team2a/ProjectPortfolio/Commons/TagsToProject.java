@@ -1,5 +1,6 @@
 package com.team2a.ProjectPortfolio.Commons;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,12 +16,14 @@ public class TagsToProject {
     @JoinColumn(name="TAG_ID")
     @Getter
     @Setter
+    @JsonIgnore
     private Tag tag;
 
     @ManyToOne
     @JoinColumn(name="PROJECT_ID")
     @Getter
     @Setter
+    @JsonIgnore
     private Project project;
 
     @Id

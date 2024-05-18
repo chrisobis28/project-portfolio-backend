@@ -331,7 +331,74 @@ paths:
         '404':
           description: Not Found - Account could not be found
 
-#Session
+  /account/{username}/{projectId}:
+    post:
+      tags:
+        - Account
+      summary: Adds a Role to an Account on a Project.
+      operationId: createRole
+      description: Pairs Account to Project under a Role.
+      parameters:
+        - name: username
+          in: path
+          description: Username of the account to add the role to
+          required: true
+          schema:
+            type: string
+        - name: projectId
+          in: path
+          description: The id of the Project
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: string
+              description: role
+      responses:
+        '201':
+          description: Role created successfully.
+        '400':
+          description: Bad Request - Invalid fields
+        '403':
+          description: Forbidden - Account with that username already has a role
+        '404':
+          description: Not Found - Account or Project not found
+
+    delete:
+      tags:
+        - Account
+      summary: Deletes a Role of an Account from a Project.
+      operationId: deleteRole
+      description: Unpairs Account from Project under a Role.
+      parameters:
+        - name: username
+          in: path
+          description: Username of the account to add the role to
+          required: true
+          schema:
+            type: string
+        - name: projectId
+          in: path
+          description: The id of the Project
+          required: true
+          schema:
+            type: string
+      responses:
+        '201':
+          description: Role created successfully.
+        '400':
+          description: Bad Request - Invalid fields
+        '403':
+          description: Forbidden - Account with that username already has a role
+        '404':
+          description: Not Found - Account or Project not found
+
+
+  #Session
   /session:
     post:
       tags:

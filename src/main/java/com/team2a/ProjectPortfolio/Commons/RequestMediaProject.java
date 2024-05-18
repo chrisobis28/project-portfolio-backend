@@ -1,5 +1,6 @@
 package com.team2a.ProjectPortfolio.Commons;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -25,12 +26,11 @@ public class RequestMediaProject {
     @Setter
     private boolean isRemove;
 
-
-
     @Getter
     @Setter
     @ManyToOne
     @JoinColumn(name = "MEDIA_ID")
+    @JsonIgnore
     private Media media;
 
     public RequestMediaProject(UUID requestMediaProjectId, boolean isRemove) {

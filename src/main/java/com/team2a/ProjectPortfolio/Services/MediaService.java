@@ -44,15 +44,14 @@ public class MediaService {
     /**
      * Adds a Media to a specific Project
      * @param projectId the id of the Project that gets a new media
-     * @param path the path of the given Media to be added
+     * @param media the Media to be added
      * @return the Media that was added
      * @throws RuntimeException - Project doesn't exist or the id is null
      */
-    public Media addMediaToProject (UUID projectId, String path) throws RuntimeException {
+    public Media addMediaToProject (UUID projectId, Media media) throws RuntimeException {
         Project p = checkProjectExistence(projectId);
-        Media m1 = new Media(p, path);
-        mediaRepository.save(m1);
-        return m1;
+        media.setProject(p);
+        return mediaRepository.save(media);
     }
 
     /**

@@ -12,7 +12,10 @@ import com.team2a.ProjectPortfolio.CustomExceptions.AccountNotFoundException;
 import com.team2a.ProjectPortfolio.CustomExceptions.DuplicatedUsernameException;
 import com.team2a.ProjectPortfolio.CustomExceptions.FieldNullException;
 import com.team2a.ProjectPortfolio.CustomExceptions.IdIsNullException;
+import com.team2a.ProjectPortfolio.CustomExceptions.NotFoundException;
+import com.team2a.ProjectPortfolio.CustomExceptions.ProjectNotFoundException;
 import com.team2a.ProjectPortfolio.Services.AccountService;
+import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -140,4 +143,57 @@ public class AccountControllerTest {
     assertEquals("Success.", re.getBody());
   }
 
+  @Test
+  void addRoleAccountNotFound() {
+    UUID id = UUID.randomUUID();
+    doThrow(AccountNotFoundException.class).when(accountService).addRole("username", id, "role");
+    ResponseEntity<Void> responseEntity = accountController.addRole("username", id, "role");
+    assertEquals(HttpStatus.NOT_FOUND, responseEntity.getStatusCode());
+    assertNull(responseEntity.getBody());
+  }
+
+  @Test
+  void addRoleProjectNotFound() {
+    UUID id = UUID.randomUUID();
+    doThrow(ProjectNotFoundException.class).when(accountService).addRole("username", id, "role");
+    ResponseEntity<Void> responseEntity = accountController.addRole("username", id, "role");
+    assertEquals(HttpStatus.NOT_FOUND, responseEntity.getStatusCode());
+    assertNull(responseEntity.getBody());
+  }
+
+  @Test
+  void addRoleAlreadyHasRole() {
+    UUID id = UUID.randomUUID();
+    doThrow(DuplicatedUsernameException.class).when(accountService).addRole("username", id, "role");
+    ResponseEntity<Void> responseEntity = accountController.addRole("username", id, "role");
+    assertEquals(HttpStatus.FORBIDDEN, responseEntity.getStatusCode());
+    assertNull(responseEntity.getBody());
+  }
+
+  @Test
+  void addRoleSuccessful() {
+    UUID id = UUID.randomUUID();
+    doNothing().when(accountService).addRole("username", id, "role");
+    ResponseEntity<Void> responseEntity = accountController.addRole("username", id, "role");
+    assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+    assertNull(responseEntity.getBody());
+  }
+
+  @Test
+  void deleteRoleNotFound() {
+    UUID id = UUID.randomUUID();
+    doThrow(NotFoundException.class).when(accountService).deleteRole("username", id);
+    ResponseEntity<Void> responseEntity = accountController.deleteRole("username", id);
+    assertEquals(HttpStatus.NOT_FOUND, responseEntity.getStatusCode());
+    assertNull(responseEntity.getBody());
+  }
+
+  @Test
+  void deleteRoleSuccessful() {
+    UUID id = UUID.randomUUID();
+    doNothing().when(accountService).deleteRole("username", id);
+    ResponseEntity<Void> responseEntity = accountController.deleteRole("username", id);
+    assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+    assertNull(responseEntity.getBody());
+  }
 }

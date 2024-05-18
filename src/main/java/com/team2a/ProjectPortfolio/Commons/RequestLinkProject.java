@@ -1,5 +1,6 @@
 package com.team2a.ProjectPortfolio.Commons;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -27,9 +28,8 @@ public class RequestLinkProject {
     @Setter
     @ManyToOne
     @JoinColumn(name = "LINK_ID")
+    @JsonIgnore
     private Link link;
-
-
 
     public RequestLinkProject(UUID requestLinkProjectId, boolean isRemove) {
         this.requestLinkProjectId = requestLinkProjectId;

@@ -54,13 +54,13 @@ public class MediaController {
     /**
      * Adds a Media associated with an already existing project
      * @param projectId the id of the Project that gets the Media
-     * @param path the path of the Media
+     * @param media the Media to be added
      * @return the Media instance generated and saved
      */
     @PostMapping("/{projectId}")
-    public ResponseEntity<Media> addMediaToProject (@PathVariable("projectId") UUID projectId, @RequestBody String path) {
+    public ResponseEntity<Media> addMediaToProject (@PathVariable("projectId") UUID projectId, @RequestBody Media media) {
         try {
-            return ResponseEntity.ok(mediaService.addMediaToProject(projectId, path));
+            return ResponseEntity.ok(mediaService.addMediaToProject(projectId, media));
         }
         catch (IdIsNullException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();

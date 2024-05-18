@@ -1,5 +1,6 @@
 package com.team2a.ProjectPortfolio.Commons;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -30,6 +31,7 @@ public class RequestCollaboratorsProjects {
     @JoinColumn(name = "COLLABORATOR_ID")
     @Getter
     @Setter
+    @JsonIgnore
     private Collaborator collaborator;
 
     public RequestCollaboratorsProjects(UUID id, Boolean isRemove) {

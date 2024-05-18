@@ -1,12 +1,20 @@
 package com.team2a.ProjectPortfolio.Services;
 
 import com.team2a.ProjectPortfolio.Commons.Account;
+import com.team2a.ProjectPortfolio.Commons.Project;
+import com.team2a.ProjectPortfolio.Commons.ProjectsToAccounts;
 import com.team2a.ProjectPortfolio.CustomExceptions.AccountNotFoundException;
 import com.team2a.ProjectPortfolio.CustomExceptions.DuplicatedUsernameException;
 import com.team2a.ProjectPortfolio.CustomExceptions.FieldNullException;
 import com.team2a.ProjectPortfolio.CustomExceptions.IdIsNullException;
+import com.team2a.ProjectPortfolio.CustomExceptions.NotFoundException;
+import com.team2a.ProjectPortfolio.CustomExceptions.ProjectNotFoundException;
 import com.team2a.ProjectPortfolio.Repositories.AccountRepository;
+import com.team2a.ProjectPortfolio.Repositories.ProjectRepository;
+import com.team2a.ProjectPortfolio.Repositories.ProjectsToAccountsRepository;
+import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -14,14 +22,22 @@ import org.springframework.stereotype.Service;
 public class AccountService {
 
     private final AccountRepository accountRepository;
+    private final ProjectRepository projectRepository;
+    private final ProjectsToAccountsRepository projectsToAccountsRepository;
 
     /**
      * Constructor for the Account Service
      * @param accountRepository - the Account Repository
+     * @param projectRepository - the Project Repository
+     * @param projectsToAccountsRepository - the Projects to Accounts Repository
      */
     @Autowired
-    public AccountService (AccountRepository accountRepository) {
+    public AccountService (AccountRepository accountRepository,
+                           ProjectRepository projectRepository,
+                           ProjectsToAccountsRepository projectsToAccountsRepository) {
         this.accountRepository = accountRepository;
+        this.projectRepository = projectRepository;
+        this.projectsToAccountsRepository = projectsToAccountsRepository;
     }
 
     /**
@@ -102,5 +118,44 @@ public class AccountService {
             || account.getIsPM() == null || account.getIsAdministrator() == null) {
             throw new FieldNullException("Null fields are not valid.");
         }
+    }
+
+    /**
+     * Adds a role to an Account associated to a Project.
+     * @param username - the username of the Account
+     * @param projectId - the id of the Project
+     * @param role - the role given
+     */
+    public void addRole (String username, UUID projectId, String role) {
+        Optional<Account> optionalAccount = accountRepository.findById(username);
+        if(optionalAccount.isEmpty()) {
+            throw new AccountNotFoundException("");
+        }
+        Optional<Project> optionalProject = projectRepository.findById(projectId);
+        if(optionalProject.isEmpty()) {
+            throw new ProjectNotFoundException("");
+        }
+        if(projectsToAccountsRepository.findAll().stream()
+            .filter(x -> x.getProject().equals(optionalProject.get()) && x.getAccount().equals(optionalAccount.get()))
+            .toList().size() > 0) {
+            throw new DuplicatedUsernameException("");
+        }
+        ProjectsToAccounts pta = new ProjectsToAccounts(role, optionalAccount.get(), optionalProject.get());
+        projectsToAccountsRepository.save(pta);
+    }
+
+    /**
+     * Deletes the role from the table
+     * @param username - the username of the Account
+     * @param projectId - the id of the Project
+     */
+    public void deleteRole (String username, UUID projectId) {
+        List<ProjectsToAccounts>
+            list = projectsToAccountsRepository.findAll().stream().filter(x -> x.getAccount().getUsername().equals(username))
+            .filter(x -> x.getProject().getProjectId().equals(projectId)).toList();
+        if(list.isEmpty()) {
+            throw new NotFoundException();
+        }
+        projectsToAccountsRepository.deleteById(list.get(0).getPtaId());
     }
 }

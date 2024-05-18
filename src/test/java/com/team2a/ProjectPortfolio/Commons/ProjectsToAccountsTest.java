@@ -11,9 +11,12 @@ class ProjectsToAccountsTest {
     @Test
     void testConstructor() {
         UUID id1 = UUID.randomUUID();
-        ProjectsToAccounts pta = new ProjectsToAccounts(id1, "role");
-        assertEquals(id1, pta.getPtaId());
+        Project p = new Project();
+        Account a = new Account();
+        ProjectsToAccounts pta = new ProjectsToAccounts("role", a, p);
         assertEquals("role", pta.getRole());
+        assertEquals(a, pta.getAccount());
+        assertEquals(p, pta.getProject());
     }
 
 }

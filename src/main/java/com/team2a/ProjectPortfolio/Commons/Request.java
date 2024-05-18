@@ -1,5 +1,6 @@
 package com.team2a.ProjectPortfolio.Commons;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import lombok.*;
@@ -50,6 +51,7 @@ public class Request {
     @Setter
     @ManyToOne
     @JoinColumn(name="REQUEST_PROJECT")
+    @JsonIgnore
     private Project project;
 
     @Getter
