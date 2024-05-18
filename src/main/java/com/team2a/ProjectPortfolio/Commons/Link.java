@@ -51,11 +51,10 @@ public class Link {
     @OneToMany(cascade=CascadeType.ALL, orphanRemoval = true)
     @OnDelete(action= OnDeleteAction.CASCADE)
     @JoinColumn(name="LINK_ID")
-    private List<RequestLinkProject> requestLinkProjects;
+    private List<RequestLinkProject> requestLinkProjects = new ArrayList<>();
 
     public Link(String name, String url) {
         this.name = name;
         this.url = url;
-        this.requestLinkProjects = new ArrayList<>();
     }
 }

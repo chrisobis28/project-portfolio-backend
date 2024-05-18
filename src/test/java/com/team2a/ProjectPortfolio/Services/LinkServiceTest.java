@@ -40,13 +40,16 @@ public class LinkServiceTest {
     @Test
     void addLinkSuccess(){
         Link link = new Link("Test","Test");
+        Project project = new Project("test","test","test",false);
         UUID projectId  = UUID.randomUUID();
+        project.setProjectId(projectId);
         link.setLinkId(UUID.randomUUID());
         link.setProject(new Project());
         link.getProject().setProjectId(UUID.randomUUID());
         when(pr.existsById(any(UUID.class))).thenReturn(true);
         when(lr.existsByProjectProjectIdAndUrl(any(UUID.class), any(String.class))).thenReturn(false);
         when(lr.saveAndFlush(any(Link.class))).thenReturn(link);
+        when(pr.findById(any(UUID.class))).thenReturn(Optional.of(project));
         Link addedLink = ls.addLinkToProject(link,projectId);
         assertEquals(link, addedLink);
         verify(lr, times(1)).saveAndFlush(any(Link.class));
@@ -87,6 +90,16 @@ public class LinkServiceTest {
         verify(lr, times(1)).save(any(Link.class));
     }
     @Test
+    void deleteLinkByIdSuccess(){
+
+        Link link = new Link("Test","Test");
+        link.setLinkId(UUID.randomUUID());
+        when(lr.findById(any(UUID.class))).thenReturn(Optional.of(link));
+        String response = ls.deleteLinkById(link.getLinkId());
+        assertEquals("Deleted link", response);
+        verify(lr, times(1)).findById(any(UUID.class));
+    }
+    @Test
     void editLinkNotfound() {
         Link link = new Link("Test","Test");
         link.setLinkId(UUID.randomUUID());
@@ -108,6 +121,11 @@ public class LinkServiceTest {
         UUID projectId = UUID.randomUUID();
         when(lr.findAllByProjectProjectId(projectId)).thenReturn(List.of());
         assertThrows(EntityNotFoundException.class, () -> ls.getLinksByProjectId(projectId));
+    }
+    @Test
+    void deleteLinkByIdNotFound() {
+        when(lr.findById(any(UUID.class))).thenReturn(Optional.empty());
+        assertThrows(EntityNotFoundException.class, () -> ls.deleteLinkById(UUID.randomUUID()));
     }
 
 }

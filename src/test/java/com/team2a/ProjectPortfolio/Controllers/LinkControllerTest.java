@@ -85,11 +85,29 @@ class LinkControllerTest {
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(List.of(link2), response.getBody());
     }
+
+    @Test
+    void DeleteLinkByIdSuccess() {
+        UUID linkId = UUID.randomUUID();
+        when(ls.deleteLinkById(linkId)).thenReturn("Link deleted");
+        ResponseEntity<String> response = lc.deleteLinkById(linkId);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals("Link deleted", response.getBody());
+    }
+
     @Test
     void getLinksByProjectIdNotFound() {
         UUID projectId = UUID.randomUUID();
         when(ls.getLinksByProjectId(projectId)).thenThrow(EntityNotFoundException.class);
         ResponseEntity<List<Link>> response = lc.getLinksByProjectId(projectId);
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertNull(response.getBody());
+    }
+    @Test
+    void deleteLinkByIdNotFound() {
+        UUID linkId = UUID.randomUUID();
+        when(ls.deleteLinkById(linkId)).thenThrow(EntityNotFoundException.class);
+        ResponseEntity<String> response = lc.deleteLinkById(linkId);
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
         assertNull(response.getBody());
     }
