@@ -1,5 +1,6 @@
 package com.team2a.ProjectPortfolio.Commons;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -24,12 +25,14 @@ public class ProjectsToCollaborators {
     @JoinColumn(name="COLLABORATOR_ID")
     @Getter
     @Setter
+    @JsonIgnore
     private Collaborator collaborator;
 
     @ManyToOne
     @JoinColumn(name="PROJECT_ID")
     @Getter
     @Setter
+    @JsonIgnore
     private Project project;
 
     @Getter

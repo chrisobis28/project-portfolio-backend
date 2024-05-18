@@ -58,9 +58,9 @@ public class MediaControllerTest {
   @Test
   void testGetMediaByProjectIdSuccess() {
     Project p = new Project("title", "description", "bibtex", false);
-    Media m1 = new Media(p, "path1");
-    Media m2 = new Media(p, "path2");
-    Media m3 = new Media(p, "path3");
+    Media m1 = new Media(p, "name", "path1");
+    Media m2 = new Media(p, "name", "path2");
+    Media m3 = new Media(p, "name", "path3");
     when(mediaService.getMediaByProjectId(any(UUID.class))).thenReturn(List.of(m1, m2, m3));
     ResponseEntity<List<Media>> entity = mediaController.getMediaByProjectId(UUID.randomUUID());
     assertEquals(HttpStatus.OK, entity.getStatusCode());
@@ -69,16 +69,16 @@ public class MediaControllerTest {
 
   @Test
   void testAddMediaToProjectNullIdException() {
-    when(mediaService.addMediaToProject(any(UUID.class), any(String.class))).thenThrow(new IdIsNullException(""));
-    ResponseEntity<Media> entity = mediaController.addMediaToProject(UUID.randomUUID(), "path");
+    when(mediaService.addMediaToProject(any(UUID.class), any(Media.class))).thenThrow(new IdIsNullException(""));
+    ResponseEntity<Media> entity = mediaController.addMediaToProject(UUID.randomUUID(), new Media());
     assertEquals(HttpStatus.BAD_REQUEST, entity.getStatusCode());
     assertNull(entity.getBody());
   }
 
   @Test
   void testAddMediaToProjectProjectNotFoundException() {
-    when(mediaService.addMediaToProject(any(UUID.class), any(String.class))).thenThrow(new ProjectNotFoundException(""));
-    ResponseEntity<Media> entity = mediaController.addMediaToProject(UUID.randomUUID(), "path");
+    when(mediaService.addMediaToProject(any(UUID.class), any(Media.class))).thenThrow(new ProjectNotFoundException(""));
+    ResponseEntity<Media> entity = mediaController.addMediaToProject(UUID.randomUUID(), new Media());
     assertEquals(HttpStatus.NOT_FOUND, entity.getStatusCode());
     assertNull(entity.getBody());
   }
@@ -86,9 +86,9 @@ public class MediaControllerTest {
   @Test
   void testAddMediaToProjectSuccess() {
     Project p = new Project("title", "description", "bibtex", false);
-    Media m1 = new Media(p, "path1");
-    when(mediaService.addMediaToProject(any(UUID.class), any(String.class))).thenReturn(m1);
-    ResponseEntity<Media> entity = mediaController.addMediaToProject(UUID.randomUUID(), "path1");
+    Media m1 = new Media(p, "name", "path1");
+    when(mediaService.addMediaToProject(any(UUID.class), any(Media.class))).thenReturn(m1);
+    ResponseEntity<Media> entity = mediaController.addMediaToProject(UUID.randomUUID(), new Media());
     assertEquals(HttpStatus.OK, entity.getStatusCode());
     assertEquals(m1, entity.getBody());
   }

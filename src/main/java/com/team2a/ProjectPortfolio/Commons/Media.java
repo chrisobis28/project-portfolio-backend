@@ -1,5 +1,6 @@
 package com.team2a.ProjectPortfolio.Commons;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -25,6 +26,12 @@ public class Media {
     @JsonProperty
     private UUID mediaId;
 
+    @Column(name="NAME")
+    @Getter
+    @Setter
+    @JsonProperty
+    private String name;
+
     @Column(name="PATH")
     @Getter
     @Setter
@@ -36,6 +43,7 @@ public class Media {
     @ManyToOne
     @OnDelete(action=OnDeleteAction.CASCADE)
     @JoinColumn(name="PROJECT_ID")
+    @JsonIgnore
     private Project project;
 
     @Getter
@@ -45,8 +53,9 @@ public class Media {
     @JoinColumn(name="MEDIA_ID")
     private List<RequestMediaProject> requestMediaProjects;
 
-    public Media(Project project, String path) {
+    public Media(Project project, String name, String path) {
         this.project = project;
+        this.name = name;
         this.path = path;
     }
 }

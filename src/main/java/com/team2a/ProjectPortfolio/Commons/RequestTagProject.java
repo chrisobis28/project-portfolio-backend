@@ -1,5 +1,6 @@
 package com.team2a.ProjectPortfolio.Commons;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -35,9 +36,8 @@ public class RequestTagProject {
     @Setter
     @ManyToOne
     @JoinColumn(name = "TAG_ID")
+    @JsonIgnore
     private Tag tag;
-
-
     public RequestTagProject(UUID requestTagProjectID, boolean isRemove) {
         this.requestTagProjectID = requestTagProjectID;
         this.isRemove = isRemove;

@@ -5,8 +5,11 @@ import com.team2a.ProjectPortfolio.CustomExceptions.AccountNotFoundException;
 import com.team2a.ProjectPortfolio.CustomExceptions.DuplicatedUsernameException;
 import com.team2a.ProjectPortfolio.CustomExceptions.FieldNullException;
 import com.team2a.ProjectPortfolio.CustomExceptions.IdIsNullException;
+import com.team2a.ProjectPortfolio.CustomExceptions.NotFoundException;
+import com.team2a.ProjectPortfolio.CustomExceptions.ProjectNotFoundException;
 import com.team2a.ProjectPortfolio.Routes;
 import com.team2a.ProjectPortfolio.Services.AccountService;
+import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -39,7 +42,7 @@ public class AccountController {
      * @param account - the Account to be created
      * @return - the Account that was created
      */
-    @PostMapping("/")
+    @PostMapping("")
     public ResponseEntity<Account> createAccount (@RequestBody Account account) {
         try {
             return ResponseEntity.ok(accountService.createAccount(account));
@@ -57,7 +60,7 @@ public class AccountController {
      * @param account - the Account to be modified
      * @return - the Account with the necessary modifications
      */
-    @PutMapping("/")
+    @PutMapping("")
     public ResponseEntity<Account> editAccount (@RequestBody Account account) {
         try {
             return ResponseEntity.ok(accountService.editAccount(account));
@@ -104,6 +107,46 @@ public class AccountController {
         }
         catch(AccountNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
+    }
+
+    /**
+     * Adds role to an Account under a certain project
+     * @param username - the username of the Account to add a role to
+     * @param projectId - the id of the Project
+     * @param role - the role to be added
+     * @return - the status of the addition
+     */
+    @PostMapping("/{username}/{projectId}")
+    public ResponseEntity<Void> addRole (@PathVariable("username") String username,
+                                              @PathVariable("projectId") UUID projectId, @RequestBody String role) {
+        try {
+            accountService.addRole(username, projectId, role);
+            return ResponseEntity.status(HttpStatus.OK).build();
+        }
+        catch (AccountNotFoundException | ProjectNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+        catch (DuplicatedUsernameException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+    }
+
+    /**
+     * Delete the role of an Account from a Project
+     * @param username - the username of the Account
+     * @param projectId - the id of the Project
+     * @return - the status of the deletion
+     */
+    @DeleteMapping("/{username}/{projectId}")
+    public ResponseEntity<Void> deleteRole (@PathVariable("username") String username,
+                                            @PathVariable("projectId") UUID projectId) {
+        try {
+            accountService.deleteRole(username, projectId);
+            return ResponseEntity.status(HttpStatus.OK).build();
+        }
+        catch (NotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
 }

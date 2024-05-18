@@ -3,6 +3,7 @@ package com.team2a.ProjectPortfolio.Commons;
 import jakarta.persistence.*;
 import java.util.ArrayList;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
@@ -11,6 +12,7 @@ import java.util.List;
 
 @Entity
 @Table(name="ACCOUNT")
+@NoArgsConstructor
 public class Account {
 
     @Id
@@ -44,17 +46,14 @@ public class Account {
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @OnDelete(action= OnDeleteAction.CASCADE)
     @JoinColumn(name="ACCOUNT_USERNAME")
-    private List<ProjectsToAccounts> projectsToAccounts;
+    private List<ProjectsToAccounts> projectsToAccounts = new ArrayList<>();
 
     @Getter
     @Setter
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @OnDelete(action= OnDeleteAction.CASCADE)
     @JoinColumn(name="REQUEST_ACCOUNT")
-    private List<Request> requests;
-
-    public Account () {
-    }
+    private List<Request> requests = new ArrayList<>();
 
     public Account(String username, String name, String password, Boolean isAdministrator,
                    Boolean isPM) {
@@ -63,7 +62,5 @@ public class Account {
         this.password = password;
         this.isAdministrator = isAdministrator;
         this.isPM = isPM;
-        this.projectsToAccounts = new ArrayList<>();
-        this.requests = new ArrayList<>();
     }
 }
