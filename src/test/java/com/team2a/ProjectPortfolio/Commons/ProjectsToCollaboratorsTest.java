@@ -10,7 +10,7 @@ class ProjectsToCollaboratorsTest {
     void testConstructor() {
         Collaborator collaborator = new Collaborator("Test");
         Project project = new Project("Title","Test","Test",false);
-        ProjectsToCollaborators ptc = new ProjectsToCollaborators(project,collaborator);
+        ProjectsToCollaborators ptc = new ProjectsToCollaborators(project,collaborator,"Role");
         assertEquals(ptc.getCollaborator(), collaborator);
         assertEquals(ptc.getProject(), project);
     }

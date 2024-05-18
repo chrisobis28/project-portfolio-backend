@@ -48,10 +48,11 @@ class CollaboratorControllerTest {
     @Test
     void addCollaboratorToProjectSuccess () {
         UUID projectId = UUID.randomUUID();
-        String collaboratorName = "Filip";
+        UUID collaboratorId = UUID.randomUUID();
+        String role = "Role";
         Collaborator expectedCollaborator = new Collaborator("Andrei");
-        when(cs.addCollaboratorToProject(projectId, collaboratorName)).thenReturn(expectedCollaborator);
-        ResponseEntity<Collaborator> responseEntity = cc.addCollaboratorToProject(projectId, collaboratorName);
+        when(cs.addCollaboratorToProject(projectId, collaboratorId,role)).thenReturn(expectedCollaborator);
+        ResponseEntity<Collaborator> responseEntity = cc.addCollaboratorToProject(projectId, collaboratorId,role);
         assertEquals(expectedCollaborator, responseEntity.getBody());
         assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
     }
@@ -60,9 +61,11 @@ class CollaboratorControllerTest {
     @Test
     void addCollaboratorToProjectINotFoundProject () {
         UUID invalidProjectId = UUID.randomUUID();
+        UUID invalidCollaboratorId = UUID.randomUUID();
         String collaboratorName = "Filip";
-        when(cs.addCollaboratorToProject(invalidProjectId, collaboratorName)).thenThrow(EntityNotFoundException.class);
-        ResponseEntity<Collaborator> responseEntity = cc.addCollaboratorToProject(invalidProjectId, collaboratorName);
+        String role = "Role";
+        when(cs.addCollaboratorToProject(invalidProjectId, invalidCollaboratorId,role)).thenThrow(EntityNotFoundException.class);
+        ResponseEntity<Collaborator> responseEntity = cc.addCollaboratorToProject(invalidProjectId, invalidCollaboratorId,role);
         assertEquals(HttpStatus.NOT_FOUND, responseEntity.getStatusCode());
     }
 
