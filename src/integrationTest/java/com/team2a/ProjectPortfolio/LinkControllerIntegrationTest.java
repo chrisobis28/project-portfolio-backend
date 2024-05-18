@@ -110,4 +110,18 @@ public class LinkControllerIntegrationTest {
                         .content(objectMapper.writeValueAsString(link4)))
                 .andExpect(status().isNotFound());
     }
+    @Test
+    public void deleteLinkById() throws Exception{
+        assertThat(linkRepository.count()).isEqualTo(3);
+        assertThat(linkRepository.findAllByLinkId(link1.getLinkId()).size()).isEqualTo(1);
+        mockMvc.perform(delete(Routes.LINK+"/"+link1.getLinkId())
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", is("Deleted link")));
+        assertThat(linkRepository.count()).isEqualTo(2);
+        assertThat(linkRepository.findAllByLinkId(link1.getLinkId()).size()).isEqualTo(0);
+        mockMvc.perform(delete(Routes.LINK+"/"+UUID.randomUUID())
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+    }
 }

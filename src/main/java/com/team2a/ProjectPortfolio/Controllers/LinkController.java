@@ -73,4 +73,19 @@ public class LinkController {
         }
     }
 
+    /**
+     * Delete a link based on its id
+     * @param linkId the linkId of the link to be deleted
+     * @return a string containing a message if the link was deleted
+     */
+    @DeleteMapping("/{linkId}")
+    public ResponseEntity<String> deleteLinkById (@PathVariable("linkId") UUID linkId) {
+        try {
+            String returnedMessage = linkService.deleteLinkById(linkId);
+            return ResponseEntity.ok(returnedMessage);
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
 }

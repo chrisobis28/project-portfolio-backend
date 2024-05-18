@@ -87,6 +87,16 @@ public class LinkServiceTest {
         verify(lr, times(1)).save(any(Link.class));
     }
     @Test
+    void deleteLinkByIdSuccess(){
+
+        Link link = new Link("Test","Test");
+        link.setLinkId(UUID.randomUUID());
+        when(lr.findById(any(UUID.class))).thenReturn(Optional.of(link));
+        String response = ls.deleteLinkById(link.getLinkId());
+        assertEquals("Deleted link", response);
+        verify(lr, times(1)).findById(any(UUID.class));
+    }
+    @Test
     void editLinkNotfound() {
         Link link = new Link("Test","Test");
         link.setLinkId(UUID.randomUUID());
@@ -108,6 +118,11 @@ public class LinkServiceTest {
         UUID projectId = UUID.randomUUID();
         when(lr.findAllByProjectProjectId(projectId)).thenReturn(List.of());
         assertThrows(EntityNotFoundException.class, () -> ls.getLinksByProjectId(projectId));
+    }
+    @Test
+    void deleteLinkByIdNotFound() {
+        when(lr.findById(any(UUID.class))).thenReturn(Optional.empty());
+        assertThrows(EntityNotFoundException.class, () -> ls.deleteLinkById(UUID.randomUUID()));
     }
 
 }

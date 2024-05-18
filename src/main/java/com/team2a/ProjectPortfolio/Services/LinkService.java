@@ -73,5 +73,16 @@ public class LinkService {
         return links;
     }
 
+    /**
+     * Delete link by its Id
+     * @param linkId the linkId
+     * @return a string if the link is deleted
+     */
+    public String deleteLinkById (UUID linkId){
+        Link link = linkRepository.findById(linkId).orElseThrow(EntityNotFoundException::new);
+        linkRepository.deleteById(linkId);
+        return "Deleted link";
+    }
+
 
 }
