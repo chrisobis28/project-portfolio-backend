@@ -13,8 +13,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -106,6 +105,29 @@ public class LinkControllerIntegrationTest {
 
        assertThat(linkRepository.count()).isEqualTo(4);
        mockMvc.perform(post(Routes.LINK+"/"+UUID.randomUUID())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(link4)))
+                .andExpect(status().isNotFound());
+    }
+    @Test
+    public void addLinkToProjectAlreadyExists() throws Exception {
+        Link link4 = new Link("Test4","Test4");
+        link4.setProject(project);
+        assertThat(linkRepository.count()).isEqualTo(3);
+        mockMvc.perform(post(Routes.LINK+"/"+projectId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(link4)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name", is("Test4")))
+                .andExpect(jsonPath("$.url", is("Test4")));
+
+        assertThat(linkRepository.count()).isEqualTo(4);
+        mockMvc.perform(post(Routes.LINK+"/"+projectId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(link4)))
+                .andExpect(status().isConflict());
+        assertThat(linkRepository.count()).isEqualTo(4);
+        mockMvc.perform(post(Routes.LINK+"/"+UUID.randomUUID())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(link4)))
                 .andExpect(status().isNotFound());

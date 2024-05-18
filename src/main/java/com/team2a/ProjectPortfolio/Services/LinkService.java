@@ -1,6 +1,7 @@
 package com.team2a.ProjectPortfolio.Services;
 
 import com.team2a.ProjectPortfolio.Commons.Link;
+import com.team2a.ProjectPortfolio.Commons.Project;
 import com.team2a.ProjectPortfolio.Repositories.LinkRepository;
 import com.team2a.ProjectPortfolio.Repositories.ProjectRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -43,6 +44,8 @@ public class LinkService {
         if(linkRepository.existsByProjectProjectIdAndUrl(projectId, link.getUrl())) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Link already exists");
         }
+        Project project = projectRepository.findById(projectId).orElseThrow(EntityNotFoundException::new);
+        link.setProject(project);
         return linkRepository.saveAndFlush(link);
     }
 
