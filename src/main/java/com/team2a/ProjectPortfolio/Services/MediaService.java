@@ -2,7 +2,6 @@ package com.team2a.ProjectPortfolio.Services;
 
 import com.team2a.ProjectPortfolio.Commons.Media;
 import com.team2a.ProjectPortfolio.Commons.Project;
-import com.team2a.ProjectPortfolio.CustomExceptions.IdIsNullException;
 import com.team2a.ProjectPortfolio.CustomExceptions.MediaNotFoundException;
 import com.team2a.ProjectPortfolio.CustomExceptions.ProjectNotFoundException;
 import com.team2a.ProjectPortfolio.Repositories.MediaRepository;
@@ -70,9 +69,6 @@ public class MediaService {
      * @throws RuntimeException - Media doesn't exist or the id is null
      */
     public void checkMediaExistence (UUID mediaId) throws RuntimeException {
-        if(mediaId == null) {
-            throw new IdIsNullException("Null id not accepted.");
-        }
         Optional<Media> m = mediaRepository.findById(mediaId);
         if(m.isEmpty()){
             throw new MediaNotFoundException("No media with the id " + mediaId + " could be found.");
@@ -87,9 +83,6 @@ public class MediaService {
      *
      */
     public Project checkProjectExistence (UUID projectId) throws RuntimeException {
-        if(projectId == null) {
-            throw new IdIsNullException("Null id not accepted.");
-        }
         Optional<Project> p = projectRepository.findById(projectId);
         if(p.isEmpty()){
             throw new ProjectNotFoundException("No project with the id " + projectId + "could be found.");

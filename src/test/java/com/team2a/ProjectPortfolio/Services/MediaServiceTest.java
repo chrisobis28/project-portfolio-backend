@@ -44,11 +44,6 @@ public class MediaServiceTest {
   }
 
   @Test
-  void testGetMediaByProjectIdNull(){
-    assertThrows(IdIsNullException.class, () -> mediaService.getMediaByProjectId(null));
-  }
-
-  @Test
   void testGetMediaByProjectIdProjectNotFound(){
     UUID x = UUID.randomUUID();
     when(projectRepository.findById(x)).thenReturn(Optional.empty());
@@ -71,11 +66,6 @@ public class MediaServiceTest {
   }
 
   @Test
-  void testAddMediaToProjectIdNull() {
-    assertThrows(IdIsNullException.class, () -> mediaService.addMediaToProject(null, new Media()));
-  }
-
-  @Test
   void testAddMediaToProjectNotFound() {
     UUID x = UUID.randomUUID();
     when(projectRepository.findById(x)).thenReturn(Optional.empty());
@@ -93,11 +83,6 @@ public class MediaServiceTest {
     assertEquals(p, m2.getProject());
     assertEquals("name", m2.getName());
     assertEquals("path", m2.getPath());
-  }
-
-  @Test
-  void testDeleteMediaIdNull(){
-    assertThrows(IdIsNullException.class, () -> mediaService.deleteMedia(null));
   }
 
   @Test

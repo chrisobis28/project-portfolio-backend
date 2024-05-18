@@ -1,7 +1,6 @@
 package com.team2a.ProjectPortfolio.Controllers;
 
 import com.team2a.ProjectPortfolio.Commons.Media;
-import com.team2a.ProjectPortfolio.CustomExceptions.IdIsNullException;
 import com.team2a.ProjectPortfolio.CustomExceptions.MediaNotFoundException;
 import com.team2a.ProjectPortfolio.CustomExceptions.ProjectNotFoundException;
 import com.team2a.ProjectPortfolio.Routes;
@@ -44,9 +43,8 @@ public class MediaController {
     public ResponseEntity<List<Media>> getMediaByProjectId (@PathVariable("projectId") UUID projectId) {
         try {
             return ResponseEntity.ok(mediaService.getMediaByProjectId(projectId));
-        } catch (IdIsNullException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-        } catch (ProjectNotFoundException e) {
+        }
+        catch (ProjectNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
@@ -58,12 +56,10 @@ public class MediaController {
      * @return the Media instance generated and saved
      */
     @PostMapping("/{projectId}")
-    public ResponseEntity<Media> addMediaToProject (@PathVariable("projectId") UUID projectId, @RequestBody Media media) {
+    public ResponseEntity<Media> addMediaToProject (@PathVariable("projectId") UUID projectId,
+                                                    @RequestBody Media media) {
         try {
             return ResponseEntity.ok(mediaService.addMediaToProject(projectId, media));
-        }
-        catch (IdIsNullException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
         catch (ProjectNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
@@ -80,9 +76,6 @@ public class MediaController {
         try {
             mediaService.deleteMedia(mediaId);
             return ResponseEntity.status(HttpStatus.OK).body("Media deleted successfully.");
-        }
-        catch (IdIsNullException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
         catch (MediaNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());

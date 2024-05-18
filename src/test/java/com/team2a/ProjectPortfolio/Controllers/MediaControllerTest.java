@@ -40,14 +40,6 @@ public class MediaControllerTest {
   }
 
   @Test
-  void testGetMediaByProjectIdNullIdException() {
-    when(mediaService.getMediaByProjectId(any())).thenThrow(new IdIsNullException(""));
-    ResponseEntity<List<Media>> entity = mediaController.getMediaByProjectId(null);
-    assertEquals(HttpStatus.BAD_REQUEST, entity.getStatusCode());
-    assertNull(entity.getBody());
-  }
-
-  @Test
   void testGetMediaByProjectIdProjectNotFoundException() {
     when(mediaService.getMediaByProjectId(any(UUID.class))).thenThrow(new ProjectNotFoundException(""));
     ResponseEntity<List<Media>> entity = mediaController.getMediaByProjectId(UUID.randomUUID());
@@ -68,14 +60,6 @@ public class MediaControllerTest {
   }
 
   @Test
-  void testAddMediaToProjectNullIdException() {
-    when(mediaService.addMediaToProject(any(UUID.class), any(Media.class))).thenThrow(new IdIsNullException(""));
-    ResponseEntity<Media> entity = mediaController.addMediaToProject(UUID.randomUUID(), new Media());
-    assertEquals(HttpStatus.BAD_REQUEST, entity.getStatusCode());
-    assertNull(entity.getBody());
-  }
-
-  @Test
   void testAddMediaToProjectProjectNotFoundException() {
     when(mediaService.addMediaToProject(any(UUID.class), any(Media.class))).thenThrow(new ProjectNotFoundException(""));
     ResponseEntity<Media> entity = mediaController.addMediaToProject(UUID.randomUUID(), new Media());
@@ -91,14 +75,6 @@ public class MediaControllerTest {
     ResponseEntity<Media> entity = mediaController.addMediaToProject(UUID.randomUUID(), new Media());
     assertEquals(HttpStatus.OK, entity.getStatusCode());
     assertEquals(m1, entity.getBody());
-  }
-
-  @Test
-  void testDeleteMediaFromProjectNullId() {
-    doThrow(new IdIsNullException("Null id not accepted.")).when(mediaService).deleteMedia(any(UUID.class));
-    ResponseEntity<String> entity = mediaController.deleteMedia(UUID.randomUUID());
-    assertEquals(HttpStatus.BAD_REQUEST, entity.getStatusCode());
-    assertEquals("Null id not accepted.", entity.getBody());
   }
 
   @Test

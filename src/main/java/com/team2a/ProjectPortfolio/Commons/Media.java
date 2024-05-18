@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.NonNull;
 import lombok.Setter;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
@@ -23,19 +24,20 @@ public class Media {
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Getter
     @Setter
-    @JsonProperty
     private UUID mediaId;
 
     @Column(name="NAME")
     @Getter
     @Setter
-    @JsonProperty
+    @JsonProperty(required = true)
+    @NonNull
     private String name;
 
     @Column(name="PATH")
     @Getter
     @Setter
-    @JsonProperty
+    @JsonProperty(required = true)
+    @NonNull
     private String path;
 
     @Getter
