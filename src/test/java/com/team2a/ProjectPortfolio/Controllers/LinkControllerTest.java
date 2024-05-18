@@ -88,10 +88,9 @@ class LinkControllerTest {
 
     @Test
     void DeleteLinkByIdSuccess() {
-        UUID projectId = UUID.randomUUID();
-        Link link2 = new Link("link2", "desc2");
-        when(ls.deleteLinkById(projectId)).thenReturn("Link deleted");
-        ResponseEntity<String> response = lc.deleteLinkById(projectId);
+        UUID linkId = UUID.randomUUID();
+        when(ls.deleteLinkById(linkId)).thenReturn("Link deleted");
+        ResponseEntity<String> response = lc.deleteLinkById(linkId);
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals("Link deleted", response.getBody());
     }
