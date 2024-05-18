@@ -52,22 +52,17 @@ public class CollaboratorService {
      * Adds a collaborator to a specified projectId.If the collaborator is already in the database, we just
      * link it to the project. Otherwise, we create it and link to the project.
      * @param projectId the projectId
-     * @param collaboratorName the collaborator name
+     * @param collaboratorId the collaborator Id
+     * @param role the collaborator role
      * @return the collaborator entity
      */
-    public Collaborator addCollaboratorToProject (UUID projectId, String collaboratorName) {
+    public Collaborator addCollaboratorToProject (UUID projectId, UUID collaboratorId,String role) {
         Project project = projectRepository.findById(projectId).orElseThrow(EntityNotFoundException::new);
-        List<Collaborator> collaborators = collaboratorRepository.findAllByName(collaboratorName);
-        if(collaborators.isEmpty()) {
-            Collaborator collaborator = new Collaborator(collaboratorName);
-            collaborator = collaboratorRepository.save(collaborator);
-            ProjectsToCollaborators projectsToCollaborators = new ProjectsToCollaborators(project,collaborator);
-            projectsToCollaborators = projectsToCollaboratorsRepository.save(projectsToCollaborators);
-            return collaborator;
-        }
-        ProjectsToCollaborators projectsToCollaborators = new ProjectsToCollaborators(project, collaborators.get(0));
-        projectsToCollaborators = projectsToCollaboratorsRepository.save(projectsToCollaborators);
-        return collaborators.get(0);
+        Collaborator collaborator = collaboratorRepository.findById(collaboratorId)
+                .orElseThrow(EntityNotFoundException::new);
+        ProjectsToCollaborators projectsToCollaborators = new ProjectsToCollaborators(project, collaborator,role);
+        projectsToCollaboratorsRepository.save(projectsToCollaborators);
+        return collaborator;
 
     }
 

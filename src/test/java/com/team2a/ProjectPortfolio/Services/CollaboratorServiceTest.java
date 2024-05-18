@@ -44,7 +44,8 @@ public class CollaboratorServiceTest {
         UUID projectId = UUID.randomUUID();
         Project project = new Project("Test", "Test", "Test", false);
         Collaborator collaborator = new Collaborator("Filip");
-        ProjectsToCollaborators projectsToCollaborators = new ProjectsToCollaborators(project, collaborator);
+        String role = "Role";
+        ProjectsToCollaborators projectsToCollaborators = new ProjectsToCollaborators(project, collaborator,role);
         List<ProjectsToCollaborators> projectsToCollaboratorsList = new ArrayList<>();
         projectsToCollaboratorsList.add(projectsToCollaborators);
         when(projectRepository.findById(projectId)).thenReturn(java.util.Optional.of(project));
@@ -63,49 +64,23 @@ public class CollaboratorServiceTest {
     @Test
     void testAddCollaboratorSuccess () {
         UUID projectId = UUID.randomUUID();
-        String collaboratorName = "Filip";
+        UUID collaboratorId = UUID.randomUUID();
+        String role = "Role";
         Project project = new Project("Test", "Test", "Test", false);
-        Collaborator collaborator = new Collaborator(collaboratorName);
+        Collaborator collaborator = new Collaborator("Test");
+        collaborator.setCollaboratorId(collaboratorId);
         when(projectRepository.findById(projectId)).thenReturn(java.util.Optional.of(project));
-        when(cr.findAllByName(collaboratorName)).thenReturn(new ArrayList<>());
-        when(cr.save(any())).thenReturn(collaborator);
-        Collaborator actualResponse = cs.addCollaboratorToProject(projectId, collaboratorName);
-        assertEquals(collaboratorName, actualResponse.getName());
-    }
-
-    @Test
-    void testAddCollaboratorSuccessMultiple () {
-        UUID projectId = UUID.randomUUID();
-        String collaboratorName = "Filip";
-        Project project = new Project("Test", "Test", "Test", false);
-        Collaborator collaborator1 = new Collaborator(collaboratorName);
-        Collaborator collaborator2 = new Collaborator(collaboratorName);
-        List<Collaborator> collaboratorList = new ArrayList<>();
-        collaboratorList.add(collaborator1);
-        collaboratorList.add(collaborator2);
-        when(projectRepository.findById(projectId)).thenReturn(java.util.Optional.of(project));
-        when(cr.findAllByName(collaboratorName)).thenReturn(collaboratorList);
-        Collaborator actualResponse = cs.addCollaboratorToProject(projectId, collaboratorName);
-        assertEquals(collaboratorName, actualResponse.getName());
-    }
-
-    @Test
-    void testAddCollaboratorSuccessSingle () {
-        UUID projectId = UUID.randomUUID();
-        String collaboratorName = "Filip";
-        Project project = new Project("Test", "Test", "Test", false);
-        Collaborator collaborator = new Collaborator(collaboratorName);
-        when(projectRepository.findById(projectId)).thenReturn(java.util.Optional.of(project));
-        when(cr.findAllByName(collaboratorName)).thenReturn(List.of(collaborator));
-        Collaborator actualResponse = cs.addCollaboratorToProject(projectId, collaboratorName);
-        assertEquals(collaboratorName, actualResponse.getName());
+        when(cr.findById(collaboratorId)).thenReturn(java.util.Optional.of(collaborator));
+        Collaborator actualResponse = cs.addCollaboratorToProject(projectId, collaboratorId,role);
+        assertEquals(collaboratorId, actualResponse.getCollaboratorId());
     }
 
     @Test
     void testAddCollaboratorNotFound () {
         UUID projectId = UUID.randomUUID();
-        String collaboratorName = "Test";
-        assertThrows(EntityNotFoundException.class, () -> cs.addCollaboratorToProject(projectId, collaboratorName));
+        UUID collaboratorId = UUID.randomUUID();
+        String role = "Role";
+        assertThrows(EntityNotFoundException.class, () -> cs.addCollaboratorToProject(projectId, collaboratorId,role));
     }
 
     @Test

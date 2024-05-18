@@ -32,14 +32,21 @@ public class ProjectsToCollaborators {
     @Setter
     private Project project;
 
+    @Getter
+    @Setter
+    @Column(name = "Role")
+    private String role;
+
     /**
      * Constructor for the relation between the project and the collaborator
      * @param project the project of which the collaborator is part of
      * @param collaborator the collaborator for the project
+     * @param role the role of the collaborator
      */
-    public ProjectsToCollaborators(Project project,Collaborator collaborator) {
+    public ProjectsToCollaborators(Project project,Collaborator collaborator,String role) {
         this.collaborator = collaborator;
         this.project = project;
+        this.role = role;
     }
 
 }
