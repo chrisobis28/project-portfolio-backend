@@ -53,49 +53,55 @@ public class Request {
     private Project project;
 
     @Getter
-    @OneToMany(cascade=CascadeType.ALL, orphanRemoval = true)
-    @OnDelete(action= OnDeleteAction.CASCADE)
-    @JoinColumn(name="REQUEST_ID")
-    private List<RequestTagProject> requestTagProjects;
+    @Setter
+    @ManyToOne
+    @JoinColumn(name="ACCOUNT_USERNAME", nullable=false)
+    private Account account;
+
+
 
     @Getter
     @OneToMany(cascade=CascadeType.ALL, orphanRemoval = true)
     @OnDelete(action= OnDeleteAction.CASCADE)
     @JoinColumn(name="REQUEST_ID")
-    private List<RequestMediaProject> requestMediaProjects;
+    private List<RequestTagProject> requestTagProjects = new ArrayList<>();
 
     @Getter
     @OneToMany(cascade=CascadeType.ALL, orphanRemoval = true)
     @OnDelete(action= OnDeleteAction.CASCADE)
     @JoinColumn(name="REQUEST_ID")
-    private List<RequestLinkProject> requestLinkProjects;
+    private List<RequestMediaProject> requestMediaProjects = new ArrayList<>();
+
+    @Getter
+    @OneToMany(cascade=CascadeType.ALL, orphanRemoval = true)
+    @OnDelete(action= OnDeleteAction.CASCADE)
+    @JoinColumn(name="REQUEST_ID")
+    private List<RequestLinkProject> requestLinkProjects = new ArrayList<>();
 
 
     @Getter
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @OnDelete(action= OnDeleteAction.CASCADE)
     @JoinColumn(name="REQUEST_ID")
-    private List<RequestCollaboratorsProjects> requestCollaboratorsProjects;
+    private List<RequestCollaboratorsProjects> requestCollaboratorsProjects = new ArrayList<>();
 
     /**
      * Constructor for the Request class
-     * @param requestId the id of the request
      * @param newTitle the new title set
      * @param newDescription the new description set
      * @param newBibtex the new Bibtex set
      * @param isCounterOffer whether the request is a counter offer
+     * @param account the account associated with the request
+     * @param project the project associated with the request
      */
-
-    public Request (UUID requestId, String newTitle, String newDescription, String newBibtex, Boolean isCounterOffer) {
-        this.requestId = requestId;
+    public Request(String newTitle, String newDescription, String newBibtex, boolean isCounterOffer,
+                   Account account, Project project) {
         this.newTitle = newTitle;
         this.newDescription = newDescription;
         this.newBibtex = newBibtex;
         this.isCounterOffer = isCounterOffer;
-        this.requestMediaProjects = new ArrayList<>();
-        this.requestTagProjects = new ArrayList<>();
-        this.requestLinkProjects = new ArrayList<>();
-        this.requestCollaboratorsProjects = new ArrayList<>();
+        this.account = account;
+        this.project = project;
     }
 
     /**
