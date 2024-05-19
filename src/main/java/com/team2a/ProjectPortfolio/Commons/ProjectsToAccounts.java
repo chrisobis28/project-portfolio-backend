@@ -24,6 +24,7 @@ public class ProjectsToAccounts {
     @Column(name="ROLE")
     @Getter
     @Setter
+    @NotNull(message = "role can't be null")
     private String role;
 
     @ManyToOne
