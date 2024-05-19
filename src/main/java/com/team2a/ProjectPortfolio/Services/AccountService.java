@@ -5,8 +5,6 @@ import com.team2a.ProjectPortfolio.Commons.Project;
 import com.team2a.ProjectPortfolio.Commons.ProjectsToAccounts;
 import com.team2a.ProjectPortfolio.CustomExceptions.AccountNotFoundException;
 import com.team2a.ProjectPortfolio.CustomExceptions.DuplicatedUsernameException;
-import com.team2a.ProjectPortfolio.CustomExceptions.FieldNullException;
-import com.team2a.ProjectPortfolio.CustomExceptions.IdIsNullException;
 import com.team2a.ProjectPortfolio.CustomExceptions.NotFoundException;
 import com.team2a.ProjectPortfolio.CustomExceptions.ProjectNotFoundException;
 import com.team2a.ProjectPortfolio.Repositories.AccountRepository;
@@ -47,7 +45,6 @@ public class AccountService {
      * @throws RuntimeException - Duplicated username or the id is null
      */
     public Account createAccount (Account account) throws RuntimeException {
-        nullFieldChecker(account);
         Optional<Account> o = accountRepository.findById(account.getUsername());
         if(o.isPresent()) {
             throw new DuplicatedUsernameException("An account with the username "
@@ -63,7 +60,6 @@ public class AccountService {
      * @throws RuntimeException - Account was not found or the id is null
      */
     public Account editAccount (Account account) throws RuntimeException {
-        nullFieldChecker(account);
         Optional<Account> o = accountRepository.findById(account.getUsername());
         if(o.isEmpty()) {
             throw new AccountNotFoundException("There is no account with username " + account.getUsername() + ".");
@@ -98,9 +94,6 @@ public class AccountService {
      * @throws RuntimeException - Account was not found or the id is null
      */
     public Account checkAccountExistence (String username) throws RuntimeException {
-        if(username == null) {
-            throw new IdIsNullException("Null id not accepted.");
-        }
         Optional<Account> o = accountRepository.findById(username);
         if(o.isEmpty()) {
             throw new AccountNotFoundException("There is no account with username " + username + ".");
@@ -108,16 +101,12 @@ public class AccountService {
         return o.get();
     }
 
-    /**
-     * Helper method to check the fields of an Account for nullability
-     * @param account - the Account to verify
-     * @throws RuntimeException - A field is null
-     */
-    public void nullFieldChecker (Account account) throws RuntimeException {
-        if(account.getUsername() == null || account.getName() == null || account.getPassword() == null
-            || account.getIsPM() == null || account.getIsAdministrator() == null) {
-            throw new FieldNullException("Null fields are not valid.");
+    public Project checkProjectExistence (UUID projectId) throws RuntimeException {
+        Optional<Project> o = projectRepository.findById(projectId);
+        if(o.isEmpty()) {
+            throw new ProjectNotFoundException("There is no project with id " + projectId + ".");
         }
+        return o.get();
     }
 
     /**
@@ -127,20 +116,14 @@ public class AccountService {
      * @param role - the role given
      */
     public void addRole (String username, UUID projectId, String role) {
-        Optional<Account> optionalAccount = accountRepository.findById(username);
-        if(optionalAccount.isEmpty()) {
-            throw new AccountNotFoundException("");
-        }
-        Optional<Project> optionalProject = projectRepository.findById(projectId);
-        if(optionalProject.isEmpty()) {
-            throw new ProjectNotFoundException("");
-        }
+        Account optionalAccount = checkAccountExistence(username);
+        Project optionalProject = checkProjectExistence(projectId);
         if(projectsToAccountsRepository.findAll().stream()
-            .filter(x -> x.getProject().equals(optionalProject.get()) && x.getAccount().equals(optionalAccount.get()))
+            .filter(x -> x.getProject().equals(optionalProject) && x.getAccount().equals(optionalAccount))
             .toList().size() > 0) {
             throw new DuplicatedUsernameException("");
         }
-        ProjectsToAccounts pta = new ProjectsToAccounts(role, optionalAccount.get(), optionalProject.get());
+        ProjectsToAccounts pta = new ProjectsToAccounts(role, optionalAccount, optionalProject);
         projectsToAccountsRepository.save(pta);
     }
 

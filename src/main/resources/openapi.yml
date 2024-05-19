@@ -1006,6 +1006,8 @@ components:
         mediaId:
           type: string
           format: uuid
+        name:
+          type: string
         path:
           type: string
 

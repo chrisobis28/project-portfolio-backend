@@ -6,12 +6,14 @@ import com.team2a.ProjectPortfolio.Commons.Project;
 import com.team2a.ProjectPortfolio.Repositories.MediaRepository;
 import com.team2a.ProjectPortfolio.Repositories.ProjectRepository;
 import java.util.UUID;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.hamcrest.Matchers.*;
@@ -23,6 +25,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@ActiveProfiles("test")
 public class MediaControllerIntegrationTest {
 
   @Autowired
@@ -55,7 +58,7 @@ public class MediaControllerIntegrationTest {
     projectId = project.getProjectId();
 
     otherProjectId = UUID.randomUUID();
-    while(otherProjectId.equals(projectId)) {
+    while (otherProjectId.equals(projectId)) {
       otherProjectId = UUID.randomUUID();
     }
 
@@ -71,7 +74,7 @@ public class MediaControllerIntegrationTest {
   @Test
   public void getMediaByProjectId() throws Exception {
     mockMvc.perform(get(Routes.MEDIA + "/" + projectId)
-        .contentType(MediaType.APPLICATION_JSON))
+            .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$", hasSize(3)))
         .andExpect(jsonPath("$[0].name", is("Media name 1")))
@@ -82,7 +85,7 @@ public class MediaControllerIntegrationTest {
         .andExpect(jsonPath("$[2].path", is("Media path 3")));
 
     mockMvc.perform(get(Routes.MEDIA + "/" + otherProjectId)
-        .contentType(MediaType.APPLICATION_JSON))
+            .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isNotFound());
 
     mockMvc.perform(get(Routes.MEDIA + "/" + null)
@@ -107,6 +110,11 @@ public class MediaControllerIntegrationTest {
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(media)))
         .andExpect(status().isNotFound());
+
+    mockMvc.perform(post(Routes.MEDIA + "/" + projectId)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(new Media(project, null, "path"))))
+        .andExpect(status().isBadRequest());
 
     mockMvc.perform(post(Routes.MEDIA + "/" + null)
             .contentType(MediaType.APPLICATION_JSON)

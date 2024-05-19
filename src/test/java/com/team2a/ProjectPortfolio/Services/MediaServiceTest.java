@@ -9,7 +9,6 @@ import static org.mockito.Mockito.when;
 
 import com.team2a.ProjectPortfolio.Commons.Media;
 import com.team2a.ProjectPortfolio.Commons.Project;
-import com.team2a.ProjectPortfolio.CustomExceptions.IdIsNullException;
 import com.team2a.ProjectPortfolio.CustomExceptions.MediaNotFoundException;
 import com.team2a.ProjectPortfolio.CustomExceptions.ProjectNotFoundException;
 import com.team2a.ProjectPortfolio.Repositories.MediaRepository;

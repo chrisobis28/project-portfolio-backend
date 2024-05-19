@@ -3,10 +3,10 @@ package com.team2a.ProjectPortfolio.Commons;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.NonNull;
 import lombok.Setter;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
@@ -30,14 +30,14 @@ public class Media {
     @Getter
     @Setter
     @JsonProperty(required = true)
-    @NonNull
+    @NotNull(message = "name can't be null")
     private String name;
 
     @Column(name="PATH")
     @Getter
     @Setter
     @JsonProperty(required = true)
-    @NonNull
+    @NotNull(message = "path can't be null")
     private String path;
 
     @Getter

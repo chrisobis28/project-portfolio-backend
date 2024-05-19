@@ -5,6 +5,7 @@ import com.team2a.ProjectPortfolio.CustomExceptions.MediaNotFoundException;
 import com.team2a.ProjectPortfolio.CustomExceptions.ProjectNotFoundException;
 import com.team2a.ProjectPortfolio.Routes;
 import com.team2a.ProjectPortfolio.Services.MediaService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -57,7 +58,7 @@ public class MediaController {
      */
     @PostMapping("/{projectId}")
     public ResponseEntity<Media> addMediaToProject (@PathVariable("projectId") UUID projectId,
-                                                    @RequestBody Media media) {
+                                                    @Valid @RequestBody Media media) {
         try {
             return ResponseEntity.ok(mediaService.addMediaToProject(projectId, media));
         }
