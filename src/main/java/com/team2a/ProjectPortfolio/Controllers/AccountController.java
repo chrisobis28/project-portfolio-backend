@@ -57,7 +57,7 @@ public class AccountController {
      * @return - the Account with the necessary modifications
      */
     @PutMapping("")
-    public ResponseEntity<Account> editAccount (@RequestBody Account account) {
+    public ResponseEntity<Account> editAccount (@Valid @RequestBody Account account) {
         try {
             return ResponseEntity.ok(accountService.editAccount(account));
         }

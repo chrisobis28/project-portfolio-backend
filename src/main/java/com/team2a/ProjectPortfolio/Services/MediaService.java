@@ -10,7 +10,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class MediaService {
@@ -49,6 +51,7 @@ public class MediaService {
      */
     public Media addMediaToProject (UUID projectId, Media media) throws RuntimeException {
         Project p = checkProjectExistence(projectId);
+        checkPathUniqueness(media.getPath());
         media.setProject(p);
         return mediaRepository.save(media);
     }
@@ -66,7 +69,7 @@ public class MediaService {
     /**
      * Checks whether the id is valid and the Media exists
      * @param mediaId the id of the Media to verify
-     * @throws RuntimeException - Media doesn't exist or the id is null
+     * @throws RuntimeException - Media doesn't exist
      */
     public void checkMediaExistence (UUID mediaId) throws RuntimeException {
         Optional<Media> m = mediaRepository.findById(mediaId);
@@ -79,7 +82,7 @@ public class MediaService {
      * Checks whether the id is valid and the Project exists
      * @param projectId the id of the Project to verify
      * @return the Project
-     * @throws RuntimeException - Project doesn't exist or the id is null
+     * @throws RuntimeException - Project doesn't exist
      *
      */
     public Project checkProjectExistence (UUID projectId) throws RuntimeException {
@@ -88,5 +91,17 @@ public class MediaService {
             throw new ProjectNotFoundException("No project with the id " + projectId + "could be found.");
         }
         return p.get();
+    }
+
+    /**
+     * Checks that a path is unique
+     * @param path - the path to be added to the database
+     * @throws RuntimeException - the path is already in use
+     */
+    public void checkPathUniqueness (String path) throws RuntimeException {
+        if(mediaRepository.findAll().stream()
+            .filter(x -> x.getPath().equals(path)).toList().size() > 0) {
+            throw new IllegalArgumentException("");
+        }
     }
 }

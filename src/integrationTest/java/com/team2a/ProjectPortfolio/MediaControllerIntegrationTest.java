@@ -106,6 +106,11 @@ public class MediaControllerIntegrationTest {
 
 
     assertEquals(4, mediaRepository.count());
+    mockMvc.perform(post(Routes.MEDIA + "/" + projectId)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(new Media(project, "name", "Add Path"))))
+        .andExpect(status().isForbidden());
+
     mockMvc.perform(post(Routes.MEDIA + "/" + otherProjectId)
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(media)))
@@ -116,7 +121,7 @@ public class MediaControllerIntegrationTest {
             .content(objectMapper.writeValueAsString(new Media(project, null, "path"))))
         .andExpect(status().isBadRequest());
 
-    mockMvc.perform(post(Routes.MEDIA + "/" + null)
+    mockMvc.perform(post(Routes.MEDIA + "/" + "id")
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(media)))
         .andExpect(status().isBadRequest());
@@ -137,5 +142,9 @@ public class MediaControllerIntegrationTest {
             .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isNotFound())
         .andExpect(jsonPath("$", is("No media with the id " + media.getMediaId() + " could be found.")));
+
+    mockMvc.perform(delete(Routes.MEDIA + "/" + "id")
+            .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isBadRequest());
   }
 }

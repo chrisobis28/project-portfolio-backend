@@ -91,7 +91,7 @@ public class AccountService {
      * Helper method to check whether an Account exists
      * @param username - the id of the Account to be localized
      * @return - the Account desired, provided it exists
-     * @throws RuntimeException - Account was not found or the id is null
+     * @throws RuntimeException - Account was not found
      */
     public Account checkAccountExistence (String username) throws RuntimeException {
         Optional<Account> o = accountRepository.findById(username);
@@ -101,6 +101,12 @@ public class AccountService {
         return o.get();
     }
 
+    /**
+     * Helper method to check whether a Project exists
+     * @param projectId - the id of the Project to be localized
+     * @return - the Project desired, provided it exists
+     * @throws RuntimeException - Project was not found
+     */
     public Project checkProjectExistence (UUID projectId) throws RuntimeException {
         Optional<Project> o = projectRepository.findById(projectId);
         if(o.isEmpty()) {

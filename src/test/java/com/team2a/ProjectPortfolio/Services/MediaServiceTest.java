@@ -72,6 +72,15 @@ public class MediaServiceTest {
   }
 
   @Test
+  void testAddMediaToProjectPathNotUnique() {
+    UUID x = UUID.randomUUID();
+    Project p = new Project();
+    when(projectRepository.findById(x)).thenReturn(Optional.of(p));
+    when(mediaRepository.findAll()).thenReturn(List.of(new Media(p, "name", "path")));
+    assertThrows(IllegalArgumentException.class, () -> mediaService.addMediaToProject(x, new Media(p, "name", "path")));
+  }
+
+  @Test
   void testAddMediaToProjectSuccess() {
     UUID x = UUID.randomUUID();
     Project p = new Project();

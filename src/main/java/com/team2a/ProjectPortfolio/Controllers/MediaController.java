@@ -62,6 +62,9 @@ public class MediaController {
         try {
             return ResponseEntity.ok(mediaService.addMediaToProject(projectId, media));
         }
+        catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
         catch (ProjectNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }

@@ -23,6 +23,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.server.ResponseStatusException;
 
 @DataJpaTest
 @ExtendWith(MockitoExtension.class)
@@ -63,6 +64,14 @@ public class MediaControllerTest {
     when(mediaService.addMediaToProject(any(UUID.class), any(Media.class))).thenThrow(new ProjectNotFoundException(""));
     ResponseEntity<Media> entity = mediaController.addMediaToProject(UUID.randomUUID(), new Media());
     assertEquals(HttpStatus.NOT_FOUND, entity.getStatusCode());
+    assertNull(entity.getBody());
+  }
+
+  @Test
+  void testAddMediaToProjectPathNotUnique() {
+    when(mediaService.addMediaToProject(any(UUID.class), any(Media.class))).thenThrow(new IllegalArgumentException(""));
+    ResponseEntity<Media> entity = mediaController.addMediaToProject(UUID.randomUUID(), new Media());
+    assertEquals(HttpStatus.FORBIDDEN, entity.getStatusCode());
     assertNull(entity.getBody());
   }
 
