@@ -1,6 +1,7 @@
 package com.team2a.ProjectPortfolio.Commons;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import java.util.ArrayList;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -19,26 +20,31 @@ public class Account {
     @Column(name="USERNAME")
     @Getter
     @Setter
+    @NotNull(message = "username can't be null")
     private String username;
 
     @Column(name = "NAME")
     @Getter
     @Setter
+    @NotNull(message = "name can't be null")
     private String name;
 
     @Column(name= "PASSWORD")
     @Getter
     @Setter
+    @NotNull(message = "password can't be null")
     private String password;
 
     @Column(name= "IS_ADMINISTRATOR")
     @Getter
     @Setter
+    @NotNull(message = "isAdministrator can't be null")
     private Boolean isAdministrator;
 
     @Column(name= "IS_PM")
     @Getter
     @Setter
+    @NotNull(message = "isPM can't be null")
     private Boolean isPM;
 
     @Getter

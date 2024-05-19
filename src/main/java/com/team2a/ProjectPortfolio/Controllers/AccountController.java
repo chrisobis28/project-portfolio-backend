@@ -3,12 +3,11 @@ package com.team2a.ProjectPortfolio.Controllers;
 import com.team2a.ProjectPortfolio.Commons.Account;
 import com.team2a.ProjectPortfolio.CustomExceptions.AccountNotFoundException;
 import com.team2a.ProjectPortfolio.CustomExceptions.DuplicatedUsernameException;
-import com.team2a.ProjectPortfolio.CustomExceptions.FieldNullException;
-import com.team2a.ProjectPortfolio.CustomExceptions.IdIsNullException;
 import com.team2a.ProjectPortfolio.CustomExceptions.NotFoundException;
 import com.team2a.ProjectPortfolio.CustomExceptions.ProjectNotFoundException;
 import com.team2a.ProjectPortfolio.Routes;
 import com.team2a.ProjectPortfolio.Services.AccountService;
+import jakarta.validation.Valid;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -43,12 +42,9 @@ public class AccountController {
      * @return - the Account that was created
      */
     @PostMapping("")
-    public ResponseEntity<Account> createAccount (@RequestBody Account account) {
+    public ResponseEntity<Account> createAccount (@Valid @RequestBody Account account) {
         try {
             return ResponseEntity.ok(accountService.createAccount(account));
-        }
-        catch(FieldNullException e){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
         catch(DuplicatedUsernameException e){
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
@@ -61,12 +57,9 @@ public class AccountController {
      * @return - the Account with the necessary modifications
      */
     @PutMapping("")
-    public ResponseEntity<Account> editAccount (@RequestBody Account account) {
+    public ResponseEntity<Account> editAccount (@Valid @RequestBody Account account) {
         try {
             return ResponseEntity.ok(accountService.editAccount(account));
-        }
-        catch(FieldNullException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
         catch(AccountNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
@@ -83,9 +76,6 @@ public class AccountController {
         try {
             return ResponseEntity.ok(accountService.getAccountById(username));
         }
-        catch(IdIsNullException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-        }
         catch(AccountNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
@@ -101,9 +91,6 @@ public class AccountController {
         try {
             accountService.deleteAccount(username);
             return ResponseEntity.status(HttpStatus.OK).body("Success.");
-        }
-        catch(IdIsNullException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
         catch(AccountNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());

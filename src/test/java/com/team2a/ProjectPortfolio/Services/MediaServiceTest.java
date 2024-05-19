@@ -9,7 +9,6 @@ import static org.mockito.Mockito.when;
 
 import com.team2a.ProjectPortfolio.Commons.Media;
 import com.team2a.ProjectPortfolio.Commons.Project;
-import com.team2a.ProjectPortfolio.CustomExceptions.IdIsNullException;
 import com.team2a.ProjectPortfolio.CustomExceptions.MediaNotFoundException;
 import com.team2a.ProjectPortfolio.CustomExceptions.ProjectNotFoundException;
 import com.team2a.ProjectPortfolio.Repositories.MediaRepository;
@@ -44,11 +43,6 @@ public class MediaServiceTest {
   }
 
   @Test
-  void testGetMediaByProjectIdNull(){
-    assertThrows(IdIsNullException.class, () -> mediaService.getMediaByProjectId(null));
-  }
-
-  @Test
   void testGetMediaByProjectIdProjectNotFound(){
     UUID x = UUID.randomUUID();
     when(projectRepository.findById(x)).thenReturn(Optional.empty());
@@ -71,15 +65,19 @@ public class MediaServiceTest {
   }
 
   @Test
-  void testAddMediaToProjectIdNull() {
-    assertThrows(IdIsNullException.class, () -> mediaService.addMediaToProject(null, new Media()));
-  }
-
-  @Test
   void testAddMediaToProjectNotFound() {
     UUID x = UUID.randomUUID();
     when(projectRepository.findById(x)).thenReturn(Optional.empty());
     assertThrows(ProjectNotFoundException.class, () -> mediaService.addMediaToProject(x, new Media()));
+  }
+
+  @Test
+  void testAddMediaToProjectPathNotUnique() {
+    UUID x = UUID.randomUUID();
+    Project p = new Project();
+    when(projectRepository.findById(x)).thenReturn(Optional.of(p));
+    when(mediaRepository.findAll()).thenReturn(List.of(new Media(p, "name", "path")));
+    assertThrows(IllegalArgumentException.class, () -> mediaService.addMediaToProject(x, new Media(p, "name", "path")));
   }
 
   @Test
@@ -93,11 +91,6 @@ public class MediaServiceTest {
     assertEquals(p, m2.getProject());
     assertEquals("name", m2.getName());
     assertEquals("path", m2.getPath());
-  }
-
-  @Test
-  void testDeleteMediaIdNull(){
-    assertThrows(IdIsNullException.class, () -> mediaService.deleteMedia(null));
   }
 
   @Test

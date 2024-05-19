@@ -2,7 +2,6 @@ package com.team2a.ProjectPortfolio.Services;
 
 import com.team2a.ProjectPortfolio.Commons.Media;
 import com.team2a.ProjectPortfolio.Commons.Project;
-import com.team2a.ProjectPortfolio.CustomExceptions.IdIsNullException;
 import com.team2a.ProjectPortfolio.CustomExceptions.MediaNotFoundException;
 import com.team2a.ProjectPortfolio.CustomExceptions.ProjectNotFoundException;
 import com.team2a.ProjectPortfolio.Repositories.MediaRepository;
@@ -50,6 +49,7 @@ public class MediaService {
      */
     public Media addMediaToProject (UUID projectId, Media media) throws RuntimeException {
         Project p = checkProjectExistence(projectId);
+        checkPathUniqueness(media.getPath());
         media.setProject(p);
         return mediaRepository.save(media);
     }
@@ -67,12 +67,9 @@ public class MediaService {
     /**
      * Checks whether the id is valid and the Media exists
      * @param mediaId the id of the Media to verify
-     * @throws RuntimeException - Media doesn't exist or the id is null
+     * @throws RuntimeException - Media doesn't exist
      */
     public void checkMediaExistence (UUID mediaId) throws RuntimeException {
-        if(mediaId == null) {
-            throw new IdIsNullException("Null id not accepted.");
-        }
         Optional<Media> m = mediaRepository.findById(mediaId);
         if(m.isEmpty()){
             throw new MediaNotFoundException("No media with the id " + mediaId + " could be found.");
@@ -83,17 +80,26 @@ public class MediaService {
      * Checks whether the id is valid and the Project exists
      * @param projectId the id of the Project to verify
      * @return the Project
-     * @throws RuntimeException - Project doesn't exist or the id is null
+     * @throws RuntimeException - Project doesn't exist
      *
      */
     public Project checkProjectExistence (UUID projectId) throws RuntimeException {
-        if(projectId == null) {
-            throw new IdIsNullException("Null id not accepted.");
-        }
         Optional<Project> p = projectRepository.findById(projectId);
         if(p.isEmpty()){
             throw new ProjectNotFoundException("No project with the id " + projectId + "could be found.");
         }
         return p.get();
+    }
+
+    /**
+     * Checks that a path is unique
+     * @param path - the path to be added to the database
+     * @throws RuntimeException - the path is already in use
+     */
+    public void checkPathUniqueness (String path) throws RuntimeException {
+        if(mediaRepository.findAll().stream()
+            .filter(x -> x.getPath().equals(path)).toList().size() > 0) {
+            throw new IllegalArgumentException("");
+        }
     }
 }

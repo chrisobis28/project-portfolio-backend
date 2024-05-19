@@ -3,6 +3,7 @@ package com.team2a.ProjectPortfolio.Commons;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -23,19 +24,20 @@ public class Media {
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Getter
     @Setter
-    @JsonProperty
     private UUID mediaId;
 
     @Column(name="NAME")
     @Getter
     @Setter
-    @JsonProperty
+    @JsonProperty(required = true)
+    @NotNull(message = "name can't be null")
     private String name;
 
     @Column(name="PATH")
     @Getter
     @Setter
-    @JsonProperty
+    @JsonProperty(required = true)
+    @NotNull(message = "path can't be null")
     private String path;
 
     @Getter
