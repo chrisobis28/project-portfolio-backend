@@ -79,24 +79,23 @@ public class RequestService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Account already has a request for this project");
 
 
-        List<Request> requests = requestRepository
-                .findAll()
-                .stream()
-                .filter(x -> x.getNewTitle().equals(request.getNewTitle()) &&
-                            x.getNewDescription().equals(request.getNewDescription()) &&
-                            x.getNewBibtex().equals(request.getNewBibtex()) &&
-                            x.isCounterOffer() == request.isCounterOffer() &&
-                            x.getProject().equals(p) &&
-                            x.getMedia().equals(request.getMedia()) &&
-                            x.getLinks().equals(request.getLinks()) &&
-                            x.getTags().equals(request.getTags()) &&
-                            x.getCollaborators().equals(request.getCollaborators()))
-                .toList();
+//        List<Request> requests = requestRepository
+//                .findAll()
+//                .stream()
+//                .filter(x -> x.getNewTitle().equals(request.getNewTitle()) &&
+//                            x.getNewDescription().equals(request.getNewDescription()) &&
+//                            x.getNewBibtex().equals(request.getNewBibtex()) &&
+//                            x.isCounterOffer() == request.isCounterOffer() &&
+//                            x.getProject().equals(p) &&
+//                            x.getMedia().equals(request.getMedia()) &&
+//                            x.getLinks().equals(request.getLinks()) &&
+//                            x.getTags().equals(request.getTags()) &&
+//                            x.getCollaborators().equals(request.getCollaborators()))
+//                .toList();
 
-        if(!requests.isEmpty())
-            return requests.get(0);
-        else {
-            request.setProject(p);
+//        if(!requests.isEmpty())
+//            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Request already exists");
+//        else {
 
 //            //delete later - Just for testing
 
@@ -120,12 +119,9 @@ public class RequestService {
 
 //            //delete later
 
+        requestRepository.save(request);
 
-            requestRepository.save(request);
-
-
-            return request;
-        }
+        return request;
     }
 
     /**
@@ -163,5 +159,30 @@ public class RequestService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Request not found.");
 
         requestRepository.delete(request.get());
+    }
+
+    /**
+     * Method for accepting a request
+     * @param requestId the id of the request to be accepted
+     */
+    public void acceptRequest (UUID requestId) {
+        Optional<Request> request = requestRepository.findById(requestId);
+
+        if(request.isEmpty())
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Request not found.");
+
+        Request r = request.get();
+        Project p = r.getProject();
+        if(r.getNewTitle() != null)
+            p.setTitle(r.getNewTitle());
+        if(r.getNewDescription() != null)
+            p.setDescription(r.getNewDescription());
+        if(r.getNewBibtex() != null)
+            p.setBibtex(r.getNewBibtex());
+
+        //Resolve other fields
+
+        projectRepository.save(p);
+        requestRepository.delete(r);
     }
 }

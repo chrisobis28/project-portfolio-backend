@@ -2,6 +2,7 @@ package com.team2a.ProjectPortfolio.Commons;
 
 import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
@@ -50,12 +51,14 @@ public class Request {
     @Setter
     @ManyToOne
     @JoinColumn(name="REQUEST_PROJECT")
+    @NotNull (message = "Project must be specified")
     private Project project;
 
     @Getter
     @Setter
     @ManyToOne
     @JoinColumn(name="ACCOUNT_USERNAME", nullable=false)
+    @NotNull (message = "Account must be specified")
     private Account account;
 
 
