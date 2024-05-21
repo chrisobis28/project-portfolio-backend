@@ -11,7 +11,7 @@ class TagsToProjectTest {
     @Test
     void testConstructor() {
         UUID id1 = UUID.randomUUID();
-        Tag tag = new Tag(id1, "1", "blue", null, null);
+        Tag tag = new Tag("1", "blue");
         Project p = new Project("title", "description", "bibtex", true);
         TagsToProject ttp = new TagsToProject(tag, p);
         assertEquals(tag, ttp.getTag());

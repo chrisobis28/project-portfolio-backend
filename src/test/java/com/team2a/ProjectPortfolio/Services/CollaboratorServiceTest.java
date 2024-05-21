@@ -24,7 +24,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class CollaboratorServiceMock {
+public class CollaboratorServiceTest {
     @Mock
     private ProjectsToCollaboratorsRepository ptc;
     @Mock
@@ -44,7 +44,8 @@ public class CollaboratorServiceMock {
         UUID projectId = UUID.randomUUID();
         Project project = new Project("Test", "Test", "Test", false);
         Collaborator collaborator = new Collaborator("Filip");
-        ProjectsToCollaborators projectsToCollaborators = new ProjectsToCollaborators(project, collaborator);
+        String role = "Role";
+        ProjectsToCollaborators projectsToCollaborators = new ProjectsToCollaborators(project, collaborator,role);
         List<ProjectsToCollaborators> projectsToCollaboratorsList = new ArrayList<>();
         projectsToCollaboratorsList.add(projectsToCollaborators);
         when(projectRepository.findById(projectId)).thenReturn(java.util.Optional.of(project));
@@ -52,12 +53,6 @@ public class CollaboratorServiceMock {
         List<Collaborator> actualResponse = cs.getCollaboratorsByProjectId(projectId);
         assertEquals(1, actualResponse.size());
         assertEquals("Filip", actualResponse.get(0).getName());
-    }
-
-    @Test
-    void testGetCollaboratorsByProjectIdIllegal () {
-        UUID projectId = null;
-        assertThrows(IllegalArgumentException.class, () -> cs.getCollaboratorsByProjectId(projectId));
     }
 
     @Test
@@ -69,49 +64,23 @@ public class CollaboratorServiceMock {
     @Test
     void testAddCollaboratorSuccess () {
         UUID projectId = UUID.randomUUID();
-        String collaboratorName = "Filip";
+        UUID collaboratorId = UUID.randomUUID();
+        String role = "Role";
         Project project = new Project("Test", "Test", "Test", false);
-        Collaborator collaborator = new Collaborator(collaboratorName);
+        Collaborator collaborator = new Collaborator("Test");
+        collaborator.setCollaboratorId(collaboratorId);
         when(projectRepository.findById(projectId)).thenReturn(java.util.Optional.of(project));
-        when(cr.findAllByName(collaboratorName)).thenReturn(new ArrayList<>());
-        when(cr.save(any())).thenReturn(collaborator);
-        Collaborator actualResponse = cs.addCollaboratorToProject(projectId, collaboratorName);
-        assertEquals(collaboratorName, actualResponse.getName());
-    }
-
-    @Test
-    void testAddCollaboratorSuccessMultiple () {
-        UUID projectId = UUID.randomUUID();
-        String collaboratorName = "Filip";
-        Project project = new Project("Test", "Test", "Test", false);
-        Collaborator collaborator1 = new Collaborator(collaboratorName);
-        Collaborator collaborator2 = new Collaborator(collaboratorName);
-        List<Collaborator> collaboratorList = new ArrayList<>();
-        collaboratorList.add(collaborator1);
-        collaboratorList.add(collaborator2);
-        when(projectRepository.findById(projectId)).thenReturn(java.util.Optional.of(project));
-        when(cr.findAllByName(collaboratorName)).thenReturn(collaboratorList);
-        Collaborator actualResponse = cs.addCollaboratorToProject(projectId, collaboratorName);
-        assertEquals(collaboratorName, actualResponse.getName());
-    }
-
-    @Test
-    void testAddCollaboratorSuccessSingle () {
-        UUID projectId = UUID.randomUUID();
-        String collaboratorName = "Filip";
-        Project project = new Project("Test", "Test", "Test", false);
-        Collaborator collaborator = new Collaborator(collaboratorName);
-        when(projectRepository.findById(projectId)).thenReturn(java.util.Optional.of(project));
-        when(cr.findAllByName(collaboratorName)).thenReturn(List.of(collaborator));
-        Collaborator actualResponse = cs.addCollaboratorToProject(projectId, collaboratorName);
-        assertEquals(collaboratorName, actualResponse.getName());
+        when(cr.findById(collaboratorId)).thenReturn(java.util.Optional.of(collaborator));
+        Collaborator actualResponse = cs.addCollaboratorToProject(projectId, collaboratorId,role);
+        assertEquals(collaboratorId, actualResponse.getCollaboratorId());
     }
 
     @Test
     void testAddCollaboratorNotFound () {
-        UUID projectId = null;
-        String collaboratorName = "Test";
-        assertThrows(IllegalArgumentException.class, () -> cs.addCollaboratorToProject(projectId, collaboratorName));
+        UUID projectId = UUID.randomUUID();
+        UUID collaboratorId = UUID.randomUUID();
+        String role = "Role";
+        assertThrows(EntityNotFoundException.class, () -> cs.addCollaboratorToProject(projectId, collaboratorId,role));
     }
 
     @Test
@@ -127,9 +96,9 @@ public class CollaboratorServiceMock {
 
     @Test
     void testEditCollaboratorNotFound () {
-        UUID collaboratorId = null;
+        UUID collaboratorId = UUID.randomUUID();
         String collaboratorName = "Test";
-        assertThrows(IllegalArgumentException.class, () -> cs.editCollaboratorOfProject(collaboratorId, collaboratorName));
+        assertThrows(EntityNotFoundException.class, () -> cs.editCollaboratorOfProject(collaboratorId, collaboratorName));
     }
 
     @Test
@@ -148,11 +117,6 @@ public class CollaboratorServiceMock {
         assertThrows(EntityNotFoundException.class, () -> cs.deleteCollaborator(collaboratorId));
     }
 
-    @Test
-    void testDeleteCollaboratorIllegal () {
-        UUID collaboratorId = null;
-        assertThrows(IllegalArgumentException.class, () -> cs.deleteCollaborator(collaboratorId));
-    }
 
     @Test
     void testDeleteCollaboratorFromProjectSuccess () {
@@ -169,24 +133,11 @@ public class CollaboratorServiceMock {
         verify(ptc, times(1)).deleteAll(anyList());
     }
 
-    @Test
-    void testDeleteCollaboratorFromProjectIllegal1 () {
-        UUID projectId = null;
-        UUID collaboratorId = UUID.randomUUID();
-        assertThrows(IllegalArgumentException.class, () -> cs.deleteCollaboratorFromProject(projectId, collaboratorId));
-    }
 
     @Test
     void testDeleteCollaboratorFromProjectNotFound () {
         UUID projectId = UUID.randomUUID();
         UUID collaboratorId = UUID.randomUUID();
         assertThrows(EntityNotFoundException.class, () -> cs.deleteCollaboratorFromProject(projectId, collaboratorId));
-    }
-
-    @Test
-    void testDeleteCollaboratorFromProjectIllegal2 () {
-        UUID projectId = UUID.randomUUID();
-        UUID collaboratorId = null;
-        assertThrows(IllegalArgumentException.class, () -> cs.deleteCollaboratorFromProject(projectId, collaboratorId));
     }
 }

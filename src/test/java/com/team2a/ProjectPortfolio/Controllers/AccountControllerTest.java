@@ -10,9 +10,10 @@ import static org.mockito.Mockito.when;
 import com.team2a.ProjectPortfolio.Commons.Account;
 import com.team2a.ProjectPortfolio.CustomExceptions.AccountNotFoundException;
 import com.team2a.ProjectPortfolio.CustomExceptions.DuplicatedUsernameException;
-import com.team2a.ProjectPortfolio.CustomExceptions.FieldNullException;
-import com.team2a.ProjectPortfolio.CustomExceptions.IdIsNullException;
+import com.team2a.ProjectPortfolio.CustomExceptions.NotFoundException;
+import com.team2a.ProjectPortfolio.CustomExceptions.ProjectNotFoundException;
 import com.team2a.ProjectPortfolio.Services.AccountService;
+import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -38,15 +39,6 @@ public class AccountControllerTest {
   }
 
   @Test
-  void testCreateAccountFieldNullException() {
-    when(accountService.createAccount(any(Account.class))).thenThrow(new FieldNullException(""));
-    Account account = new Account("username", "name", "password", false, false);
-    ResponseEntity<Account> re = accountController.createAccount(account);
-    assertEquals(HttpStatus.BAD_REQUEST, re.getStatusCode());
-    assertNull(re.getBody());
-  }
-
-  @Test
   void testCreateAccountDuplicatedUsernameException() {
     when(accountService.createAccount(any(Account.class))).thenThrow(new DuplicatedUsernameException(""));
     Account account = new Account("username", "name", "password", false, false);
@@ -62,15 +54,6 @@ public class AccountControllerTest {
     ResponseEntity<Account> re = accountController.createAccount(account);
     assertEquals(HttpStatus.OK, re.getStatusCode());
     assertEquals(account, re.getBody());
-  }
-
-  @Test
-  void testEditAccountFieldNullException() {
-    when(accountService.editAccount(any(Account.class))).thenThrow(new FieldNullException(""));
-    Account account = new Account("username", "name", "password", false, false);
-    ResponseEntity<Account> re = accountController.editAccount(account);
-    assertEquals(HttpStatus.BAD_REQUEST, re.getStatusCode());
-    assertNull(re.getBody());
   }
 
   @Test
@@ -92,14 +75,6 @@ public class AccountControllerTest {
   }
 
   @Test
-  void testGetAccountByIdFieldNullException() {
-    when(accountService.getAccountById(any(String.class))).thenThrow(new IdIsNullException(""));
-    ResponseEntity<Account> re = accountController.getAccountById("mock");
-    assertEquals(HttpStatus.BAD_REQUEST, re.getStatusCode());
-    assertNull(re.getBody());
-  }
-
-  @Test
   void testGetAccountByIdAccountNotFoundException() {
     when(accountService.getAccountById(any(String.class))).thenThrow(new AccountNotFoundException(""));
     ResponseEntity<Account> re = accountController.getAccountById("mock");
@@ -114,14 +89,6 @@ public class AccountControllerTest {
     ResponseEntity<Account> re = accountController.getAccountById("username");
     assertEquals(HttpStatus.OK, re.getStatusCode());
     assertEquals(account, re.getBody());
-  }
-
-  @Test
-  void testDeleteAccountByIdFieldNullException() {
-    doThrow(new IdIsNullException("Null id not accepted.")).when(accountService).deleteAccount(any());
-    ResponseEntity<String> re = accountController.deleteAccount(null);
-    assertEquals(HttpStatus.BAD_REQUEST, re.getStatusCode());
-    assertEquals("Null id not accepted.", re.getBody());
   }
 
   @Test
@@ -140,4 +107,57 @@ public class AccountControllerTest {
     assertEquals("Success.", re.getBody());
   }
 
+  @Test
+  void addRoleAccountNotFound() {
+    UUID id = UUID.randomUUID();
+    doThrow(AccountNotFoundException.class).when(accountService).addRole("username", id, "role");
+    ResponseEntity<Void> responseEntity = accountController.addRole("username", id, "role");
+    assertEquals(HttpStatus.NOT_FOUND, responseEntity.getStatusCode());
+    assertNull(responseEntity.getBody());
+  }
+
+  @Test
+  void addRoleProjectNotFound() {
+    UUID id = UUID.randomUUID();
+    doThrow(ProjectNotFoundException.class).when(accountService).addRole("username", id, "role");
+    ResponseEntity<Void> responseEntity = accountController.addRole("username", id, "role");
+    assertEquals(HttpStatus.NOT_FOUND, responseEntity.getStatusCode());
+    assertNull(responseEntity.getBody());
+  }
+
+  @Test
+  void addRoleAlreadyHasRole() {
+    UUID id = UUID.randomUUID();
+    doThrow(DuplicatedUsernameException.class).when(accountService).addRole("username", id, "role");
+    ResponseEntity<Void> responseEntity = accountController.addRole("username", id, "role");
+    assertEquals(HttpStatus.FORBIDDEN, responseEntity.getStatusCode());
+    assertNull(responseEntity.getBody());
+  }
+
+  @Test
+  void addRoleSuccessful() {
+    UUID id = UUID.randomUUID();
+    doNothing().when(accountService).addRole("username", id, "role");
+    ResponseEntity<Void> responseEntity = accountController.addRole("username", id, "role");
+    assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+    assertNull(responseEntity.getBody());
+  }
+
+  @Test
+  void deleteRoleNotFound() {
+    UUID id = UUID.randomUUID();
+    doThrow(NotFoundException.class).when(accountService).deleteRole("username", id);
+    ResponseEntity<Void> responseEntity = accountController.deleteRole("username", id);
+    assertEquals(HttpStatus.NOT_FOUND, responseEntity.getStatusCode());
+    assertNull(responseEntity.getBody());
+  }
+
+  @Test
+  void deleteRoleSuccessful() {
+    UUID id = UUID.randomUUID();
+    doNothing().when(accountService).deleteRole("username", id);
+    ResponseEntity<Void> responseEntity = accountController.deleteRole("username", id);
+    assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+    assertNull(responseEntity.getBody());
+  }
 }

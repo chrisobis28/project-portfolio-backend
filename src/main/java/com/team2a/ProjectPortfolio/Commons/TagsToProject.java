@@ -1,24 +1,29 @@
 package com.team2a.ProjectPortfolio.Commons;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import java.util.UUID;
 
 @Entity
 @Table(name = "TAGS_TO_PROJECT")
+@NoArgsConstructor
 public class TagsToProject {
 
     @ManyToOne
     @JoinColumn(name="TAG_ID")
     @Getter
     @Setter
+    @JsonIgnore
     private Tag tag;
 
     @ManyToOne
     @JoinColumn(name="PROJECT_ID")
     @Getter
     @Setter
+    @JsonIgnore
     private Project project;
 
     @Id

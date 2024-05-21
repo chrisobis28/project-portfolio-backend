@@ -40,9 +40,6 @@ public class CollaboratorService {
      * @return the list of Collaborators
      */
     public List<Collaborator> getCollaboratorsByProjectId (UUID projectId) {
-        if(projectId == null) {
-            throw new IllegalArgumentException();
-        }
         Project project = projectRepository.findById(projectId).orElseThrow(EntityNotFoundException::new);
         List<ProjectsToCollaborators> projectsToCollaborators = projectsToCollaboratorsRepository.
                 findAllByProjectProjectId(projectId);
@@ -55,23 +52,17 @@ public class CollaboratorService {
      * Adds a collaborator to a specified projectId.If the collaborator is already in the database, we just
      * link it to the project. Otherwise, we create it and link to the project.
      * @param projectId the projectId
-     * @param collaboratorName the collaborator name
+     * @param collaboratorId the collaborator Id
+     * @param role the collaborator role
      * @return the collaborator entity
      */
-    public Collaborator addCollaboratorToProject (UUID projectId, String collaboratorName) {
-        if(projectId == null) {
-            throw new IllegalArgumentException();
-        }
+    public Collaborator addCollaboratorToProject (UUID projectId, UUID collaboratorId,String role) {
         Project project = projectRepository.findById(projectId).orElseThrow(EntityNotFoundException::new);
-        List<Collaborator> collaborators = collaboratorRepository.findAllByName(collaboratorName);
-        if(collaborators.isEmpty()) {
-            Collaborator collaborator = new Collaborator(collaboratorName);
-            collaborator = collaboratorRepository.save(collaborator);
-            ProjectsToCollaborators projectsToCollaborators = new ProjectsToCollaborators(project,collaborator);
-            projectsToCollaborators = projectsToCollaboratorsRepository.save(projectsToCollaborators);
-            return collaborator;
-        }
-        return collaborators.get(0);
+        Collaborator collaborator = collaboratorRepository.findById(collaboratorId)
+                .orElseThrow(EntityNotFoundException::new);
+        ProjectsToCollaborators projectsToCollaborators = new ProjectsToCollaborators(project, collaborator,role);
+        projectsToCollaboratorsRepository.save(projectsToCollaborators);
+        return collaborator;
 
     }
 
@@ -82,9 +73,6 @@ public class CollaboratorService {
      * @return the collaborator entity
      */
     public Collaborator editCollaboratorOfProject (UUID collaboratorId, String collaboratorName) {
-        if(collaboratorId == null) {
-            throw new IllegalArgumentException();
-        }
         Collaborator collaborator = collaboratorRepository.findById(collaboratorId).
                 orElseThrow(EntityNotFoundException::new);
         collaborator.setName(collaboratorName);
@@ -98,9 +86,6 @@ public class CollaboratorService {
      * @return a string containing a response
      */
     public String deleteCollaborator (UUID collaboratorId) {
-        if(collaboratorId == null) {
-            throw new IllegalArgumentException();
-        }
         Collaborator collaborator = collaboratorRepository.findById(collaboratorId).
                 orElseThrow(EntityNotFoundException::new);
         collaboratorRepository.delete(collaborator);
@@ -114,12 +99,6 @@ public class CollaboratorService {
      * @return  a string containing a response
      */
     public String deleteCollaboratorFromProject (UUID projectId,UUID collaboratorId) {
-        if(collaboratorId == null) {
-            throw new IllegalArgumentException();
-        }
-        if(projectId == null) {
-            throw new IllegalArgumentException();
-        }
         Collaborator collaborator = collaboratorRepository.findById(collaboratorId).
                 orElseThrow(EntityNotFoundException::new);
         Project project = projectRepository.findById(projectId).

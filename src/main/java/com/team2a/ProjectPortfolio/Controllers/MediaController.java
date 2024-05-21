@@ -1,11 +1,11 @@
 package com.team2a.ProjectPortfolio.Controllers;
 
 import com.team2a.ProjectPortfolio.Commons.Media;
-import com.team2a.ProjectPortfolio.CustomExceptions.IdIsNullException;
 import com.team2a.ProjectPortfolio.CustomExceptions.MediaNotFoundException;
 import com.team2a.ProjectPortfolio.CustomExceptions.ProjectNotFoundException;
 import com.team2a.ProjectPortfolio.Routes;
 import com.team2a.ProjectPortfolio.Services.MediaService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -44,9 +44,8 @@ public class MediaController {
     public ResponseEntity<List<Media>> getMediaByProjectId (@PathVariable("projectId") UUID projectId) {
         try {
             return ResponseEntity.ok(mediaService.getMediaByProjectId(projectId));
-        } catch (IdIsNullException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-        } catch (ProjectNotFoundException e) {
+        }
+        catch (ProjectNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
@@ -54,16 +53,17 @@ public class MediaController {
     /**
      * Adds a Media associated with an already existing project
      * @param projectId the id of the Project that gets the Media
-     * @param path the path of the Media
+     * @param media the Media to be added
      * @return the Media instance generated and saved
      */
     @PostMapping("/{projectId}")
-    public ResponseEntity<Media> addMediaToProject (@PathVariable("projectId") UUID projectId, @RequestBody String path) {
+    public ResponseEntity<Media> addMediaToProject (@PathVariable("projectId") UUID projectId,
+                                                    @Valid @RequestBody Media media) {
         try {
-            return ResponseEntity.ok(mediaService.addMediaToProject(projectId, path));
+            return ResponseEntity.ok(mediaService.addMediaToProject(projectId, media));
         }
-        catch (IdIsNullException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
         catch (ProjectNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
@@ -80,9 +80,6 @@ public class MediaController {
         try {
             mediaService.deleteMedia(mediaId);
             return ResponseEntity.status(HttpStatus.OK).body("Media deleted successfully.");
-        }
-        catch (IdIsNullException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
         catch (MediaNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());

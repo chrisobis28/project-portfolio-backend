@@ -2,36 +2,24 @@ package com.team2a.ProjectPortfolio.Controllers;
 
 import com.team2a.ProjectPortfolio.Commons.Link;
 import com.team2a.ProjectPortfolio.Services.LinkService;
-import com.team2a.ProjectPortfolio.Services.LinkServiceTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-import com.team2a.ProjectPortfolio.Repositories.LinkRepository;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import com.team2a.ProjectPortfolio.Commons.Link;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import java.util.Optional;
-import java.util.UUID;
 import org.springframework.web.server.ResponseStatusException;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -46,23 +34,25 @@ class LinkControllerTest {
     @Test
     void addLinkSuccess() {
         Link link = new Link("Test Link", "Test Description");
+        UUID projectId = UUID.randomUUID();
         link.setLinkId(UUID.randomUUID());
-        when(ls.addLinkToProject(any(Link.class))).thenReturn(link);
-        ResponseEntity<Link> responseEntity = lc.addLinkToProject(link);
+        when(ls.addLinkToProject(any(Link.class),any(UUID.class))).thenReturn(link);
+        ResponseEntity<Link> responseEntity = lc.addLinkToProject(link,projectId);
         assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
         assertEquals(link, responseEntity.getBody());
-        verify(ls, times(1)).addLinkToProject(any(Link.class));
+        verify(ls, times(1)).addLinkToProject(any(Link.class),any(UUID.class));
     }
 
     @Test
     void addLinkConflict() {
         Link link = new Link("Test Link", "Test Description");
+        UUID projectId = UUID.randomUUID();
         link.setLinkId(UUID.randomUUID());
-        doThrow(new ResponseStatusException(HttpStatus.CONFLICT)).when(ls).addLinkToProject(any(Link.class));
-        ResponseEntity<Link> responseEntity = lc.addLinkToProject(link);
+        doThrow(new ResponseStatusException(HttpStatus.CONFLICT)).when(ls).addLinkToProject(any(Link.class),any(UUID.class));
+        ResponseEntity<Link> responseEntity = lc.addLinkToProject(link,projectId);
         assertEquals(HttpStatus.CONFLICT, responseEntity.getStatusCode());
         assertNull(responseEntity.getBody());
-        verify(ls, times(1)).addLinkToProject(any(Link.class));
+        verify(ls, times(1)).addLinkToProject(any(Link.class),any(UUID.class));
     }
 
     @Test
@@ -76,15 +66,6 @@ class LinkControllerTest {
         verify(ls, times(1)).editLinkOfProject(any(Link.class));
     }
     @Test
-    void editLinkBadRequest() {
-        Link link = null;
-        when(ls.editLinkOfProject(null)).thenThrow(IllegalArgumentException.class);
-        ResponseEntity<Link> responseEntity = lc.editLinkOfProject(link);
-        assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
-        assertNull(responseEntity.getBody());
-        verify(ls, times(1)).editLinkOfProject(null);
-    }
-    @Test
     void editLinkNotFound() {
         Link link = new Link("Test Link", "Test Description");
         link.setLinkId(UUID.randomUUID());
@@ -93,5 +74,41 @@ class LinkControllerTest {
         assertEquals(HttpStatus.NOT_FOUND, responseEntity.getStatusCode());
         assertNull(responseEntity.getBody());
         verify(ls, times(1)).editLinkOfProject(any(Link.class));
+    }
+
+    @Test
+    void getLinksByProjectIdSuccess() {
+        UUID projectId = UUID.randomUUID();
+        Link link2 = new Link("link2", "desc2");
+        when(ls.getLinksByProjectId(projectId)).thenReturn(List.of(link2));
+        ResponseEntity<List<Link>> response = lc.getLinksByProjectId(projectId);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(List.of(link2), response.getBody());
+    }
+
+    @Test
+    void DeleteLinkByIdSuccess() {
+        UUID linkId = UUID.randomUUID();
+        when(ls.deleteLinkById(linkId)).thenReturn("Link deleted");
+        ResponseEntity<String> response = lc.deleteLinkById(linkId);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals("Link deleted", response.getBody());
+    }
+
+    @Test
+    void getLinksByProjectIdNotFound() {
+        UUID projectId = UUID.randomUUID();
+        when(ls.getLinksByProjectId(projectId)).thenThrow(EntityNotFoundException.class);
+        ResponseEntity<List<Link>> response = lc.getLinksByProjectId(projectId);
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertNull(response.getBody());
+    }
+    @Test
+    void deleteLinkByIdNotFound() {
+        UUID linkId = UUID.randomUUID();
+        when(ls.deleteLinkById(linkId)).thenThrow(EntityNotFoundException.class);
+        ResponseEntity<String> response = lc.deleteLinkById(linkId);
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertNull(response.getBody());
     }
 }
