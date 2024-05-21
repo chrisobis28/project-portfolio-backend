@@ -93,6 +93,6 @@ public class TemplateService {
         if (!templateRepository.existsById(templateName)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Template not found.");
         }
-        return templateAdditionRepository.findAllByTemplate_TemplateName(templateName);
+        return templateAdditionRepository.findAllByTemplateTemplateName(templateName);
     }
 }

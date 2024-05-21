@@ -73,13 +73,14 @@ public class TemplateController {
         return ResponseEntity.status(HttpStatus.OK).body(templateService.getAllTemplates());
     }
 
-    @PostMapping("/{templateName}")
+    @PostMapping("/additions/{templateName}")
     public ResponseEntity<TemplateAddition> addTemplateAddition (@PathVariable("templateName") String templateName,
                                                                 @Valid @RequestBody TemplateAddition templateAddition) {
-        return ResponseEntity.status(HttpStatus.OK).body(templateService.addTemplateAddition(templateName, templateAddition));
+        return ResponseEntity.status(HttpStatus.OK)
+            .body(templateService.addTemplateAddition(templateName, templateAddition));
     }
 
-    @DeleteMapping("/{templateAdditionId}")
+    @DeleteMapping("/additions/{templateAdditionId}")
     public ResponseEntity<Void> deleteTemplateAddition (@PathVariable("templateAdditionId") UUID templateAdditionId) {
         templateService.deleteTemplateAddition(templateAdditionId);
         return ResponseEntity.status(HttpStatus.OK).build();

@@ -149,7 +149,7 @@ public class TemplateServiceTest {
     TemplateAddition ta1 = new TemplateAddition();
     TemplateAddition ta2 = new TemplateAddition();
     when(templateRepository.existsById("templateName")).thenReturn(true);
-    when(templateAdditionRepository.findAllByTemplate_TemplateName("templateName")).thenReturn(List.of(ta1, ta2));
+    when(templateAdditionRepository.findAllByTemplateTemplateName("templateName")).thenReturn(List.of(ta1, ta2));
     assertEquals(List.of(ta1, ta2), templateService.getAllTemplateAdditions("templateName"));
   }
 }

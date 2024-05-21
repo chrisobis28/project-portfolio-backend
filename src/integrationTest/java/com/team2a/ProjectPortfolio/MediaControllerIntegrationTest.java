@@ -6,7 +6,6 @@ import com.team2a.ProjectPortfolio.Commons.Project;
 import com.team2a.ProjectPortfolio.Repositories.MediaRepository;
 import com.team2a.ProjectPortfolio.Repositories.ProjectRepository;
 import java.util.UUID;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,8 +43,6 @@ public class MediaControllerIntegrationTest {
 
   private UUID otherProjectId;
 
-  private Project project;
-
   private Media media;
 
   @BeforeEach
@@ -53,7 +50,7 @@ public class MediaControllerIntegrationTest {
     mediaRepository.deleteAll();
     projectRepository.deleteAll();
 
-    project = new Project("Project title", "Project Description", "Project Bibtex", false);
+    Project project = new Project("Project title", "Project Description", "Project Bibtex", false);
     project = projectRepository.saveAndFlush(project);
     projectId = project.getProjectId();
 
@@ -62,9 +59,13 @@ public class MediaControllerIntegrationTest {
       otherProjectId = UUID.randomUUID();
     }
 
-    media = new Media(project, "Media name 1", "Media path 1");
-    Media media2 = new Media(project, "Media name 2", "Media path 2");
-    Media media3 = new Media(project, "Media name 3", "Media path 3");
+    media = new Media("Media name 1", "Media path 1");
+    Media media2 = new Media("Media name 2", "Media path 2");
+    Media media3 = new Media("Media name 3", "Media path 3");
+
+    media.setProject(project);
+    media2.setProject(project);
+    media3.setProject(project);
 
     media = mediaRepository.saveAndFlush(media);
     mediaRepository.saveAndFlush(media2);
@@ -95,7 +96,7 @@ public class MediaControllerIntegrationTest {
 
   @Test
   public void addMediaToProject() throws Exception {
-    Media addedMedia = new Media(project, "Add Name", "Add Path");
+    Media addedMedia = new Media("Add Name", "Add Path");
     assertEquals(3, mediaRepository.count());
     mockMvc.perform(post(Routes.MEDIA + "/" + projectId)
             .contentType(MediaType.APPLICATION_JSON)
@@ -108,7 +109,7 @@ public class MediaControllerIntegrationTest {
     assertEquals(4, mediaRepository.count());
     mockMvc.perform(post(Routes.MEDIA + "/" + projectId)
             .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(new Media(project, "name", "Add Path"))))
+            .content(objectMapper.writeValueAsString(new Media("name", "Add Path"))))
         .andExpect(status().isForbidden());
 
     mockMvc.perform(post(Routes.MEDIA + "/" + otherProjectId)
@@ -118,7 +119,7 @@ public class MediaControllerIntegrationTest {
 
     mockMvc.perform(post(Routes.MEDIA + "/" + projectId)
             .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(new Media(project, null, "path"))))
+            .content(objectMapper.writeValueAsString(new Media(null, "path"))))
         .andExpect(status().isBadRequest());
 
     mockMvc.perform(post(Routes.MEDIA + "/" + "id")

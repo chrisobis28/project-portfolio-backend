@@ -56,8 +56,7 @@ public class Media {
     @JoinColumn(name="MEDIA_ID")
     private List<RequestMediaProject> requestMediaProjects = new ArrayList<>();
 
-    public Media(Project project, String name, String path) {
-        this.project = project;
+    public Media(String name, String path) {
         this.name = name;
         this.path = path;
     }

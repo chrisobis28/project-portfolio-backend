@@ -11,5 +11,5 @@ import org.springframework.stereotype.Repository;
 public interface TemplateAdditionRepository extends JpaRepository<TemplateAddition, UUID> {
 
     @Query("SELECT ta FROM TemplateAddition ta WHERE ta.template.templateName = :templateName")
-    List<TemplateAddition> findAllByTemplate_TemplateName (String templateName);
+    List<TemplateAddition> findAllByTemplateTemplateName (String templateName);
 }

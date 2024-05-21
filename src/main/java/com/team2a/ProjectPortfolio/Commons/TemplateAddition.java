@@ -9,6 +9,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 import java.util.UUID;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -31,12 +32,14 @@ public class TemplateAddition {
     @Column(name="NAME")
     @Getter
     @Setter
+    @NotNull
     private String templateAdditionName;
 
-    @Column(name="ISMEDIA")
+    @Column(name="MEDIA")
     @Getter
     @Setter
-    private boolean isMedia;
+    @NotNull
+    private boolean media;
 
     @ManyToOne
     @JoinColumn(name="TEMPLATE_NAME")
@@ -45,9 +48,8 @@ public class TemplateAddition {
     @JsonIgnore
     private Template template;
 
-    public TemplateAddition(String templateAdditionName, boolean isMedia, Template template) {
+    public TemplateAddition(String templateAdditionName, boolean media) {
         this.templateAdditionName = templateAdditionName;
-        this.isMedia = isMedia;
-        this.template = template;
+        this.media = media;
     }
 }

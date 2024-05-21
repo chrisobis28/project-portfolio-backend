@@ -1059,6 +1059,26 @@ paths:
           description: Deletion status
         '404':
           description: Not Found - Template could not be found
+
+  /template/additions/{templateAdditionId}:
+    delete:
+      tags:
+        - Template
+      summary: Deletes a Template Addition
+      parameters:
+        - name: templateAdditionId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Deletion status
+        '404':
+          description: Not Found - Template Addition could not be found
+
+  /template/additions/{templateName}:
     post:
       tags:
         - Template
@@ -1084,26 +1104,6 @@ paths:
                 $ref: '#/components/schemas/TemplateAddition'
         '404':
           description: Not Found - Template could not be found
-
-  /template/{templateAdditionId}:
-    delete:
-      tags:
-        - Template
-      summary: Deletes a Template Addition
-      parameters:
-        - name: templateAdditionId
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-      responses:
-        '200':
-          description: Deletion status
-        '404':
-          description: Not Found - Template Addition could not be found
-
-  /template/additions/{templateName}:
     get:
       tags:
         - Template
@@ -1173,8 +1173,6 @@ components:
           type: string
         path:
           type: string
-        project:
-          $ref: '#/components/schemas/Project'
 
     Link:
       type: object
@@ -1186,8 +1184,6 @@ components:
           type: string
         url:
           type: string
-        project:
-          $ref: '#/components/schemas/Project'
 
     Request:
       type: object
@@ -1265,8 +1261,6 @@ components:
           type: string
         numberOfCollaborators:
           type: integer
-        account:
-          $ref: '#/components/schemas/Account'
 
     TemplateAddition:
       type: object
@@ -1278,5 +1272,3 @@ components:
           type: string
         isMedia:
           type: boolean
-        template:
-          $ref: '#/components/schemas/Template'
