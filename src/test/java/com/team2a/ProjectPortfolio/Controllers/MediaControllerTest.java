@@ -2,6 +2,7 @@ package com.team2a.ProjectPortfolio.Controllers;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
@@ -69,10 +70,8 @@ public class MediaControllerTest {
 
   @Test
   void testAddMediaToProjectPathNotUnique() {
-    when(mediaService.addMediaToProject(any(UUID.class), any(Media.class))).thenThrow(new IllegalArgumentException(""));
-    ResponseEntity<Media> entity = mediaController.addMediaToProject(UUID.randomUUID(), new Media());
-    assertEquals(HttpStatus.FORBIDDEN, entity.getStatusCode());
-    assertNull(entity.getBody());
+    when(mediaService.addMediaToProject(any(UUID.class), any(Media.class))).thenThrow(new ResponseStatusException(HttpStatus.FORBIDDEN));
+    assertThrows(ResponseStatusException.class, () -> mediaController.addMediaToProject(UUID.randomUUID(), new Media()));
   }
 
   @Test
@@ -101,5 +100,28 @@ public class MediaControllerTest {
     ResponseEntity<String> entity = mediaController.deleteMedia(UUID.randomUUID());
     assertEquals(HttpStatus.OK, entity.getStatusCode());
     assertEquals("Media deleted successfully.", entity.getBody());
+  }
+
+  @Test
+  void testEditMediaNotFound() {
+    Media media = new Media();
+    when(mediaService.editMedia(media)).thenThrow(new ResponseStatusException(HttpStatus.NOT_FOUND));
+    assertThrows(ResponseStatusException.class, () -> mediaController.editMedia(media));
+  }
+
+  @Test
+  void testEditMediaForbiddenPath() {
+    Media media = new Media();
+    when(mediaService.editMedia(media)).thenThrow(new ResponseStatusException(HttpStatus.FORBIDDEN));
+    assertThrows(ResponseStatusException.class, () -> mediaController.editMedia(media));
+  }
+
+  @Test
+  void testMediaSuccess() {
+    Media media = new Media();
+    when(mediaService.editMedia(media)).thenReturn(media);
+    ResponseEntity<Media> entity = mediaController.editMedia(media);
+    assertEquals(HttpStatus.OK, entity.getStatusCode());
+    assertEquals(media, mediaService.editMedia(media));
   }
 }

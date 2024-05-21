@@ -23,6 +23,8 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 
 @DataJpaTest
 @ExtendWith(MockitoExtension.class)
@@ -77,7 +79,7 @@ public class MediaServiceTest {
     Project p = new Project();
     when(projectRepository.findById(x)).thenReturn(Optional.of(p));
     when(mediaRepository.findAll()).thenReturn(List.of(new Media(p, "name", "path")));
-    assertThrows(IllegalArgumentException.class, () -> mediaService.addMediaToProject(x, new Media(p, "name", "path")));
+    assertThrows(ResponseStatusException.class, () -> mediaService.addMediaToProject(x, new Media(p, "name", "path")));
   }
 
   @Test
@@ -108,6 +110,38 @@ public class MediaServiceTest {
     doNothing().when(mediaRepository).deleteById(x);
     mediaService.deleteMedia(x);
     verify(mediaRepository, times(1)).deleteById(x);
+  }
+
+  @Test
+  void testEditMediaNotFound() {
+    UUID id = UUID.randomUUID();
+    Media media = new Media();
+    media.setMediaId(id);
+    when(mediaRepository.findById(id)).thenReturn(Optional.empty());
+    assertThrows(ResponseStatusException.class, () -> mediaService.editMedia(media));
+  }
+
+  @Test
+  void testEditMediaPathNotUnique() {
+    UUID id = UUID.randomUUID();
+    Media media = new Media();
+    media.setMediaId(id);
+    media.setPath("path");
+    when(mediaRepository.findAll()).thenReturn(List.of(new Media(new Project(), "name", "path")));
+    when(mediaRepository.findById(id)).thenReturn(Optional.of(new Media(new Project(),"name", "some_other_path")));
+    assertThrows(ResponseStatusException.class, () -> mediaService.editMedia(media));
+  }
+
+  @Test
+  void testEditMediaSuccess() {
+    UUID id = UUID.randomUUID();
+    Media media = new Media();
+    media.setMediaId(id);
+    media.setPath("path");
+    when(mediaRepository.findAll()).thenReturn(List.of());
+    when(mediaRepository.findById(id)).thenReturn(Optional.of(new Media()));
+    when(mediaRepository.save(media)).thenReturn(media);
+    assertEquals(media, mediaService.editMedia(media));
   }
 
 }

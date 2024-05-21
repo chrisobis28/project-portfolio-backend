@@ -147,4 +147,37 @@ public class MediaControllerIntegrationTest {
             .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isBadRequest());
   }
+
+  @Test
+  public void editMedia() throws Exception {
+    assertEquals(3, mediaRepository.count());
+
+    media.setName("Edited Name");
+
+    mockMvc.perform(put(Routes.MEDIA)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(media)))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.name", is("Edited Name")))
+        .andExpect(jsonPath("$.path", is("Media path 1")));
+
+    assertEquals(3, mediaRepository.count());
+
+    media.setPath("Media path 2");
+
+    mockMvc.perform(put(Routes.MEDIA)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(media)))
+        .andExpect(status().isForbidden());
+
+    mockMvc.perform(delete(Routes.MEDIA + "/" + media.getMediaId())
+            .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$", is("Media deleted successfully.")));
+
+    mockMvc.perform(put(Routes.MEDIA)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(media)))
+        .andExpect(status().isNotFound());
+  }
 }
