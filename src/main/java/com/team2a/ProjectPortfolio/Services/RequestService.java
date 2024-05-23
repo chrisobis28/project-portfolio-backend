@@ -2,6 +2,7 @@ package com.team2a.ProjectPortfolio.Services;
 
 import com.team2a.ProjectPortfolio.Commons.*;
 import com.team2a.ProjectPortfolio.Repositories.*;
+import jakarta.transaction.Transactional;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -34,18 +35,12 @@ public class RequestService {
      */
     public List<Request> getRequestsForUser (String username) {
 
-        List<Account> accounts = accountRepository
-                .findAll()
-                .stream()
-                .filter(x -> x.getUsername().equals(username))
-                .toList();
+        Optional<Account> account = accountRepository.findById(username);
 
-        if(accounts.isEmpty())
+        if(account.isEmpty())
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No account found with that username.");
 
-        return  accounts
-                .get(0)
-                .getRequests();
+        return account.get().getRequests();
     }
 
     /**
@@ -165,7 +160,8 @@ public class RequestService {
      * Method for accepting a request
      * @param requestId the id of the request to be accepted
      */
-    public void acceptRequest (UUID requestId) {
+    @Transactional
+    public void acceptRequest (UUID requestId) throws Exception {
         Optional<Request> request = requestRepository.findById(requestId);
 
         if(request.isEmpty())

@@ -1,5 +1,6 @@
 package com.team2a.ProjectPortfolio.Commons;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -59,6 +60,7 @@ public class Request {
     @ManyToOne
     @JoinColumn(name="ACCOUNT_USERNAME", nullable=false)
     @NotNull (message = "Account must be specified")
+    @JsonIgnore
     private Account account;
 
 
@@ -66,26 +68,30 @@ public class Request {
     @Getter
     @OneToMany(cascade=CascadeType.ALL, orphanRemoval = true)
     @OnDelete(action= OnDeleteAction.CASCADE)
-    @JoinColumn(name="REQUEST_ID")
+    @JoinColumn(name="REQUEST_ID", updatable = false, insertable = false)
+    @JsonIgnore
     private List<RequestTagProject> requestTagProjects = new ArrayList<>();
 
     @Getter
     @OneToMany(cascade=CascadeType.ALL, orphanRemoval = true)
     @OnDelete(action= OnDeleteAction.CASCADE)
-    @JoinColumn(name="REQUEST_ID")
+    @JoinColumn(name="REQUEST_ID", updatable = false, insertable = false)
+    @JsonIgnore
     private List<RequestMediaProject> requestMediaProjects = new ArrayList<>();
 
     @Getter
     @OneToMany(cascade=CascadeType.ALL, orphanRemoval = true)
     @OnDelete(action= OnDeleteAction.CASCADE)
-    @JoinColumn(name="REQUEST_ID")
+    @JoinColumn(name="REQUEST_ID", updatable = false, insertable = false)
+    @JsonIgnore
     private List<RequestLinkProject> requestLinkProjects = new ArrayList<>();
 
 
     @Getter
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @OnDelete(action= OnDeleteAction.CASCADE)
-    @JoinColumn(name="REQUEST_ID")
+    @JoinColumn(name="REQUEST_ID", updatable = false, insertable = false)
+    @JsonIgnore
     private List<RequestCollaboratorsProjects> requestCollaboratorsProjects = new ArrayList<>();
 
     /**

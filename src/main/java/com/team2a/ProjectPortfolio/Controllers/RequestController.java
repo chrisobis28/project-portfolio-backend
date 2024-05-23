@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.UUID;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping(Routes.REQUESTS)
@@ -34,7 +35,7 @@ public class RequestController {
      * @return A list of requests corresponding to the specified username
      * or a Response with adequate error code
      */
-    @GetMapping("/{username}")
+    @GetMapping("/user/{username}")
     public ResponseEntity<List<Request>> getRequestsForUser (@PathVariable(name="username") String username) {
         List<Request> requests = requestService.getRequestsForUser (username);
         return new ResponseEntity<>(requests, HttpStatus.OK);
@@ -69,7 +70,7 @@ public class RequestController {
      * @param projectID the id of the project
      * @return response entity with body as the list of requests
      */
-    @GetMapping("/{projectId}")
+    @GetMapping("/project/{projectId}")
     public ResponseEntity<List<Request>> getRequestsForProject (@PathVariable(name = "projectId") UUID projectID) {
         List<Request> requests = requestService.getRequestsForProject(projectID);
         return new ResponseEntity<>(requests, HttpStatus.OK);
@@ -93,7 +94,11 @@ public class RequestController {
      */
     @PostMapping("/{requestId}")
     public ResponseEntity<Void> acceptRequest (@PathVariable(name = "requestId") UUID requestId) {
-        requestService.acceptRequest(requestId);
+        try {
+            requestService.acceptRequest(requestId);
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Something went wrong: " + e.getMessage());
+        }
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
