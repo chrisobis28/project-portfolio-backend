@@ -63,7 +63,7 @@ class RequestTest {
         UUID id1 = UUID.randomUUID();
         Request r = new Request(id1, "newTitle", "newDescription", "newBibtex", true);
 
-        Media m = new Media(new Project(), "name", "path");
+        Media m = new Media("name", "path");
 
         r.setMediaChanged(List.of(m));
         assertEquals(r.getMedia(), List.of(m));

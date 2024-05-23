@@ -15,7 +15,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping(Routes.LINK)
-public class LinkController {
+public class    LinkController {
     private final LinkService linkService;
 
     /**

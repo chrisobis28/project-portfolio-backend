@@ -178,7 +178,7 @@ public class AccountControllerIntegrationTest {
             .content(objectMapper.writeValueAsString("proxyRole")))
         .andExpect(status().isNotFound());
 
-    mockMvc.perform(post(Routes.ACCOUNT + "/" + "username2" + "/" + id)
+    mockMvc.perform(post(Routes.ACCOUNT + "/" + account.getUsername() + "/" + id)
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString("proxyRole")))
         .andExpect(status().isNotFound());

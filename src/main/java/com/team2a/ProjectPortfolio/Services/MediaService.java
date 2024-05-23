@@ -10,7 +10,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class MediaService {
@@ -99,7 +101,22 @@ public class MediaService {
     public void checkPathUniqueness (String path) throws RuntimeException {
         if(mediaRepository.findAll().stream()
             .filter(x -> x.getPath().equals(path)).toList().size() > 0) {
-            throw new IllegalArgumentException("");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
+    }
+
+    /**
+     * Edits a Media in the database
+     * @param media - the Media with all the new fields
+     * @return - the Media that was edited
+     */
+    public Media editMedia (Media media) {
+        Optional<Media> o = mediaRepository.findById(media.getMediaId());
+        if(o.isEmpty())
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        else if(!media.getPath().equals(o.get().getPath())){
+            checkPathUniqueness(media.getPath());
+        }
+        return mediaRepository.save(media);
     }
 }

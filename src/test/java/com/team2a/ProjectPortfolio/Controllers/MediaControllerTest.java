@@ -2,13 +2,13 @@ package com.team2a.ProjectPortfolio.Controllers;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
 import com.team2a.ProjectPortfolio.Commons.Media;
-import com.team2a.ProjectPortfolio.Commons.Project;
 import com.team2a.ProjectPortfolio.CustomExceptions.MediaNotFoundException;
 import com.team2a.ProjectPortfolio.CustomExceptions.ProjectNotFoundException;
 import com.team2a.ProjectPortfolio.Services.MediaService;
@@ -49,10 +49,9 @@ public class MediaControllerTest {
 
   @Test
   void testGetMediaByProjectIdSuccess() {
-    Project p = new Project("title", "description", "bibtex", false);
-    Media m1 = new Media(p, "name", "path1");
-    Media m2 = new Media(p, "name", "path2");
-    Media m3 = new Media(p, "name", "path3");
+    Media m1 = new Media("name", "path1");
+    Media m2 = new Media("name", "path2");
+    Media m3 = new Media("name", "path3");
     when(mediaService.getMediaByProjectId(any(UUID.class))).thenReturn(List.of(m1, m2, m3));
     ResponseEntity<List<Media>> entity = mediaController.getMediaByProjectId(UUID.randomUUID());
     assertEquals(HttpStatus.OK, entity.getStatusCode());
@@ -69,18 +68,16 @@ public class MediaControllerTest {
 
   @Test
   void testAddMediaToProjectPathNotUnique() {
-    when(mediaService.addMediaToProject(any(UUID.class), any(Media.class))).thenThrow(new IllegalArgumentException(""));
-    ResponseEntity<Media> entity = mediaController.addMediaToProject(UUID.randomUUID(), new Media());
-    assertEquals(HttpStatus.FORBIDDEN, entity.getStatusCode());
-    assertNull(entity.getBody());
+    when(mediaService.addMediaToProject(any(UUID.class), any(Media.class))).thenThrow(new ResponseStatusException(HttpStatus.FORBIDDEN));
+    assertThrows(ResponseStatusException.class, () -> mediaController.addMediaToProject(UUID.randomUUID(), new Media()));
   }
 
   @Test
   void testAddMediaToProjectSuccess() {
-    Project p = new Project("title", "description", "bibtex", false);
-    Media m1 = new Media(p, "name", "path1");
-    when(mediaService.addMediaToProject(any(UUID.class), any(Media.class))).thenReturn(m1);
-    ResponseEntity<Media> entity = mediaController.addMediaToProject(UUID.randomUUID(), new Media());
+    UUID id = UUID.randomUUID();
+    Media m1 = new Media("name", "path1");
+    when(mediaService.addMediaToProject(id, m1)).thenReturn(m1);
+    ResponseEntity<Media> entity = mediaController.addMediaToProject(id, m1);
     assertEquals(HttpStatus.OK, entity.getStatusCode());
     assertEquals(m1, entity.getBody());
   }
@@ -101,5 +98,28 @@ public class MediaControllerTest {
     ResponseEntity<String> entity = mediaController.deleteMedia(UUID.randomUUID());
     assertEquals(HttpStatus.OK, entity.getStatusCode());
     assertEquals("Media deleted successfully.", entity.getBody());
+  }
+
+  @Test
+  void testEditMediaNotFound() {
+    Media media = new Media();
+    when(mediaService.editMedia(media)).thenThrow(new ResponseStatusException(HttpStatus.NOT_FOUND));
+    assertThrows(ResponseStatusException.class, () -> mediaController.editMedia(media));
+  }
+
+  @Test
+  void testEditMediaForbiddenPath() {
+    Media media = new Media();
+    when(mediaService.editMedia(media)).thenThrow(new ResponseStatusException(HttpStatus.FORBIDDEN));
+    assertThrows(ResponseStatusException.class, () -> mediaController.editMedia(media));
+  }
+
+  @Test
+  void testMediaSuccess() {
+    Media media = new Media();
+    when(mediaService.editMedia(media)).thenReturn(media);
+    ResponseEntity<Media> entity = mediaController.editMedia(media);
+    assertEquals(HttpStatus.OK, entity.getStatusCode());
+    assertEquals(media, mediaService.editMedia(media));
   }
 }
