@@ -13,6 +13,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping(Routes.COLLABORATOR)
+@CrossOrigin("http://localhost:4200/")
 public class CollaboratorController {
     private final CollaboratorService collaboratorService;
 

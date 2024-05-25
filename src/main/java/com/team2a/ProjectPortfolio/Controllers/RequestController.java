@@ -14,6 +14,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping(Routes.REQUESTS)
+@CrossOrigin("http://localhost:4200/")
 public class RequestController {
 
     private final RequestService requestService;
