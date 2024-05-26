@@ -17,6 +17,7 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import lombok.Setter;
 import org.antlr.v4.runtime.misc.Triple;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -29,6 +30,8 @@ public class MediaService {
 
     private final MediaRepository mediaRepository;
     private final ProjectRepository projectRepository;
+    @Setter
+    private FileOutputStreamFactory fileOutputStreamFactory;
 
     /**
      * Constructor for the Media Service
@@ -39,6 +42,7 @@ public class MediaService {
     public MediaService(MediaRepository mediaRepository, ProjectRepository projectRepository) {
         this.mediaRepository = mediaRepository;
         this.projectRepository = projectRepository;
+        fileOutputStreamFactory = null;
     }
 
     /**
@@ -105,13 +109,7 @@ public class MediaService {
         //https://www.geeksforgeeks.org/spring-boot-file-handling/
         // Try block to check exceptions
         try {
-
-            // Creating an object of FileOutputStream class
-            FileOutputStream fout = new FileOutputStream(filePath);
-            fout.write(file.getBytes());
-
-            // Closing the connection
-            fout.close();
+            myMethod(filePath,file);
         }
 
         // Catch block to handle exceptions
@@ -119,6 +117,11 @@ public class MediaService {
             throw new RuntimeException(e);
         }
         return mediaRepository.save(media);
+    }
+    public void myMethod (String path,MultipartFile file) throws IOException {
+        try (FileOutputStream fout = fileOutputStreamFactory.create(path)) {
+            fout.write(file.getBytes());
+        }
     }
 
     /**

@@ -3,10 +3,9 @@ package com.team2a.ProjectPortfolio.Services;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.*;
 
 import com.team2a.ProjectPortfolio.Commons.Media;
 import com.team2a.ProjectPortfolio.Commons.Project;
@@ -14,20 +13,23 @@ import com.team2a.ProjectPortfolio.CustomExceptions.MediaNotFoundException;
 import com.team2a.ProjectPortfolio.CustomExceptions.ProjectNotFoundException;
 import com.team2a.ProjectPortfolio.Repositories.MediaRepository;
 import com.team2a.ProjectPortfolio.Repositories.ProjectRepository;
+
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -39,13 +41,18 @@ public class MediaServiceTest {
   private MediaRepository mediaRepository;
   @Mock
   private ProjectRepository projectRepository;
+  @InjectMocks
   private MediaService mediaService;
+  @Mock
+  private FileOutputStreamFactory fileOutputStreamFactory;
 
   @BeforeEach
   void setUp() {
-    mediaRepository = Mockito.mock(MediaRepository.class);
-    projectRepository = Mockito.mock(ProjectRepository.class);
+    fileOutputStreamFactory = mock(FileOutputStreamFactory.class);
+    mediaRepository = mock(MediaRepository.class);
+    projectRepository = mock(ProjectRepository.class);
     mediaService = new MediaService(mediaRepository, projectRepository);
+    mediaService.setFileOutputStreamFactory(fileOutputStreamFactory);
   }
 
   @Test
@@ -85,20 +92,26 @@ public class MediaServiceTest {
   }
 
   @Test
-  void testAddMediaToProjectSuccess(){
+  void testAddMediaToProjectSuccess() throws IOException {
+    // Arrange
     UUID projectId = UUID.randomUUID();
     Project project = new Project();
-    project.setProjectId(projectId);
-    byte[] expectedData = "test".getBytes();  // Sample data for the file
-    try (MockedStatic<Files> mockedFiles = Mockito.mockStatic(Files.class)) {
-      mockedFiles.when(() -> Files.readAllBytes(any(Path.class))).thenReturn(expectedData);
-      when(projectRepository.findById(projectId)).thenReturn(Optional.of(project));
-      when(mediaRepository.save(any(Media.class))).thenReturn(new Media("name", "path"));
-      MockMultipartFile mp = new MockMultipartFile("name", "path", "text/plain", expectedData);
-      Media savedMedia = mediaService.addMediaToProject(projectId, mp, "test");
-      assertEquals("name", savedMedia.getName());
-      assertEquals("path", savedMedia.getPath());
-    }
+    when(projectRepository.findById(projectId)).thenReturn(Optional.of(project));
+    Media media = new Media("name", "path");
+    media.setProject(project);
+    when(mediaRepository.save(any(Media.class))).thenReturn(media);
+    MockMultipartFile mockMultipartFile = new MockMultipartFile("file", "path", "text/plain", "test".getBytes());
+    FileOutputStream fileOutputStreamMock = mock(FileOutputStream.class);
+    given(fileOutputStreamFactory.create(anyString())).willReturn(fileOutputStreamMock);
+    Media savedMedia = mediaService.addMediaToProject(projectId, mockMultipartFile, "test");
+    assertEquals(project, savedMedia.getProject());
+    assertEquals("name", savedMedia.getName());
+    assertEquals("path", savedMedia.getPath());
+    verify(projectRepository).findById(projectId);
+    verify(mediaRepository).save(any(Media.class));
+    verify(fileOutputStreamFactory).create(anyString());
+    verify(fileOutputStreamMock).write(any(byte[].class));
+    verify(fileOutputStreamMock).close();
   }
 
   @Test
