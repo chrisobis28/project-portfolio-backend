@@ -64,7 +64,7 @@ public class TagControllerIntegrationTest {
         tagRepository.deleteAll();
         projectRepository.deleteAll();
 
-        Project project = new Project("Test Project", "Description", false);
+        Project project = new Project("Test Project", "Description", "Bibtex", false);
         project = projectRepository.saveAndFlush(project);
         projectId = project.getProjectId();
 

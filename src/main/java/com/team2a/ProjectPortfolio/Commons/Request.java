@@ -36,6 +36,12 @@ public class Request {
     @Setter
     private String newDescription;
 
+    @Column(name="NEW_BIBTEX")
+    @Nullable
+    @Getter
+    @Setter
+    private String newBibtex;
+
     @Column(name="IS_COUNTEROFFER")
     @Getter
     @Setter
@@ -78,13 +84,15 @@ public class Request {
      * @param requestId the id of the request
      * @param newTitle the new title set
      * @param newDescription the new description set
+     * @param newBibtex the new Bibtex set
      * @param isCounterOffer whether the request is a counter offer
      */
 
-    public Request (UUID requestId, String newTitle, String newDescription, Boolean isCounterOffer) {
+    public Request (UUID requestId, String newTitle, String newDescription, String newBibtex, Boolean isCounterOffer) {
         this.requestId = requestId;
         this.newTitle = newTitle;
         this.newDescription = newDescription;
+        this.newBibtex = newBibtex;
         this.isCounterOffer = isCounterOffer;
         this.requestMediaProjects = new ArrayList<>();
         this.requestTagProjects = new ArrayList<>();

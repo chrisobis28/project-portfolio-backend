@@ -35,9 +35,9 @@ class ProjectServiceTest {
 
     @Test
     void getProjectsNotEmpty() {
-        Project project1 = new Project("Title1", "Description1",  false);
-        Project project2 = new Project("Title2", "Description2", false);
-        Project project3 = new Project("Title3", "Description3", false);
+        Project project1 = new Project("Title1", "Description1", "Bibtex1", false);
+        Project project2 = new Project("Title2", "Description2", "Bibtex2", false);
+        Project project3 = new Project("Title3", "Description3", "Bibtex3", false);
         List<Project> projects = List.of(project1, project2, project3);
 
         when(projectRepository.findAll()).thenReturn(projects);
@@ -50,7 +50,7 @@ class ProjectServiceTest {
     void deleteProjectSuccessful() {
         UUID projectId = UUID.randomUUID();
         String expected = "Deleted project with specified ID";
-        Project project1 = new Project("Title1", "Description1", false);
+        Project project1 = new Project("Title1", "Description1", "Bibtex1", false);
         when(projectRepository.findById(projectId)).thenReturn(Optional.of(project1));
         String response = projectService.deleteProject(projectId);
         assertEquals(expected, response);
@@ -70,8 +70,8 @@ class ProjectServiceTest {
     @Test
     void updateProjectSuccess() {
         UUID projectId = UUID.randomUUID();
-        Project project1 = new Project("Title1", "Description1",  false);
-        Project project2 = new Project("Title2", "Description2", false);
+        Project project1 = new Project("Title1", "Description1", "Bibtex1", false);
+        Project project2 = new Project("Title2", "Description2", "Bibtex2", false);
         when(projectRepository.findById(projectId)).thenReturn(Optional.of(project1));
         when(projectRepository.save(project1)).thenReturn(project2);
         Project response = projectService.updateProject(projectId, project2);
@@ -80,14 +80,14 @@ class ProjectServiceTest {
 
     @Test
     void updateProjectNullId() {
-        Project project1 = new Project("Title1", "Description1",  false);
+        Project project1 = new Project("Title1", "Description1", "Bibtex1", false);
         assertThrows(IllegalArgumentException.class, () -> projectService.updateProject(null, project1));
     }
 
     @Test
     void updateProjectNotFound() {
         UUID projectId = UUID.randomUUID();
-        Project project1 = new Project("Title1", "Description1", false);
+        Project project1 = new Project("Title1", "Description1", "Bibtex1", false);
         assertThrows(EntityNotFoundException.class, () -> projectService.updateProject(projectId, project1));
     }
     @Test
@@ -95,13 +95,14 @@ class ProjectServiceTest {
         String title = "title1";
         String desc = "desc1";
         String bibtex = "bibtex1";
-        Project project = new Project(title, desc, false);
-        when(projectRepository.findFirstByTitleAndDescription(title, desc))
+        Project project = new Project(title, desc, bibtex, false);
+        when(projectRepository.findFirstByTitleAndDescriptionAndBibtex(title, desc, bibtex))
                 .thenReturn(Optional.empty());
-        when(projectRepository.save(any())).thenReturn(new Project(title, desc, false));
+        when(projectRepository.save(any())).thenReturn(new Project(title, desc, bibtex, false));
         Project response = projectService.createProject(project);
         assertEquals(project.getTitle(), response.getTitle());
         assertEquals(project.getDescription(), response.getDescription());
+        assertEquals(project.getBibtex(), response.getBibtex());
     }
 
     @Test
@@ -114,18 +115,19 @@ class ProjectServiceTest {
         String title = "title1";
         String desc = "desc1";
         String bibtex = "bibtex1";
-        Project project = new Project(title, desc, false);
-        when(projectRepository.findFirstByTitleAndDescription(title, desc))
-                .thenReturn(Optional.of(new Project(title, desc, false)));
+        Project project = new Project(title, desc, bibtex, false);
+        when(projectRepository.findFirstByTitleAndDescriptionAndBibtex(title, desc, bibtex))
+                .thenReturn(Optional.of(new Project(title, desc, bibtex, false)));
         Project response = projectService.createProject(project);
         assertEquals(project.getTitle(), response.getTitle());
         assertEquals(project.getDescription(), response.getDescription());
+        assertEquals(project.getBibtex(), response.getBibtex());
     }
 
     @Test
     void getProjectByIdSuccess() {
         UUID projectId = UUID.randomUUID();
-        Project project1 = new Project("Title1", "Description1", false);
+        Project project1 = new Project("Title1", "Description1", "Bibtex1", false);
         when(projectRepository.findById(projectId)).thenReturn(Optional.of(project1));
         Project response = projectService.getProjectById(projectId);
         assertEquals(project1, response);
