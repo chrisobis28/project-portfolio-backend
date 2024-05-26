@@ -66,7 +66,6 @@ public class MediaService {
                     Path path = Paths.get(filePath + filename);
                     byte[] content = Files.readAllBytes(path);
                     String encodedContent = Base64.getEncoder().encodeToString(content); // Convert to Base64
-
                     String mediaName = media.getName();
                     mediaFiles.add(new Triple<>(filename, encodedContent, mediaName));
                 } catch (IOException e) {
