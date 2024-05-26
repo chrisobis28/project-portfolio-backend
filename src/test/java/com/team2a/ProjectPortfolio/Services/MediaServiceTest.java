@@ -14,6 +14,9 @@ import com.team2a.ProjectPortfolio.CustomExceptions.MediaNotFoundException;
 import com.team2a.ProjectPortfolio.CustomExceptions.ProjectNotFoundException;
 import com.team2a.ProjectPortfolio.Repositories.MediaRepository;
 import com.team2a.ProjectPortfolio.Repositories.ProjectRepository;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -21,6 +24,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -35,7 +39,6 @@ public class MediaServiceTest {
   private MediaRepository mediaRepository;
   @Mock
   private ProjectRepository projectRepository;
-
   private MediaService mediaService;
 
   @BeforeEach
@@ -82,18 +85,20 @@ public class MediaServiceTest {
   }
 
   @Test
-  void testAddMediaToProjectSuccess() {
-    UUID x = UUID.randomUUID();
-    Project p = new Project();
-    when(projectRepository.findById(x)).thenReturn(Optional.of(p));
-    Media m = new Media("name", "path");
-    m.setProject(p);
-    when(mediaRepository.save(any(Media.class))).thenReturn(m);
-    MockMultipartFile mp = new MockMultipartFile("name", "path", "text/plain", "test".getBytes());
-    Media m2 = mediaService.addMediaToProject(x, mp,"test");
-    assertEquals(p, m2.getProject());
-    assertEquals("name", m2.getName());
-    assertEquals("path", m2.getPath());
+  void testAddMediaToProjectSuccess(){
+    UUID projectId = UUID.randomUUID();
+    Project project = new Project();
+    project.setProjectId(projectId);
+    byte[] expectedData = "test".getBytes();  // Sample data for the file
+    try (MockedStatic<Files> mockedFiles = Mockito.mockStatic(Files.class)) {
+      mockedFiles.when(() -> Files.readAllBytes(any(Path.class))).thenReturn(expectedData);
+      when(projectRepository.findById(projectId)).thenReturn(Optional.of(project));
+      when(mediaRepository.save(any(Media.class))).thenReturn(new Media("name", "path"));
+      MockMultipartFile mp = new MockMultipartFile("name", "path", "text/plain", expectedData);
+      Media savedMedia = mediaService.addMediaToProject(projectId, mp, "test");
+      assertEquals("name", savedMedia.getName());
+      assertEquals("path", savedMedia.getPath());
+    }
   }
 
   @Test

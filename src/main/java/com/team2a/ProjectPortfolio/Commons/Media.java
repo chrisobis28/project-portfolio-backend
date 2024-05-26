@@ -46,7 +46,6 @@ public class Media {
     @ManyToOne
     @OnDelete(action=OnDeleteAction.CASCADE)
     @JoinColumn(name="PROJECT_ID")
-    @JsonIgnore
     private Project project;
 
     @Getter
