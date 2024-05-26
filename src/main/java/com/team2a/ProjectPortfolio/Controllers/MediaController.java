@@ -39,8 +39,8 @@ public class MediaController {
      */
     @GetMapping("/{projectId}")
     @CrossOrigin(origins = "http://localhost:4200")
-    public ResponseEntity<List<Triple<String,String,String>>> getMediaByProjectId
-                                                (@PathVariable("projectId") UUID projectId) {
+    public ResponseEntity<List<Triple<String,String,String>>> getMediaByProjectId(@PathVariable("projectId")
+                                                                                      UUID projectId) {
         try {
             return ResponseEntity.ok(mediaService.getMediaByProjectId(projectId));
         }
