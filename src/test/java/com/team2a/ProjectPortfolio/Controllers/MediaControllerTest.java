@@ -53,7 +53,6 @@ public class MediaControllerTest {
 
   @Test
   void testGetMediaByProjectIdSuccess() {
-    Media m1 = new Media("name", "path1");
     when(mediaService.getMediaByProjectId(any(UUID.class))).thenReturn(List.of(new Triple<>("test","test","name")));
     ResponseEntity<List<Triple<String,String,String>>> entity = mediaController.getMediaByProjectId(UUID.randomUUID());
     assertEquals(HttpStatus.OK, entity.getStatusCode());
