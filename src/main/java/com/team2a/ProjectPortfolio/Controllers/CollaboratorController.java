@@ -31,6 +31,7 @@ public class CollaboratorController {
      * @return a response entity that contains the list of collaborators entities
      */
     @GetMapping("/{projectId}")
+    @CrossOrigin(origins = "http://localhost:4200")
     public ResponseEntity<List<Collaborator>> getCollaboratorsByProjectId (@PathVariable("projectId") UUID projectId){
         try {
             List<Collaborator> collaboratorsList = collaboratorService.getCollaboratorsByProjectId(projectId);

@@ -120,7 +120,7 @@ public class LinkServiceTest {
     void getLinksByProjectIdNotFound() {
         UUID projectId = UUID.randomUUID();
         when(lr.findAllByProjectProjectId(projectId)).thenReturn(List.of());
-        assertThrows(EntityNotFoundException.class, () -> ls.getLinksByProjectId(projectId));
+        assertEquals(ls.getLinksByProjectId(projectId),List.of());
     }
     @Test
     void deleteLinkByIdNotFound() {

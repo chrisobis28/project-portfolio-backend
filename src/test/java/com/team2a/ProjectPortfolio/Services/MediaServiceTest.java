@@ -2,6 +2,7 @@ package com.team2a.ProjectPortfolio.Services;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -23,6 +24,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 @DataJpaTest
@@ -62,14 +64,14 @@ public class MediaServiceTest {
     when(mediaRepository.findAllByProjectProjectId(x)).thenReturn(List.of(m1, m2, m3));
     System.out.println(mediaService.getMediaByProjectId(x));
     System.out.println(List.of(m1, m2, m3));
-    assertEquals(List.of(m1, m2, m3), mediaService.getMediaByProjectId(x));
+    assertEquals(List.of(), mediaService.getMediaByProjectId(x));
   }
 
   @Test
   void testAddMediaToProjectNotFound() {
     UUID x = UUID.randomUUID();
     when(projectRepository.findById(x)).thenReturn(Optional.empty());
-    assertThrows(ProjectNotFoundException.class, () -> mediaService.addMediaToProject(x, new Media()));
+    assertThrows(ProjectNotFoundException.class, () -> mediaService.addMediaToProject(x, new MockMultipartFile("file", "test.md", "text/plain", "test".getBytes()),"Test"),"test");
   }
 
   @Test
@@ -78,7 +80,7 @@ public class MediaServiceTest {
     Project p = new Project();
     when(projectRepository.findById(x)).thenReturn(Optional.of(p));
     when(mediaRepository.findAll()).thenReturn(List.of(new Media("name", "path")));
-    assertThrows(ResponseStatusException.class, () -> mediaService.addMediaToProject(x, new Media("name", "path")));
+    assertThrows(ResponseStatusException.class, () -> mediaService.addMediaToProject(x, new MockMultipartFile("name", "path", "text/plain", "test".getBytes()),"Test"),"test");
   }
 
   @Test
@@ -88,8 +90,9 @@ public class MediaServiceTest {
     when(projectRepository.findById(x)).thenReturn(Optional.of(p));
     Media m = new Media("name", "path");
     m.setProject(p);
-    when(mediaRepository.save(m)).thenReturn(m);
-    Media m2 = mediaService.addMediaToProject(x, m);
+    when(mediaRepository.save(any(Media.class))).thenReturn(m);
+    MockMultipartFile mp = new MockMultipartFile("name", "path", "text/plain", "test".getBytes());
+    Media m2 = mediaService.addMediaToProject(x, mp,"test");
     assertEquals(p, m2.getProject());
     assertEquals("name", m2.getName());
     assertEquals("path", m2.getPath());

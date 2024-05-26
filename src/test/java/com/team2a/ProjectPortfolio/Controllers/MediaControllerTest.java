@@ -14,6 +14,8 @@ import com.team2a.ProjectPortfolio.CustomExceptions.ProjectNotFoundException;
 import com.team2a.ProjectPortfolio.Services.MediaService;
 import java.util.List;
 import java.util.UUID;
+
+import org.antlr.v4.runtime.misc.Triple;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,6 +25,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 @DataJpaTest
@@ -42,7 +46,7 @@ public class MediaControllerTest {
   @Test
   void testGetMediaByProjectIdProjectNotFoundException() {
     when(mediaService.getMediaByProjectId(any(UUID.class))).thenThrow(new ProjectNotFoundException(""));
-    ResponseEntity<List<Media>> entity = mediaController.getMediaByProjectId(UUID.randomUUID());
+    ResponseEntity<List<Triple<String,String,String>>> entity = mediaController.getMediaByProjectId(UUID.randomUUID());
     assertEquals(HttpStatus.NOT_FOUND, entity.getStatusCode());
     assertNull(entity.getBody());
   }
@@ -50,34 +54,33 @@ public class MediaControllerTest {
   @Test
   void testGetMediaByProjectIdSuccess() {
     Media m1 = new Media("name", "path1");
-    Media m2 = new Media("name", "path2");
-    Media m3 = new Media("name", "path3");
-    when(mediaService.getMediaByProjectId(any(UUID.class))).thenReturn(List.of(m1, m2, m3));
-    ResponseEntity<List<Media>> entity = mediaController.getMediaByProjectId(UUID.randomUUID());
+    when(mediaService.getMediaByProjectId(any(UUID.class))).thenReturn(List.of(new Triple<>("test","test","name")));
+    ResponseEntity<List<Triple<String,String,String>>> entity = mediaController.getMediaByProjectId(UUID.randomUUID());
     assertEquals(HttpStatus.OK, entity.getStatusCode());
-    assertEquals(List.of(m1, m2, m3), entity.getBody());
+    assertEquals(List.of(new Triple<>("test","test","name")), entity.getBody());
   }
 
   @Test
   void testAddMediaToProjectProjectNotFoundException() {
-    when(mediaService.addMediaToProject(any(UUID.class), any(Media.class))).thenThrow(new ProjectNotFoundException(""));
-    ResponseEntity<Media> entity = mediaController.addMediaToProject(UUID.randomUUID(), new Media());
+    when(mediaService.addMediaToProject(any(UUID.class), any(MultipartFile.class),any(String.class))).thenThrow(new ProjectNotFoundException(""));
+    ResponseEntity<Media> entity = mediaController.addMediaToProject(UUID.randomUUID(), new MockMultipartFile("file", "test.md", "text/plain", "test".getBytes()),"Test");
     assertEquals(HttpStatus.NOT_FOUND, entity.getStatusCode());
     assertNull(entity.getBody());
   }
 
   @Test
   void testAddMediaToProjectPathNotUnique() {
-    when(mediaService.addMediaToProject(any(UUID.class), any(Media.class))).thenThrow(new ResponseStatusException(HttpStatus.FORBIDDEN));
-    assertThrows(ResponseStatusException.class, () -> mediaController.addMediaToProject(UUID.randomUUID(), new Media()));
+    when(mediaService.addMediaToProject(any(UUID.class), any(MultipartFile.class),any(String.class))).thenThrow(new ResponseStatusException(HttpStatus.FORBIDDEN));
+    assertThrows(ResponseStatusException.class, () -> mediaController.addMediaToProject(UUID.randomUUID(),  new MockMultipartFile("file", "test.md", "text/plain", "test".getBytes()),"Test"));
   }
 
   @Test
   void testAddMediaToProjectSuccess() {
     UUID id = UUID.randomUUID();
     Media m1 = new Media("name", "path1");
-    when(mediaService.addMediaToProject(id, m1)).thenReturn(m1);
-    ResponseEntity<Media> entity = mediaController.addMediaToProject(id, m1);
+    MultipartFile mp = new MockMultipartFile("file", "test.md", "text/plain", "test".getBytes());
+    when(mediaService.addMediaToProject(id, mp,"test")).thenReturn(m1);
+    ResponseEntity<Media> entity = mediaController.addMediaToProject(id,mp,"test");
     assertEquals(HttpStatus.OK, entity.getStatusCode());
     assertEquals(m1, entity.getBody());
   }

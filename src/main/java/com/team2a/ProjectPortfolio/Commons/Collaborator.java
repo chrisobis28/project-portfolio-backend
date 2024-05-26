@@ -2,6 +2,7 @@ package com.team2a.ProjectPortfolio.Commons;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -28,6 +29,7 @@ public class Collaborator {
     @Column(name="NAME")
     @Getter
     @Setter
+    @NotNull
     private String name;
 
     @Getter
@@ -35,6 +37,7 @@ public class Collaborator {
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @OnDelete(action= OnDeleteAction.CASCADE)
     @JoinColumn(name="COLLABORATOR_ID",updatable = false,insertable = false)
+    @NotNull
     private List<ProjectsToCollaborators> projectsToCollaborators;
 
     @Getter
@@ -42,6 +45,7 @@ public class Collaborator {
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @OnDelete(action= OnDeleteAction.CASCADE)
     @JoinColumn(name="COLLABORATOR_ID")
+    @NotNull
     private List<RequestCollaboratorsProjects> requestCollaboratorsProjects;
 
     /**

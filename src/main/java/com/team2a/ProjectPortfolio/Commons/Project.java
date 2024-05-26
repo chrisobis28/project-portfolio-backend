@@ -2,6 +2,7 @@ package com.team2a.ProjectPortfolio.Commons;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Size;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -32,6 +33,7 @@ public class Project {
     @Column(name="DESCRIPTION")
     @Getter
     @Setter
+    @Size(max = 4000)
     private String description;
 
     @Column(name="BIBTEX")
