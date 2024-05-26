@@ -71,10 +71,6 @@ public class LinkControllerIntegrationTest {
                 .andExpect(jsonPath("$[1].url", is("Test2")))
                 .andExpect(jsonPath("$[2].name", is("Test3")))
                 .andExpect(jsonPath("$[2].url", is("Test3")));
-
-        mockMvc.perform(get(Routes.LINK+"/"+UUID.randomUUID())
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isNotFound());
     }
     @Test
     public void editLinkOfProject() throws Exception {

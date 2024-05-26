@@ -37,7 +37,6 @@ public class Collaborator {
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @OnDelete(action= OnDeleteAction.CASCADE)
     @JoinColumn(name="COLLABORATOR_ID",updatable = false,insertable = false)
-    @NotNull
     private List<ProjectsToCollaborators> projectsToCollaborators;
 
     @Getter
@@ -45,7 +44,6 @@ public class Collaborator {
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @OnDelete(action= OnDeleteAction.CASCADE)
     @JoinColumn(name="COLLABORATOR_ID")
-    @NotNull
     private List<RequestCollaboratorsProjects> requestCollaboratorsProjects;
 
     /**
