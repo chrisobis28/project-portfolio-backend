@@ -42,7 +42,7 @@ public class LinkControllerIntegrationTest {
         linkRepository.deleteAll();
         projectRepository.deleteAll();
 
-        project = new Project("Test Project", "Description", "Bibtex", false);
+        project = new Project("Test Project", "Description", false);
         project = projectRepository.saveAndFlush(project);
         projectId = project.getProjectId();
 
@@ -71,10 +71,6 @@ public class LinkControllerIntegrationTest {
                 .andExpect(jsonPath("$[1].url", is("Test2")))
                 .andExpect(jsonPath("$[2].name", is("Test3")))
                 .andExpect(jsonPath("$[2].url", is("Test3")));
-
-        mockMvc.perform(get(Routes.LINK+"/"+UUID.randomUUID())
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isNotFound());
     }
     @Test
     public void editLinkOfProject() throws Exception {

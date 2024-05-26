@@ -38,9 +38,9 @@ class ProjectControllerTest {
 
     @Test
     void getProjectsNotEmpty() {
-        Project project1 = new Project("Title1", "Description1", "Bibtex1", false);
-        Project project2 = new Project("Title2", "Description2", "Bibtex2", false);
-        Project project3 = new Project("Title3", "Description3", "Bibtex3", false);
+        Project project1 = new Project("Title1", "Description1",  false);
+        Project project2 = new Project("Title2", "Description2",  false);
+        Project project3 = new Project("Title3", "Description3",  false);
         List<Project> projects = List.of(project1, project2, project3);
 
         when(projectService.getProjects()).thenReturn(projects);
@@ -53,7 +53,7 @@ class ProjectControllerTest {
     @Test
     void updateProjectSuccess() {
         UUID projectId = UUID.randomUUID();
-        Project project1 = new Project("Title1", "Description1", "Bibtex1", false);
+        Project project1 = new Project("Title1", "Description1", false);
         when(projectService.updateProject(projectId, project1)).thenReturn(project1);
         ResponseEntity<Project> response = projectController.updateProject(projectId, project1);
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -62,7 +62,7 @@ class ProjectControllerTest {
 
     @Test
     void updateProjectNullId() {
-        Project project1 = new Project("Title1", "Description1", "Bibtex1", false);
+        Project project1 = new Project("Title1", "Description1",  false);
         when(projectService.updateProject(null, project1)).thenThrow(IllegalArgumentException.class);
         ResponseEntity<Project> response = projectController.updateProject(null, project1);
         assertNull(response.getBody());
@@ -72,7 +72,7 @@ class ProjectControllerTest {
     @Test
     void updateProjectNotFound() {
         UUID projectId = UUID.randomUUID();
-        Project project1 = new Project("Title1", "Description1", "Bibtex1", false);
+        Project project1 = new Project("Title1", "Description1",  false);
         when(projectService.updateProject(projectId, project1)).thenThrow(EntityNotFoundException.class);
         ResponseEntity<Project> response = projectController.updateProject(projectId, project1);
         assertNull(response.getBody());
@@ -88,7 +88,7 @@ class ProjectControllerTest {
 
     @Test
     void createProjectSuccess() {
-        Project project = new Project("title1", "desc1", "bibtex1", false);
+        Project project = new Project("title1", "desc1", false);
         when(projectService.createProject(project)).thenReturn(project);
         ResponseEntity<Project> response = projectController.createProject(project);
         assertEquals(project, response.getBody());
@@ -97,7 +97,7 @@ class ProjectControllerTest {
     @Test
     void getProjectByIdSuccess() {
         UUID projectId = UUID.randomUUID();
-        Project project1 = new Project("Title1", "Description1", "Bibtex1", false);
+        Project project1 = new Project("Title1", "Description1", false);
         when(projectService.getProjectById(projectId)).thenReturn(project1);
         ResponseEntity<Project> response = projectController.getProjectById(projectId);
         assertEquals(HttpStatus.OK, response.getStatusCode());

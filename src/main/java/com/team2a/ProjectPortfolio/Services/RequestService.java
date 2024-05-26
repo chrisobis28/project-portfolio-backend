@@ -82,7 +82,6 @@ public class RequestService {
                 .stream()
                 .filter(x -> x.getNewTitle().equals(request.getNewTitle()) &&
                             x.getNewDescription().equals(request.getNewDescription()) &&
-                            x.getNewBibtex().equals(request.getNewBibtex()) &&
                             x.isCounterOffer() == request.isCounterOffer() &&
                             x.getProject().equals(p) &&
                             x.getMedia().equals(request.getMedia()) &&

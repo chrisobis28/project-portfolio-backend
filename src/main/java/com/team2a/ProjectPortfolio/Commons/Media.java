@@ -1,6 +1,5 @@
 package com.team2a.ProjectPortfolio.Commons;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -46,7 +45,6 @@ public class Media {
     @ManyToOne
     @OnDelete(action=OnDeleteAction.CASCADE)
     @JoinColumn(name="PROJECT_ID")
-    @JsonIgnore
     private Project project;
 
     @Getter
