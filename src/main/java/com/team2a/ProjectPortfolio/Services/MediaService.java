@@ -40,9 +40,10 @@ public class MediaService {
         this.mediaRepository = mediaRepository;
         this.projectRepository = projectRepository;
     }
+
     /**
      * Returns all the Medias corresponding to a specific Project
-     * @param projectId
+     * @param projectId the project UUID
      * @return a List of Tuples that contain the media, the media name and the media description
      * @throws RuntimeException- Project doesn't exist or the id is null
      */
@@ -86,8 +87,7 @@ public class MediaService {
         //https://www.geeksforgeeks.org/spring-boot-file-handling/
         String folderPath = System.getProperty("user.dir") +"/assets";
         File directory= new File(folderPath);
-        String[] filenames = directory.list();
-        return filenames;
+        return directory.list();
     }
     /**
      * Adds a Media to a specific Project
@@ -117,7 +117,7 @@ public class MediaService {
 
         // Catch block to handle exceptions
         catch (Exception e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
         return mediaRepository.save(media);
     }
@@ -165,8 +165,8 @@ public class MediaService {
      * @throws RuntimeException - the path is already in use
      */
     public void checkPathUniqueness (String path) throws RuntimeException {
-        if(mediaRepository.findAll().stream()
-            .filter(x -> x.getPath().equals(path)).toList().size() > 0) {
+        if(!mediaRepository.findAll().stream()
+                .filter(x -> x.getPath().equals(path)).toList().isEmpty()) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
     }
