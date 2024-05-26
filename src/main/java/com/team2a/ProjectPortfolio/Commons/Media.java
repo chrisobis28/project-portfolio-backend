@@ -1,9 +1,9 @@
 package com.team2a.ProjectPortfolio.Commons;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import java.util.ArrayList;
 import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -45,6 +45,7 @@ public class Media {
     @ManyToOne
     @OnDelete(action=OnDeleteAction.CASCADE)
     @JoinColumn(name="PROJECT_ID")
+    @JsonIgnore
     private Project project;
 
     @Getter
@@ -52,9 +53,10 @@ public class Media {
     @OneToMany(cascade=CascadeType.ALL, orphanRemoval = true)
     @OnDelete(action= OnDeleteAction.CASCADE)
     @JoinColumn(name="MEDIA_ID")
-    private List<RequestMediaProject> requestMediaProjects = new ArrayList<>();
+    private List<RequestMediaProject> requestMediaProjects;
 
-    public Media(String name, String path) {
+    public Media(Project project, String name, String path) {
+        this.project = project;
         this.name = name;
         this.path = path;
     }

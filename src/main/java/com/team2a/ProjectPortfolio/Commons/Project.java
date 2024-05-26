@@ -1,8 +1,6 @@
 package com.team2a.ProjectPortfolio.Commons;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Size;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -33,20 +31,17 @@ public class Project {
     @Column(name="DESCRIPTION")
     @Getter
     @Setter
-    @Size(max = 4000)
     private String description;
+
+    @Column(name="BIBTEX")
+    @Getter
+    @Setter
+    private String bibtex;
 
     @Column(name="ARCHIVED")
     @Getter
     @Setter
     private Boolean archived;
-
-    @ManyToOne
-    @JoinColumn(name="TEMPLATE_NAME")
-    @Getter
-    @Setter
-    @JsonIgnore
-    private Template template;
 
     @Getter
     @Setter
@@ -95,25 +90,13 @@ public class Project {
      * Constructor for a project
      * @param title the title of the project
      * @param description the description of the project
+     * @param bibtex the bibtex of the project
      * @param archived archived
      */
-    public Project(String title, String description, Boolean archived) {
+    public Project(String title, String description, String bibtex, Boolean archived) {
         this.title = title;
         this.description = description;
+        this.bibtex = bibtex;
         this.archived = archived;
-    }
-
-    /**
-     * Constructor for a project
-     * @param title the title of the project
-     * @param description the description of the project
-     * @param archived archived
-     * @param template template
-     */
-    public Project(String title, String description, Boolean archived, Template template) {
-        this.title = title;
-        this.description = description;
-        this.archived = archived;
-        this.template = template;
     }
 }

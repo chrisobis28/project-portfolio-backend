@@ -54,7 +54,7 @@ public class ProjectController {
     }
 
     /**
-     * Returns an updated project given an ID
+     * Returns a an updated project given an ID
      * @param projectId the id of a project
      * @param project the project updates that will be persisted in the DB
      * @return the changed project with the specified ID
@@ -78,7 +78,6 @@ public class ProjectController {
      * @return a response entity that contains the project with the specified id
      */
     @GetMapping("/{projectId}")
-    @CrossOrigin(origins = "http://localhost:4200")
     public ResponseEntity<Project> getProjectById (@PathVariable("projectId") UUID projectId) {
         try {
             Project project = projectService.getProjectById(projectId);

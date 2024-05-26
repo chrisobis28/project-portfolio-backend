@@ -58,6 +58,7 @@ public class ProjectService {
         Project existingProject = projectRepository.findById(projectId).orElseThrow(EntityNotFoundException::new);
         existingProject.setTitle(project.getTitle());
         existingProject.setDescription(project.getDescription());
+        existingProject.setBibtex(project.getBibtex());
         existingProject.setArchived(project.getArchived());
         existingProject = projectRepository.save(existingProject);
         return existingProject;
@@ -72,12 +73,13 @@ public class ProjectService {
         if (project == null) {
             throw new IllegalArgumentException();
         }
-        Optional<Project> existing = projectRepository.findFirstByTitleAndDescription(project.getTitle(),
-                project.getDescription());
+        Optional<Project> existing = projectRepository.findFirstByTitleAndDescriptionAndBibtex(project.getTitle(),
+                project.getDescription(), project.getBibtex());
         if (existing.isPresent()) {
             return existing.get();
         }
-        Project result = new Project(project.getTitle(), project.getDescription(), project.getArchived());
+        Project result = new Project(project.getTitle(), project.getDescription(),
+                project.getBibtex(), project.getArchived());
         result = projectRepository.save(result);
         return result;
     }

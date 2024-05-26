@@ -12,7 +12,7 @@ class TagsToProjectTest {
     void testConstructor() {
         UUID id1 = UUID.randomUUID();
         Tag tag = new Tag("1", "blue");
-        Project p = new Project("title", "description", true);
+        Project p = new Project("title", "description", "bibtex", true);
         TagsToProject ttp = new TagsToProject(tag, p);
         assertEquals(tag, ttp.getTag());
         assertEquals(p, ttp.getProject());
