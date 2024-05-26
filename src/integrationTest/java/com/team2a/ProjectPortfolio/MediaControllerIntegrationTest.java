@@ -50,7 +50,7 @@ public class MediaControllerIntegrationTest {
     mediaRepository.deleteAll();
     projectRepository.deleteAll();
 
-    Project project = new Project("Project title", "Project Description", "Project Bibtex", false);
+    Project project = new Project("Project title", "Project Description",  false);
     project = projectRepository.saveAndFlush(project);
     projectId = project.getProjectId();
 

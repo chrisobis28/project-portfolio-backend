@@ -36,11 +36,6 @@ public class Project {
     @Size(max = 4000)
     private String description;
 
-    @Column(name="BIBTEX")
-    @Getter
-    @Setter
-    private String bibtex;
-
     @Column(name="ARCHIVED")
     @Getter
     @Setter
@@ -100,13 +95,11 @@ public class Project {
      * Constructor for a project
      * @param title the title of the project
      * @param description the description of the project
-     * @param bibtex the bibtex of the project
      * @param archived archived
      */
-    public Project(String title, String description, String bibtex, Boolean archived) {
+    public Project(String title, String description, Boolean archived) {
         this.title = title;
         this.description = description;
-        this.bibtex = bibtex;
         this.archived = archived;
     }
 
@@ -114,14 +107,12 @@ public class Project {
      * Constructor for a project
      * @param title the title of the project
      * @param description the description of the project
-     * @param bibtex the bibtex of the project
      * @param archived archived
      * @param template template
      */
-    public Project(String title, String description, String bibtex, Boolean archived, Template template) {
+    public Project(String title, String description, Boolean archived, Template template) {
         this.title = title;
         this.description = description;
-        this.bibtex = bibtex;
         this.archived = archived;
         this.template = template;
     }

@@ -42,7 +42,7 @@ public class CollaboratorServiceTest {
     @Test
     void testGetCollaboratorsByProjectIdSuccess () {
         UUID projectId = UUID.randomUUID();
-        Project project = new Project("Test", "Test", "Test", false);
+        Project project = new Project("Test", "Test", false);
         Collaborator collaborator = new Collaborator("Filip");
         String role = "Role";
         ProjectsToCollaborators projectsToCollaborators = new ProjectsToCollaborators(project, collaborator,role);
@@ -66,7 +66,7 @@ public class CollaboratorServiceTest {
         UUID projectId = UUID.randomUUID();
         UUID collaboratorId = UUID.randomUUID();
         String role = "Role";
-        Project project = new Project("Test", "Test", "Test", false);
+        Project project = new Project("Test", "Test", false);
         Collaborator collaborator = new Collaborator("Test");
         collaborator.setCollaboratorId(collaboratorId);
         when(projectRepository.findById(projectId)).thenReturn(java.util.Optional.of(project));
@@ -123,7 +123,7 @@ public class CollaboratorServiceTest {
         UUID projectId = UUID.randomUUID();
         UUID collaboratorId = UUID.randomUUID();
         Collaborator collaborator = new Collaborator("Filip");
-        Project project = new Project("Test", "Test", "Test", false);
+        Project project = new Project("Test", "Test", false);
         when(cr.findById(collaboratorId)).thenReturn(java.util.Optional.of(collaborator));
         when(projectRepository.findById(projectId)).thenReturn(java.util.Optional.of(project));
         when(ptc.findAllByProjectProjectIdAndCollaboratorCollaboratorId(projectId, collaboratorId)).

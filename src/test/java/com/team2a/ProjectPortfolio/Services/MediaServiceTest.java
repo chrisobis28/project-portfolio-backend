@@ -55,7 +55,7 @@ public class MediaServiceTest {
   @Test
   void testGetMediaByProjectIdProjectSuccess() {
     UUID x = UUID.randomUUID();
-    Project p = new Project("title", "description", "bibtex", false);
+    Project p = new Project("title", "description", false);
     p.setProjectId(x);
     when(projectRepository.findById(x)).thenReturn(Optional.of(p));
     Media m1 = new Media("name1", "path1");

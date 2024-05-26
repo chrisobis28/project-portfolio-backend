@@ -9,5 +9,5 @@ import java.util.UUID;
 
 @Repository
 public interface ProjectRepository extends JpaRepository<Project, UUID> {
-    Optional<Project> findFirstByTitleAndDescriptionAndBibtex (String title, String description, String bibtex);
+    Optional<Project> findFirstByTitleAndDescription (String title, String description);
 }

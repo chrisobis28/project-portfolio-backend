@@ -40,7 +40,7 @@ public class LinkServiceTest {
     @Test
     void addLinkSuccess(){
         Link link = new Link("Test","Test");
-        Project project = new Project("test","test","test",false);
+        Project project = new Project("test","test",false);
         UUID projectId  = UUID.randomUUID();
         project.setProjectId(projectId);
         link.setLinkId(UUID.randomUUID());

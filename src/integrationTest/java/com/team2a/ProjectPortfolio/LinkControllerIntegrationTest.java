@@ -42,7 +42,7 @@ public class LinkControllerIntegrationTest {
         linkRepository.deleteAll();
         projectRepository.deleteAll();
 
-        project = new Project("Test Project", "Description", "Bibtex", false);
+        project = new Project("Test Project", "Description", false);
         project = projectRepository.saveAndFlush(project);
         projectId = project.getProjectId();
 
