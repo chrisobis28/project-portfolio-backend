@@ -62,8 +62,6 @@ public class MediaServiceTest {
     Media m2 = new Media("name2", "path2");
     Media m3 = new Media("name3", "path3");
     when(mediaRepository.findAllByProjectProjectId(x)).thenReturn(List.of(m1, m2, m3));
-    System.out.println(mediaService.getMediaByProjectId(x));
-    System.out.println(List.of(m1, m2, m3));
     assertEquals(List.of(), mediaService.getMediaByProjectId(x));
   }
 
