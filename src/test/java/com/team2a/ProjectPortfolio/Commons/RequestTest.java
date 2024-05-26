@@ -13,18 +13,17 @@ class RequestTest {
     @Test
     void testConstructor() {
         UUID id1 = UUID.randomUUID();
-        Request r = new Request(id1, "newTitle", "newDescription", "newBibtex", true);
+        Request r = new Request(id1, "newTitle", "newDescription", true);
         assertEquals(r.getRequestId(), id1);
         assertEquals(r.getNewTitle(), "newTitle");
         assertEquals(r.getNewDescription(), "newDescription");
-        assertEquals(r.getNewBibtex(), "newBibtex");
         assertTrue(r.isCounterOffer());
     }
 
     @Test
     void testSetLinksChanged() {
         UUID id1 = UUID.randomUUID();
-        Request r = new Request(id1, "newTitle", "newDescription", "newBibtex", true);
+        Request r = new Request(id1, "newTitle", "newDescription", true);
         Link l = new Link("name", "url");
 
         List<Link> links = new ArrayList<>();
@@ -38,7 +37,7 @@ class RequestTest {
     @Test
     void testSetCollaboratorsChanged() {
         UUID id1 = UUID.randomUUID();
-        Request r = new Request(id1, "newTitle", "newDescription", "newBibtex", true);
+        Request r = new Request(id1, "newTitle", "newDescription", true);
 
         Collaborator c = new Collaborator("name");
 
@@ -50,7 +49,7 @@ class RequestTest {
     @Test
     void testSetTagsChanged() {
         UUID id1 = UUID.randomUUID();
-        Request r = new Request(id1, "newTitle", "newDescription", "newBibtex", true);
+        Request r = new Request(id1, "newTitle", "newDescription", true);
 
         Tag t = new Tag("name", "color");
 
@@ -61,9 +60,9 @@ class RequestTest {
     @Test
     void testSetMediaChanged() {
         UUID id1 = UUID.randomUUID();
-        Request r = new Request(id1, "newTitle", "newDescription", "newBibtex", true);
+        Request r = new Request(id1, "newTitle", "newDescription", true);
 
-        Media m = new Media(new Project(), "name", "path");
+        Media m = new Media("name", "path");
 
         r.setMediaChanged(List.of(m));
         assertEquals(r.getMedia(), List.of(m));
@@ -72,7 +71,7 @@ class RequestTest {
     @Test
     void testGetLinksEmpty() {
         UUID id1 = UUID.randomUUID();
-        Request r = new Request(id1, "newTitle", "newDescription", "newBibtex", true);
+        Request r = new Request(id1, "newTitle", "newDescription", true);
 
         assertEquals(new ArrayList<>(), r.getLinks());
     }
@@ -80,7 +79,7 @@ class RequestTest {
     @Test
     void testGetCollaboratorsEmpty() {
         UUID id1 = UUID.randomUUID();
-        Request r = new Request(id1, "newTitle", "newDescription", "newBibtex", true);
+        Request r = new Request(id1, "newTitle", "newDescription", true);
 
         assertEquals(new ArrayList<>(), r.getCollaborators());
     }
@@ -88,7 +87,7 @@ class RequestTest {
     @Test
     void testGetTagsEmpty() {
         UUID id1 = UUID.randomUUID();
-        Request r = new Request(id1, "newTitle", "newDescription", "newBibtex", true);
+        Request r = new Request(id1, "newTitle", "newDescription", true);
 
         assertEquals(new ArrayList<>(), r.getTags());
     }
@@ -96,7 +95,7 @@ class RequestTest {
     @Test
     void testGetMediaEmpty() {
         UUID id1 = UUID.randomUUID();
-        Request r = new Request(id1, "newTitle", "newDescription", "newBibtex", true);
+        Request r = new Request(id1, "newTitle", "newDescription", true);
 
         assertEquals(new ArrayList<>(), r.getMedia());
     }

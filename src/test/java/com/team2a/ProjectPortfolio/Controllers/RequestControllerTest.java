@@ -31,8 +31,7 @@ class RequestControllerTest {
     @Test
     void testGetRequestsForUserOk() {
 
-        Request r = new Request(UUID.randomUUID(), "title", "desc",
-                "bib", true);
+        Request r = new Request(UUID.randomUUID(), "title", "desc", true);
         when(requestService.getRequestsForUser("aa")).thenReturn(List.of(r));
 
         ResponseEntity<List<Request>> resp = sut.getRequestsForUser("aa");
@@ -54,7 +53,7 @@ class RequestControllerTest {
     @Test
     void testGetRequests () {
 
-        Request r = new Request(UUID.randomUUID(), "title", "description", "bibtex", false);
+        Request r = new Request(UUID.randomUUID(), "title", "description", false);
         when(requestService.getRequests()).thenReturn(List.of(r));
 
         ResponseEntity<List<Request>> res = sut.getRequests();
@@ -75,8 +74,7 @@ class RequestControllerTest {
     @Test
     void testGetRequestsForProjectFound () {
         UUID id1 = UUID.randomUUID();
-        Request r = new Request(UUID.randomUUID(), "title", "desc",
-                "bib", true);
+        Request r = new Request(UUID.randomUUID(), "title", "desc", true);
         when(requestService.getRequestsForProject(id1)).thenReturn(List.of(r));
         ResponseEntity<List<Request>> res = sut.getRequestsForProject(id1);
         assertEquals(res.getStatusCode(), HttpStatus.OK);
@@ -86,7 +84,7 @@ class RequestControllerTest {
     @Test
     void testAddRequestOk() {
 
-        Request r = new Request(UUID.randomUUID(), "title", "description", "bibtex", false);
+        Request r = new Request(UUID.randomUUID(), "title", "description", false);
         UUID id1 = UUID.randomUUID();
         when(requestService.addRequest(r, id1)).thenReturn(r);
         ResponseEntity<Request> res = sut.addRequest(id1, r);
@@ -97,7 +95,7 @@ class RequestControllerTest {
     @Test
     void testAddRequestNotFound() {
 
-        Request r = new Request(UUID.randomUUID(), "title", "description", "bibtex", false);
+        Request r = new Request(UUID.randomUUID(), "title", "description", false);
         UUID id1 = UUID.randomUUID();
         when(requestService.addRequest(r, id1)).thenThrow(NotFoundException.class);
         ResponseEntity<Request> response = sut.addRequest(id1, r);
