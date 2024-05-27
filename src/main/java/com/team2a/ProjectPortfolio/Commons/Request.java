@@ -60,7 +60,6 @@ public class Request {
     @ManyToOne
     @JoinColumn(name="ACCOUNT_USERNAME", nullable=false)
     @NotNull (message = "Account must be specified")
-    @JsonIgnore
     private Account account;
 
 

@@ -54,22 +54,23 @@ public class RequestControllerIntegrationTest {
 
     private String accountId;
 
+    private Account account;
+
+    private Project project;
+
     @BeforeEach
     public void setup() {
         requestRepository.deleteAll();
         projectRepository.deleteAll();
         accountRepository.deleteAll();
 
-        Project project = new Project("Test Project", "Description", "Bibtex", false);
+        project = new Project("Test Project", "Description", "Bibtex", false);
         project = projectRepository.saveAndFlush(project);
         projectId = project.getProjectId();
 
-        Account account = new Account("username", "name", "password", false, false);
+        account = new Account("username", "name", "password", false, false);
         account = accountRepository.saveAndFlush(account);
         accountId = account.getUsername();
-
-        Request request = new Request("New Title", "newDescription", "Test Request", false, account, project);
-        request = requestRepository.saveAndFlush(request);
 
 
     }
@@ -81,29 +82,45 @@ public class RequestControllerIntegrationTest {
         project2 = projectRepository.saveAndFlush(project2);
         Account account2 = new Account("username2", "name2", "password2", false, false);
         account2 = accountRepository.saveAndFlush(account2);
-        Request request = new Request("Title2", "Description2", "Status2", false, account2, project2);
+        Request request = new Request("Title2", "Description2", "newBibtex", false, account2, project2);
         mockMvc.perform(put("/request/")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.title", is("Title2")))
-                .andExpect(jsonPath("$.description", is("Description2")))
-                .andExpect(jsonPath("$.status", is("Status2")))
+                .andExpect(jsonPath("$.newTitle", is("Title2")))
+                .andExpect(jsonPath("$.newDescription", is("Description2")))
+                .andExpect(jsonPath("$.newBibtex", is("newBibtex")))
                 .andExpect(jsonPath("$.account.username", is("username2")))
                 .andExpect(jsonPath("$.project.projectId", is(project2.getProjectId().toString())));
-        assertEquals(2, requestRepository.findAll().size());
-        assertEquals(1,accountRepository.findById("username").get().getRequests().size());
+        assertEquals(1, requestRepository.findAll().size());
+        assertEquals(1,accountRepository.findById("username2").get().getRequests().size());
+        Request requestForSameProject = new Request("Title3", "Description3", "newBibtex", false, account2, project2);
+        mockMvc.perform(put("/request/")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(requestForSameProject)))
+                .andExpect(status().isConflict())
+                .andExpect(status().reason(is("Account already has a request for this project")));
+        Request invalidRequest = new Request("Title3", "Description3", "newBibtex", false, account2, null);
+        mockMvc.perform(put("/request/")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(invalidRequest)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.project").value("Project must be specified"));
     }
 
     @Test
     public void testGetRequestsForUser() throws Exception {
+        mockMvc.perform(put("/request/")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(new Request("Title2", "Description2", "newBibtex", false, account, project))));
+        assertEquals(1,accountRepository.findById(accountId).get().getRequests().size());
         mockMvc.perform(get("/request/user/" + accountId)
                     .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))
-                .andExpect(jsonPath("$[0].title", is("New Title")))
-                .andExpect(jsonPath("$[0].description", is("newDescription")))
-                .andExpect(jsonPath("$[0].status", is("Test Request")))
+                .andExpect(jsonPath("$[0].newTitle", is("Title2")))
+                .andExpect(jsonPath("$[0].newDescription", is("Description2")))
+                .andExpect(jsonPath("$[0].newBibtex", is("newBibtex")))
                 .andExpect(jsonPath("$[0].account.username", is(accountId)))
                 .andExpect(jsonPath("$[0].project.projectId", is(projectId.toString())));
     }

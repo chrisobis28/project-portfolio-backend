@@ -63,7 +63,7 @@ class RequestServiceTest {
         Request r = new Request("title", "desc",
                 "bib", true, a, new Project());
         a.setRequests(List.of(r));
-        when(accountRepository.findAll()).thenReturn(List.of(a));
+        when(accountRepository.findById("uname")).thenReturn(Optional.of(a));
         assertEquals(sut.getRequestsForUser("uname"), List.of(r));
     }
 
@@ -82,7 +82,8 @@ class RequestServiceTest {
             "pw", true, false);
         Request r = new Request("title", "description", "bibtex", false, a , p);
         when(projectRepository.findById(p.getProjectId())).thenReturn(Optional.of(p));
-        when(accountRepository.existsById(a.getUsername())).thenReturn(true);
+        when(accountRepository.findById(a.getUsername())).thenReturn(Optional.of(a));
+        when(requestRepository.save(r)).thenReturn(r);
         assertEquals(sut.addRequest(r), r);
     }
 

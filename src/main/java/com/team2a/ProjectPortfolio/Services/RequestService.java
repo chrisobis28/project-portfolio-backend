@@ -65,39 +65,16 @@ public class RequestService {
 
         Project p = proj.get();
 
-        Account account = request.getAccount();
+        Optional<Account> account = accountRepository.findById(request.getAccount().getUsername());
 
-        if(!accountRepository.existsById(account.getUsername()))
+        if(account.isEmpty())
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Account not found");
 
-        if(account.hasRequestForProject(p.getProjectId()))
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Account already has a request for this project");
+        Account a = account.get();
 
+        if(a.hasRequestForProject(p.getProjectId()))
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Account already has a request for this project");
 
-//        List<Request> requests = requestRepository
-//                .findAll()
-//                .stream()
-//                .filter(x -> x.getNewTitle().equals(request.getNewTitle()) &&
-//                            x.getNewDescription().equals(request.getNewDescription()) &&
-//                            x.getNewBibtex().equals(request.getNewBibtex()) &&
-//                            x.isCounterOffer() == request.isCounterOffer() &&
-//                            x.getProject().equals(p) &&
-//                            x.getMedia().equals(request.getMedia()) &&
-//                            x.getLinks().equals(request.getLinks()) &&
-//                            x.getTags().equals(request.getTags()) &&
-//                            x.getCollaborators().equals(request.getCollaborators()))
-//                .toList();
-
-//        if(!requests.isEmpty())
-//            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Request already exists");
-//        else {
-
-//            //delete later - Just for testing
-
-//            //You need to have these in the database in order to add this request to the db.
-//            //In the final product, the client will send these to you and guarantee they
-//            //  are in the db. ATM, you can not test this endpoint in isolation
-//            // if you do not first add these to the db. To test with postman, uncomment below.
 
 //            for (Media m : request.getMedia()) {
 //                request.setMediaChanged(List.of(mediaRepository.save(m)));
@@ -112,10 +89,10 @@ public class RequestService {
 //                request.setCollaboratorsChanged(List.of(collaboratorRepository.save(c)));
 //            }
 
-//            //delete later
 
         requestRepository.save(request);
-
+        a.getRequests().add(request);
+        accountRepository.save(a);
         return request;
     }
 

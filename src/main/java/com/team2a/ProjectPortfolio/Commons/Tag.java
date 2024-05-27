@@ -3,6 +3,7 @@ package com.team2a.ProjectPortfolio.Commons;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import java.util.ArrayList;
 import lombok.Data;
 import lombok.Getter;
@@ -31,12 +32,14 @@ public class Tag {
     @Getter
     @Setter
     @JsonProperty
+    @NotNull (message = "Name must be specified")
     private String name;
 
     @Column(name="COLOR")
     @Getter
     @Setter
     @JsonProperty
+    @NotNull (message = "Color must be specified")
     private String color;
 
 
