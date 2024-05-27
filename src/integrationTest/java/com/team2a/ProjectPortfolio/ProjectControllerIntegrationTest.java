@@ -39,9 +39,9 @@ public class ProjectControllerIntegrationTest {
     @BeforeEach
     public void setUp() {
         projectRepository.deleteAll();
-        project1 = new Project("title1", "description1", "bibtex1", false);
-        project2 = new Project("title2", "description2", "bibtex2", true);
-        project3 = new Project("title3", "description3", "bibtex3", false);
+        project1 = new Project("title1", "description1", false);
+        project2 = new Project("title2", "description2", true);
+        project3 = new Project("title3", "description3", false);
         project1 = projectRepository.saveAndFlush(project1);
         project2 = projectRepository.saveAndFlush(project2);
         project3 = projectRepository.saveAndFlush(project3);
@@ -61,9 +61,6 @@ public class ProjectControllerIntegrationTest {
                 .andExpect(jsonPath("$[0].description", is("description1")))
                 .andExpect(jsonPath("$[1].description", is("description2")))
                 .andExpect(jsonPath("$[2].description", is("description3")))
-                .andExpect(jsonPath("$[0].bibtex", is("bibtex1")))
-                .andExpect(jsonPath("$[1].bibtex", is("bibtex2")))
-                .andExpect(jsonPath("$[2].bibtex", is("bibtex3")))
                 .andExpect(jsonPath("$[0].archived", is(false)))
                 .andExpect(jsonPath("$[1].archived", is(true)))
                 .andExpect(jsonPath("$[2].archived", is(false)));
@@ -81,7 +78,7 @@ public class ProjectControllerIntegrationTest {
     public void deleteProject() throws Exception {
         assertEquals(3, projectRepository.count());
 
-        Project project4 = new Project("title4", "description4", "bibtex4", false);
+        Project project4 = new Project("title4", "description4", false);
         project4 = projectRepository.saveAndFlush(project4);
         assertEquals(4, projectRepository.count());
 
@@ -102,8 +99,6 @@ public class ProjectControllerIntegrationTest {
                 .andExpect(jsonPath("$[1].title", is("title3")))
                 .andExpect(jsonPath("$[0].description", is("description1")))
                 .andExpect(jsonPath("$[1].description", is("description3")))
-                .andExpect(jsonPath("$[0].bibtex", is("bibtex1")))
-                .andExpect(jsonPath("$[1].bibtex", is("bibtex3")))
                 .andExpect(jsonPath("$[0].archived", is(false)))
                 .andExpect(jsonPath("$[1].archived", is(false)));
     }
@@ -112,10 +107,10 @@ public class ProjectControllerIntegrationTest {
     public void updateProject() throws Exception {
         assertEquals(3, projectRepository.count());
 
-        Project project4 = new Project("title4", "description4", "bibtex4", false);
+        Project project4 = new Project("title4", "description4", false);
         project4 = projectRepository.saveAndFlush(project4);
         assertEquals(4, projectRepository.count());
-        Project project5 = new Project("title5", "description5", "bibtex5", true);
+        Project project5 = new Project("title5", "description5", true);
 
         mockMvc.perform(put(Routes.PROJECT + "/" + project4.getProjectId())
                 .contentType(MediaType.APPLICATION_JSON)
@@ -123,7 +118,6 @@ public class ProjectControllerIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.title", is("title5")))
                 .andExpect(jsonPath("$.description", is("description5")))
-                .andExpect(jsonPath("$.bibtex", is("bibtex5")))
                 .andExpect(jsonPath("$.archived", is(true)));
 
         projectRepository.deleteById(project4.getProjectId());
@@ -148,10 +142,9 @@ public class ProjectControllerIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.title", is("title3")))
                 .andExpect(jsonPath("$.description", is("description3")))
-                .andExpect(jsonPath("$.bibtex", is("bibtex3")))
                 .andExpect(jsonPath("$.archived", is(false)));
 
-        Project project4 = new Project("title4", "description4", "bibtex4", false);
+        Project project4 = new Project("title4", "description4", false);
         project4 = projectRepository.saveAndFlush(project4);
         UUID projectId = project4.getProjectId();
 
@@ -160,7 +153,6 @@ public class ProjectControllerIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.title", is("title4")))
                 .andExpect(jsonPath("$.description", is("description4")))
-                .andExpect(jsonPath("$.bibtex", is("bibtex4")))
                 .andExpect(jsonPath("$.archived", is(false)));
 
         projectRepository.deleteById(projectId);
@@ -178,7 +170,7 @@ public class ProjectControllerIntegrationTest {
     public void createProject() throws Exception {
         assertEquals(3, projectRepository.count());
 
-        Project project4 = new Project("title4", "description4", "bibtex4", false);
+        Project project4 = new Project("title4", "description4", false);
 
         mockMvc.perform(post(Routes.PROJECT + "/")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -186,7 +178,6 @@ public class ProjectControllerIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.title", is("title4")))
                 .andExpect(jsonPath("$.description", is("description4")))
-                .andExpect(jsonPath("$.bibtex", is("bibtex4")))
                 .andExpect(jsonPath("$.archived", is(false)));
 
         assertEquals(4, projectRepository.count());
