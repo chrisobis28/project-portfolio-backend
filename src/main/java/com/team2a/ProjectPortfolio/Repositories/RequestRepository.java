@@ -9,5 +9,5 @@ import java.util.UUID;
 @Repository
 public interface RequestRepository extends JpaRepository<Request, UUID> {
 
-    List<Request> findAllByAccount(Account account);
+    List<Request> findAllByAccount (Account account);
 }

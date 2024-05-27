@@ -46,9 +46,16 @@ public class Request {
     @Setter
     @ManyToOne
     @JoinColumn(name="REQUEST_PROJECT")
-    @JsonIgnore
     @NotNull (message = "Project must be specified")
     private Project project;
+
+    @Getter
+    @Setter
+    @ManyToOne
+    @JoinColumn(name="ACCOUNT_USERNAME", nullable=false)
+    @NotNull (message = "Account must be specified")
+    private Account account;
+
 
     @Getter
     @OneToMany(cascade=CascadeType.ALL, orphanRemoval = true)

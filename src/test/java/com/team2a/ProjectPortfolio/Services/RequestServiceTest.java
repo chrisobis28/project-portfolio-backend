@@ -60,8 +60,7 @@ class RequestServiceTest {
         Account a = new Account("uname", "Name",
                 "pw", true, false);
 
-        Request r = new Request("title", "desc",
-                "bib", true, a, new Project());
+        Request r = new Request("title", "desc", true, a, new Project());
         a.setRequests(List.of(r));
         when(accountRepository.findById("uname")).thenReturn(Optional.of(a));
         assertEquals(sut.getRequestsForUser("uname"), List.of(r));
@@ -69,7 +68,7 @@ class RequestServiceTest {
 
     @Test
     void testGetRequests() {
-        Request r = new Request("title", "description", "bibtex", false, new Account(), new Project());
+        Request r = new Request("title", "description", false, new Account(), new Project());
         when(requestRepository.findAll()).thenReturn(List.of(r));
         assertEquals(sut.getRequests(), List.of(r));
     }
@@ -77,10 +76,10 @@ class RequestServiceTest {
 
     @Test
     void testAddRequestOk() {
-        Project p = new Project("title", "desc", "bibtex", false);
+        Project p = new Project("title", "desc", false);
         Account a = new Account("uname", "Name",
             "pw", true, false);
-        Request r = new Request("title", "description", "bibtex", false, a , p);
+        Request r = new Request("title", "description", false, a , p);
         when(projectRepository.findById(p.getProjectId())).thenReturn(Optional.of(p));
         when(accountRepository.findById(a.getUsername())).thenReturn(Optional.of(a));
         when(requestRepository.save(r)).thenReturn(r);
@@ -101,7 +100,7 @@ class RequestServiceTest {
             id2 = UUID.randomUUID();
         }
 
-        Project p = new Project("title", "desc", "bibtex", false);
+        Project p = new Project("title", "desc", false);
         p.setProjectId(id1);
         when(projectRepository.findAll()).thenReturn(List.of(p));
         UUID finalId = id2;
@@ -117,7 +116,7 @@ class RequestServiceTest {
             id2 = UUID.randomUUID();
         }
 
-        Project p = new Project("title", "desc", "bibtex", false);
+        Project p = new Project("title", "desc", false);
         p.setProjectId(id1);
         p.setRequests(new ArrayList<>());
         when(projectRepository.findAll()).thenReturn(List.of(p));
@@ -133,9 +132,9 @@ class RequestServiceTest {
             id2 = UUID.randomUUID();
         }
 
-        Project p = new Project("title", "desc", "bibtex", false);
+        Project p = new Project("title", "desc", false);
         p.setProjectId(id1);
-        Request r = new Request("title", "description", "bibtex", false, new Account(), new Project());
+        Request r = new Request("title", "description", false, new Account(), new Project());
 
         p.setRequests(List.of(r));
         when(projectRepository.findAll()).thenReturn(List.of(p));
@@ -158,7 +157,7 @@ class RequestServiceTest {
     void testDeleteOk () {
         UUID id1 = UUID.randomUUID();
 
-        Request r = new Request("title", "description", "bibtex", false, new Account(), new Project());
+        Request r = new Request("title", "description", false, new Account(), new Project());
         when(requestRepository.findById(id1)).thenReturn(Optional.of(r));
         sut.deleteRequest(id1);
         verify(requestRepository).delete(r);

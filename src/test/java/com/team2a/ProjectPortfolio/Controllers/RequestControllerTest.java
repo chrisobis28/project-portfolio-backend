@@ -33,7 +33,7 @@ class RequestControllerTest {
     @Test
     void testGetRequestsForUserOk() {
 
-        Request r = new Request("title", "description", "bibtex", false, new Account(),new Project());
+        Request r = new Request("title", "description", false, new Account(),new Project());
         when(requestService.getRequestsForUser("aa")).thenReturn(List.of(r));
 
         ResponseEntity<List<Request>> resp = sut.getRequestsForUser("aa");
@@ -46,7 +46,7 @@ class RequestControllerTest {
     @Test
     void testGetRequests () {
 
-        Request r = new Request("title", "description", "bibtex", false, new Account(),new Project());
+        Request r = new Request("title", "description", false, new Account(),new Project());
         when(requestService.getRequests()).thenReturn(List.of(r));
 
         ResponseEntity<List<Request>> res = sut.getRequests();
@@ -60,7 +60,7 @@ class RequestControllerTest {
     void testGetRequestsForProjectFound () {
         UUID id1 = UUID.randomUUID();
         Request r = new Request("title", "desc",
-                "bib", true, new Account(), new Project());
+                true, new Account(), new Project());
         when(requestService.getRequestsForProject(id1)).thenReturn(List.of(r));
         ResponseEntity<List<Request>> res = sut.getRequestsForProject(id1);
         assertEquals(res.getStatusCode(), HttpStatus.OK);
@@ -70,7 +70,7 @@ class RequestControllerTest {
     @Test
     void testAddRequestOk() {
 
-        Request r = new Request("title", "description", "bibtex", false, new Account(), new Project());
+        Request r = new Request("title", "description", false, new Account(), new Project());
         UUID id1 = UUID.randomUUID();
         when(requestService.addRequest(r)).thenReturn(r);
         ResponseEntity<Request> res = sut.addRequest(r);

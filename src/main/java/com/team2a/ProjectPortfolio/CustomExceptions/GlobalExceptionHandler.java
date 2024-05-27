@@ -17,7 +17,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
-    public Map<String, String> handleValidationExceptions(MethodArgumentNotValidException ex) {
+    public Map<String, String> handleValidationExceptions (MethodArgumentNotValidException ex) {
         BindingResult result = ex.getBindingResult();
         Map<String, String> errors = new HashMap<>();
         result.getFieldErrors().forEach(fieldError -> {

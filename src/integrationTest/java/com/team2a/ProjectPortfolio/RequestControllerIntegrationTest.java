@@ -64,7 +64,7 @@ public class RequestControllerIntegrationTest {
         projectRepository.deleteAll();
         accountRepository.deleteAll();
 
-        project = new Project("Test Project", "Description", "Bibtex", false);
+        project = new Project("Test Project", "Description", false);
         project = projectRepository.saveAndFlush(project);
         projectId = project.getProjectId();
 
@@ -78,29 +78,28 @@ public class RequestControllerIntegrationTest {
 
     @Test
     public void addRequest() throws Exception {
-        Project project2 = new Project("Test Project2", "Description2", "Bibtex2", false);
+        Project project2 = new Project("Test Project2", "Description2", false);
         project2 = projectRepository.saveAndFlush(project2);
         Account account2 = new Account("username2", "name2", "password2", false, false);
         account2 = accountRepository.saveAndFlush(account2);
-        Request request = new Request("Title2", "Description2", "newBibtex", false, account2, project2);
+        Request request = new Request("Title2", "Description2", false, account2, project2);
         mockMvc.perform(put("/request/")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.newTitle", is("Title2")))
                 .andExpect(jsonPath("$.newDescription", is("Description2")))
-                .andExpect(jsonPath("$.newBibtex", is("newBibtex")))
                 .andExpect(jsonPath("$.account.username", is("username2")))
                 .andExpect(jsonPath("$.project.projectId", is(project2.getProjectId().toString())));
         assertEquals(1, requestRepository.findAll().size());
         assertEquals(1,accountRepository.findById("username2").get().getRequests().size());
-        Request requestForSameProject = new Request("Title3", "Description3", "newBibtex", false, account2, project2);
+        Request requestForSameProject = new Request("Title3", "Description3", false, account2, project2);
         mockMvc.perform(put("/request/")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(requestForSameProject)))
                 .andExpect(status().isConflict())
                 .andExpect(status().reason(is("Account already has a request for this project")));
-        Request invalidRequest = new Request("Title3", "Description3", "newBibtex", false, account2, null);
+        Request invalidRequest = new Request("Title3", "Description3", false, account2, null);
         mockMvc.perform(put("/request/")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(invalidRequest)))
@@ -112,7 +111,7 @@ public class RequestControllerIntegrationTest {
     public void testGetRequestsForUser() throws Exception {
         mockMvc.perform(put("/request/")
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(new Request("Title2", "Description2", "newBibtex", false, account, project))));
+                    .content(objectMapper.writeValueAsString(new Request("Title2", "Description2", false, account, project))));
         assertEquals(1,accountRepository.findById(accountId).get().getRequests().size());
         mockMvc.perform(get("/request/user/" + accountId)
                     .contentType(MediaType.APPLICATION_JSON))
@@ -120,7 +119,6 @@ public class RequestControllerIntegrationTest {
                 .andExpect(jsonPath("$", hasSize(1)))
                 .andExpect(jsonPath("$[0].newTitle", is("Title2")))
                 .andExpect(jsonPath("$[0].newDescription", is("Description2")))
-                .andExpect(jsonPath("$[0].newBibtex", is("newBibtex")))
                 .andExpect(jsonPath("$[0].account.username", is(accountId)))
                 .andExpect(jsonPath("$[0].project.projectId", is(projectId.toString())));
     }

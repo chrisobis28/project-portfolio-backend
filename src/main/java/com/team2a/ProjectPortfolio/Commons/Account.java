@@ -64,8 +64,6 @@ public class Account {
     @JsonIgnore
     private List<Request> requests = new ArrayList<>();
 
-    public Account () {
-    }
 
     /**
      * Constructor for the Account class

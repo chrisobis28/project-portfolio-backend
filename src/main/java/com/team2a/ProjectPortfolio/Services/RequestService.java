@@ -150,8 +150,6 @@ public class RequestService {
             p.setTitle(r.getNewTitle());
         if(r.getNewDescription() != null)
             p.setDescription(r.getNewDescription());
-        if(r.getNewBibtex() != null)
-            p.setBibtex(r.getNewBibtex());
 
         //Resolve other fields
 

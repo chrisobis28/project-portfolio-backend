@@ -53,6 +53,7 @@ public class Project {
     @OneToMany(cascade=CascadeType.ALL, orphanRemoval = true)
     @OnDelete(action=OnDeleteAction.CASCADE)
     @JoinColumn(name="PROJECT_ID")
+    @JsonIgnore
     private List<Media> media = new ArrayList<>();
 
     @Getter
