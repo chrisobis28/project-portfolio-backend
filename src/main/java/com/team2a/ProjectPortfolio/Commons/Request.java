@@ -37,12 +37,6 @@ public class Request {
     @Setter
     private String newDescription;
 
-    @Column(name="NEW_BIBTEX")
-    @Nullable
-    @Getter
-    @Setter
-    private String newBibtex;
-
     @Column(name="IS_COUNTEROFFER")
     @Getter
     @Setter
@@ -52,17 +46,9 @@ public class Request {
     @Setter
     @ManyToOne
     @JoinColumn(name="REQUEST_PROJECT")
+    @JsonIgnore
     @NotNull (message = "Project must be specified")
     private Project project;
-
-    @Getter
-    @Setter
-    @ManyToOne
-    @JoinColumn(name="ACCOUNT_USERNAME", nullable=false)
-    @NotNull (message = "Account must be specified")
-    private Account account;
-
-
 
     @Getter
     @OneToMany(cascade=CascadeType.ALL, orphanRemoval = true)
@@ -97,16 +83,14 @@ public class Request {
      * Constructor for the Request class
      * @param newTitle the new title set
      * @param newDescription the new description set
-     * @param newBibtex the new Bibtex set
      * @param isCounterOffer whether the request is a counter offer
      * @param account the account associated with the request
      * @param project the project associated with the request
      */
-    public Request(String newTitle, String newDescription, String newBibtex, boolean isCounterOffer,
+    public Request(String newTitle, String newDescription, boolean isCounterOffer,
                    Account account, Project project) {
         this.newTitle = newTitle;
         this.newDescription = newDescription;
-        this.newBibtex = newBibtex;
         this.isCounterOffer = isCounterOffer;
         this.account = account;
         this.project = project;

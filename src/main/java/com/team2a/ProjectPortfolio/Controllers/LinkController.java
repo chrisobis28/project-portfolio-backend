@@ -15,7 +15,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping(Routes.LINK)
-public class LinkController {
+public class    LinkController {
     private final LinkService linkService;
 
     /**
@@ -30,11 +30,13 @@ public class LinkController {
     /**
      * Add a link to the project
      * @param link the link entity
+     * @param projectId the project ID
      * @return the new link entity
      */
-    public ResponseEntity<Link> addLinkToProject (@RequestBody Link link) {
+    @PostMapping("/{projectId}")
+    public ResponseEntity<Link> addLinkToProject (@RequestBody Link link,@PathVariable("projectId") UUID projectId) {
         try {
-            Link newLink = linkService.addLinkToProject(link);
+            Link newLink = linkService.addLinkToProject(link,projectId);
             return ResponseEntity.ok(newLink);
         } catch (ResponseStatusException e) {
             return ResponseEntity.status(e.getStatusCode()).body(null);
@@ -46,13 +48,11 @@ public class LinkController {
      * @param link the link entity
      * @return the new link entity
      */
-    @PutMapping("/edit")
+    @PutMapping("/")
     public ResponseEntity<Link> editLinkOfProject (@RequestBody Link link) {
         try {
             Link updatedLink = linkService.editLinkOfProject(link);
             return ResponseEntity.ok(updatedLink);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().build();
         } catch (EntityNotFoundException e) {
             return ResponseEntity.notFound().build();
         }
@@ -64,12 +64,26 @@ public class LinkController {
      * @return the links associated with a project given the id of the project
      */
     @GetMapping("/{projectId}")
+    @CrossOrigin(origins = "http://localhost:4200")
     public ResponseEntity<List<Link>> getLinksByProjectId (@PathVariable("projectId") UUID projectId) {
         try {
             List<Link> links = linkService.getLinksByProjectId(projectId);
             return ResponseEntity.ok(links);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().build();
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    /**
+     * Delete a link based on its id
+     * @param linkId the linkId of the link to be deleted
+     * @return a string containing a message if the link was deleted
+     */
+    @DeleteMapping("/{linkId}")
+    public ResponseEntity<String> deleteLinkById (@PathVariable("linkId") UUID linkId) {
+        try {
+            String returnedMessage = linkService.deleteLinkById(linkId);
+            return ResponseEntity.ok(returnedMessage);
         } catch (EntityNotFoundException e) {
             return ResponseEntity.notFound().build();
         }

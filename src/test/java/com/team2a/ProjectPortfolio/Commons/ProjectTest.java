@@ -12,10 +12,9 @@ class ProjectTest {
     @Test
     void testConstructor() {
         UUID id1 = UUID.randomUUID();
-        Project p = new Project("title", "description", "bibtex", true);
+        Project p = new Project("title", "description", true);
         assertEquals(p.getTitle(), "title");
         assertEquals(p.getDescription(), "description");
-        assertEquals(p.getBibtex(), "bibtex");
         assertEquals(p.getArchived(), true);
         assertEquals(p.getMedia(), new ArrayList<>());
     }

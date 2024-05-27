@@ -8,9 +8,8 @@ class MediaTest {
 
     @Test
     void testConstructor() {
-        Project p = new Project("title", "description", "bibtex", false);
-        Media m = new Media(p, "path");
-        assertEquals(m.getProject(), p);
+        Media m = new Media("name", "path");
+        assertEquals(m.getName(), "name");
         assertEquals(m.getPath(), "path");
     }
 

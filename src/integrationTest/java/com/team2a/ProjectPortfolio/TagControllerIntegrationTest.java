@@ -7,12 +7,14 @@ import com.team2a.ProjectPortfolio.Commons.TagsToProject;
 import com.team2a.ProjectPortfolio.Repositories.ProjectRepository;
 import com.team2a.ProjectPortfolio.Repositories.TagRepository;
 import com.team2a.ProjectPortfolio.Repositories.TagToProjectRepository;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.UUID;
@@ -30,6 +32,7 @@ import static org.hamcrest.Matchers.is;
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@ActiveProfiles("test")
 public class TagControllerIntegrationTest {
 
     @Autowired
@@ -61,7 +64,7 @@ public class TagControllerIntegrationTest {
         tagRepository.deleteAll();
         projectRepository.deleteAll();
 
-        Project project = new Project("Test Project", "Description", "Bibtex", false);
+        Project project = new Project("Test Project", "Description", false);
         project = projectRepository.saveAndFlush(project);
         projectId = project.getProjectId();
 

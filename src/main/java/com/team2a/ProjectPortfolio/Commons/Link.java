@@ -1,5 +1,6 @@
 package com.team2a.ProjectPortfolio.Commons;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -42,6 +43,7 @@ public class Link {
     @JoinColumn(name="PROJECT_ID")
     @Getter
     @Setter
+    @JsonIgnore
     private Project project;
 
     @Getter
@@ -49,11 +51,10 @@ public class Link {
     @OneToMany(cascade=CascadeType.ALL, orphanRemoval = true)
     @OnDelete(action= OnDeleteAction.CASCADE)
     @JoinColumn(name="LINK_ID")
-    private List<RequestLinkProject> requestLinkProjects;
+    private List<RequestLinkProject> requestLinkProjects = new ArrayList<>();
 
     public Link(String name, String url) {
         this.name = name;
         this.url = url;
-        this.requestLinkProjects = new ArrayList<>();
     }
 }

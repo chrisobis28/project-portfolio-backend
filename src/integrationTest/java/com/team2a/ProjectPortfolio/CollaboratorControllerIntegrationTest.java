@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -19,6 +20,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@ActiveProfiles("test")
 public class CollaboratorControllerIntegrationTest {
 
     @Autowired
@@ -42,7 +44,7 @@ public class CollaboratorControllerIntegrationTest {
         collaboratorRepository.deleteAll();
         projectRepository.deleteAll();
 
-        Project project = new Project("Test Project", "Description", "Bibtex", false);
+        Project project = new Project("Test Project", "Description", false);
         project = projectRepository.saveAndFlush(project);
         projectId = project.getProjectId();
 
@@ -54,8 +56,9 @@ public class CollaboratorControllerIntegrationTest {
         collaborator2 = collaboratorRepository.saveAndFlush(collaborator2);
         collaborator3 = collaboratorRepository.saveAndFlush(collaborator3);
 
-        projectsToCollaboratorsRepository.saveAndFlush(new ProjectsToCollaborators(project, collaborator2));
-        projectsToCollaboratorsRepository.saveAndFlush(new ProjectsToCollaborators(project, collaborator3));
+        String role = "Role";
+        projectsToCollaboratorsRepository.saveAndFlush(new ProjectsToCollaborators(project, collaborator2,role));
+        projectsToCollaboratorsRepository.saveAndFlush(new ProjectsToCollaborators(project, collaborator3,role));
 
     }
 
@@ -71,25 +74,13 @@ public class CollaboratorControllerIntegrationTest {
     @Test
     public void addCollaboratorToProject() throws Exception {
         assertThat(projectsToCollaboratorsRepository.findAllByCollaboratorCollaboratorId(collaborator1.getCollaboratorId()).size()).isEqualTo(0);
-        mockMvc.perform(post(Routes.COLLABORATOR + "/" + projectId)
+        mockMvc.perform(post(Routes.COLLABORATOR + "/" + projectId +"/" +collaborator1.getCollaboratorId())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(collaborator1.getName()))
+                        .content("Backend"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name", is(collaborator1.getName() )))
                 .andExpect(jsonPath("$.collaboratorId", is(collaborator1.getCollaboratorId().toString())));
         assertThat(projectsToCollaboratorsRepository.findAllByCollaboratorCollaboratorId(collaborator1.getCollaboratorId()).size()).isEqualTo(1);
-    }
-    @Test
-    public void addNewCollaboratorToProject() throws Exception {
-        assertThat(collaboratorRepository.findAll().size()).isEqualTo(3);
-        assertThat(collaboratorRepository.findAllByName("newName").size()).isEqualTo(0);
-        mockMvc.perform(post(Routes.COLLABORATOR + "/" + projectId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("newName"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.name", is("newName" )));
-        assertThat(collaboratorRepository.findAllByName("newName").size()).isEqualTo(1);
-        assertThat(collaboratorRepository.findAll().size()).isEqualTo(4);
     }
     @Test
     public void editCollaboratorOfProject() throws Exception {
@@ -134,9 +125,9 @@ public class CollaboratorControllerIntegrationTest {
     @Test
     public void addCollaboratorToProjectNotFound() throws Exception {
         assertThat(projectsToCollaboratorsRepository.findAllByCollaboratorCollaboratorId(UUID.randomUUID()).size()).isEqualTo(0);
-        mockMvc.perform(post(Routes.COLLABORATOR + "/" + UUID.randomUUID())
+        mockMvc.perform(post(Routes.COLLABORATOR + "/" + UUID.randomUUID()+"/"+UUID.randomUUID())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(collaborator1.getName()))
+                        .content("Backend"))
                 .andExpect(status().isNotFound());
         assertThat(projectsToCollaboratorsRepository.findAllByCollaboratorCollaboratorId(collaborator1.getCollaboratorId()).size()).isEqualTo(0);
     }
@@ -144,9 +135,9 @@ public class CollaboratorControllerIntegrationTest {
     public void addNewCollaboratorToProjectNotFound() throws Exception {
         assertThat(collaboratorRepository.findAll().size()).isEqualTo(3);
         assertThat(collaboratorRepository.findAllByName("newName").size()).isEqualTo(0);
-        mockMvc.perform(post(Routes.COLLABORATOR + "/" + UUID.randomUUID())
+        mockMvc.perform(post(Routes.COLLABORATOR + "/" + UUID.randomUUID()+"/"+UUID.randomUUID())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("newName"))
+                        .content("Backend"))
                 .andExpect(status().isNotFound());
         assertThat(collaboratorRepository.findAllByName("newName").size()).isEqualTo(0);
         assertThat(collaboratorRepository.findAll().size()).isEqualTo(3);

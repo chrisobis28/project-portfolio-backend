@@ -1,6 +1,8 @@
 package com.team2a.ProjectPortfolio.Commons;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -24,22 +26,34 @@ public class ProjectsToCollaborators {
     @JoinColumn(name="COLLABORATOR_ID")
     @Getter
     @Setter
+    @JsonIgnore
+    @NotNull
     private Collaborator collaborator;
 
     @ManyToOne
     @JoinColumn(name="PROJECT_ID")
     @Getter
     @Setter
+    @NotNull
+    @JsonIgnore
     private Project project;
+
+    @Getter
+    @Setter
+    @NotNull
+    @Column(name = "Role")
+    private String role;
 
     /**
      * Constructor for the relation between the project and the collaborator
      * @param project the project of which the collaborator is part of
      * @param collaborator the collaborator for the project
+     * @param role the role of the collaborator
      */
-    public ProjectsToCollaborators(Project project,Collaborator collaborator) {
+    public ProjectsToCollaborators(Project project,Collaborator collaborator,String role) {
         this.collaborator = collaborator;
         this.project = project;
+        this.role = role;
     }
 
 }

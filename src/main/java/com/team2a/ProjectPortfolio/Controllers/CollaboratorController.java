@@ -31,6 +31,7 @@ public class CollaboratorController {
      * @return a response entity that contains the list of collaborators entities
      */
     @GetMapping("/{projectId}")
+    @CrossOrigin(origins = "http://localhost:4200")
     public ResponseEntity<List<Collaborator>> getCollaboratorsByProjectId (@PathVariable("projectId") UUID projectId){
         try {
             List<Collaborator> collaboratorsList = collaboratorService.getCollaboratorsByProjectId(projectId);
@@ -44,14 +45,16 @@ public class CollaboratorController {
      * Adds a collaborator to a specified projectId. If the collaborator is already in the database, we just
      * link it to the project. Otherwise, we create it and link to the project.
      * @param projectId the projectId
-     * @param collaboratorName the collaboratorName
+     * @param collaboratorId the collaborator ID
+     * @param role the collaborator role
      * @return a responseEntity containing a collaborator entity
      */
-    @PostMapping("/{projectId}")
+    @PostMapping("/{projectId}/{collaboratorId}")
     public ResponseEntity<Collaborator> addCollaboratorToProject (@PathVariable("projectId") UUID projectId,
-                                                                  @RequestBody String collaboratorName){
+                                                                  @PathVariable("collaboratorId") UUID collaboratorId,
+                                                                  @RequestBody String role){
         try {
-            Collaborator collaborator = collaboratorService.addCollaboratorToProject(projectId,collaboratorName);
+            Collaborator collaborator = collaboratorService.addCollaboratorToProject(projectId,collaboratorId,role);
             return ResponseEntity.ok(collaborator);
         } catch (EntityNotFoundException e) {
             return ResponseEntity.notFound().build();
