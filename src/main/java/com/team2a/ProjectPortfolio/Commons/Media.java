@@ -46,7 +46,6 @@ public class Media {
     @ManyToOne
     @OnDelete(action=OnDeleteAction.CASCADE)
     @JoinColumn(name="PROJECT_ID")
-    @JsonIgnore
     private Project project;
 
     @Getter
@@ -54,6 +53,7 @@ public class Media {
     @OneToMany(cascade=CascadeType.ALL, orphanRemoval = true)
     @OnDelete(action= OnDeleteAction.CASCADE)
     @JoinColumn(name="MEDIA_ID")
+    @JsonIgnore
     private List<RequestMediaProject> requestMediaProjects = new ArrayList<>();
 
     public Media(String name, String path) {

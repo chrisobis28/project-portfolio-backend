@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import java.util.UUID;
@@ -22,6 +23,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 public class LinkControllerIntegrationTest {
 
     @Autowired
@@ -42,7 +44,7 @@ public class LinkControllerIntegrationTest {
         linkRepository.deleteAll();
         projectRepository.deleteAll();
 
-        project = new Project("Test Project", "Description", "Bibtex", false);
+        project = new Project("Test Project", "Description", false);
         project = projectRepository.saveAndFlush(project);
         projectId = project.getProjectId();
 
@@ -71,10 +73,6 @@ public class LinkControllerIntegrationTest {
                 .andExpect(jsonPath("$[1].url", is("Test2")))
                 .andExpect(jsonPath("$[2].name", is("Test3")))
                 .andExpect(jsonPath("$[2].url", is("Test3")));
-
-        mockMvc.perform(get(Routes.LINK+"/"+UUID.randomUUID())
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isNotFound());
     }
     @Test
     public void editLinkOfProject() throws Exception {

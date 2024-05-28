@@ -46,7 +46,7 @@ public class TagService {
     public Tag createTag (Tag tag) {
         tagRepository.findByNameAndColor(tag.getName(), tag.getColor())
             .ifPresent(t -> {
-                throw new ResponseStatusException(HttpStatus.CONFLICT);
+                throw new ResponseStatusException(HttpStatus.CONFLICT, "Tag already exists");
             });
         return tagRepository.saveAndFlush(tag);
     }

@@ -4,6 +4,7 @@ import com.team2a.ProjectPortfolio.Commons.Tag;
 import com.team2a.ProjectPortfolio.Routes;
 import com.team2a.ProjectPortfolio.Services.TagService;
 
+import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(Routes.TAGS)
-@CrossOrigin("http://localhost:4200/")
+@CrossOrigin("http://localhost:4200")
 public class TagController {
 
     private final TagService tagService;
@@ -49,7 +50,7 @@ public class TagController {
      * @return the tag
      */
     @PostMapping("/create")
-    public ResponseEntity<Tag> createTag (@RequestBody Tag tag) {
+    public ResponseEntity<Tag> createTag (@Valid @RequestBody Tag tag) {
         Tag newTag = tagService.createTag(tag);
         return ResponseEntity.ok(newTag);
     }
@@ -75,7 +76,7 @@ public class TagController {
      * @return the tag
      */
     @PutMapping("/edit")
-    public ResponseEntity<Tag> editTag (@RequestBody Tag tag) {
+    public ResponseEntity<Tag> editTag (@Valid @RequestBody Tag tag) {
         Tag newTag = tagService.editTag(tag);
         return ResponseEntity.ok(newTag);
     }

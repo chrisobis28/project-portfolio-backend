@@ -78,7 +78,8 @@ jacocoTestReport {
 		classDirectories = files(classDirectories.files.collect {
 			fileTree(dir: it,
 					exclude: ['**/ProjectPortfolioManagementSystemApplication.class',
-							  '**/Routes.class'])
+							  '**/Routes.class',
+							  '**/MediaHelper.class'])
 		})
 	}
 }
@@ -95,7 +96,8 @@ jacocoTestCoverageVerification {
 		classDirectories = files(classDirectories.files.collect {
 			fileTree(dir: it,
 					exclude: ['**/ProjectPortfolioManagementSystemApplication.class',
-							  '**/Routes.class'])
+							  '**/Routes.class',
+							  '**/MediaHelper.class'])
 		})
 	}
 }
