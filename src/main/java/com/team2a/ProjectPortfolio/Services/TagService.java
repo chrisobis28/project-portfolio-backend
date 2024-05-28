@@ -129,7 +129,7 @@ public class TagService {
      * get all tags from the repository
      * @return the list of tags
      */
-    public List<Tag> getAllTags() {
+    public List<Tag> getAllTags () {
         return tagRepository.findAll();
     }
 }

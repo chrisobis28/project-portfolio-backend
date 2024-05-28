@@ -112,7 +112,7 @@ public class TagController {
      * @return a list of all tags
      */
     @GetMapping("/")
-    public ResponseEntity<List<Tag>> getAllTags() {
+    public ResponseEntity<List<Tag>> getAllTags () {
 
         List<Tag> tags = tagService.getAllTags();
         return new ResponseEntity<>(tags, HttpStatus.OK);
