@@ -1,6 +1,5 @@
 package com.team2a.ProjectPortfolio.Services;
 
-import com.team2a.ProjectPortfolio.CustomExceptions.FileNotSavedException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
