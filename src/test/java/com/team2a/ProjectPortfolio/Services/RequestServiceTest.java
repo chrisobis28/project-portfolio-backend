@@ -3,7 +3,6 @@ package com.team2a.ProjectPortfolio.Services;
 import com.team2a.ProjectPortfolio.Commons.Account;
 import com.team2a.ProjectPortfolio.Commons.Project;
 import com.team2a.ProjectPortfolio.Commons.Request;
-import com.team2a.ProjectPortfolio.CustomExceptions.NotFoundException;
 import com.team2a.ProjectPortfolio.Repositories.AccountRepository;
 import com.team2a.ProjectPortfolio.Repositories.ProjectRepository;
 import com.team2a.ProjectPortfolio.Repositories.RequestRepository;
@@ -11,12 +10,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import org.springframework.web.server.ResponseStatusException;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -50,16 +49,13 @@ class RequestServiceTest {
 
     @Test
     void testGetRequestForUserUserNotFound() {
-        when(accountRepository.findAll()).thenReturn(List.of(new Account("uname",
-                "Name", "pw", true, false)));
+        when(accountRepository.findById("Name")).thenReturn(Optional.empty());
         assertThrows(ResponseStatusException.class, () -> sut.getRequestsForUser("Name"));
     }
 
     @Test
     void testGetRequestForUserOk() {
-        Account a = new Account("uname", "Name",
-                "pw", true, false);
-
+        Account a = new Account("uname", "Name", "pw", true, false);
         Request r = new Request("title", "desc", true, a, new Project());
         a.setRequests(List.of(r));
         when(accountRepository.findById("uname")).thenReturn(Optional.of(a));
@@ -73,12 +69,10 @@ class RequestServiceTest {
         assertEquals(sut.getRequests(), List.of(r));
     }
 
-
     @Test
     void testAddRequestOk() {
         Project p = new Project("title", "desc", false);
-        Account a = new Account("uname", "Name",
-            "pw", true, false);
+        Account a = new Account("uname", "Name", "pw", true, false);
         Request r = new Request("title", "description", false, a , p);
         when(projectRepository.findById(p.getProjectId())).thenReturn(Optional.of(p));
         when(accountRepository.findById(a.getUsername())).thenReturn(Optional.of(a));
@@ -87,19 +81,50 @@ class RequestServiceTest {
     }
 
     @Test
-    void testGetRequestsForProjectNull () {
+    void testAddRequestProjectNotFound() {
+        Request r = new Request();
+        r.setProject(new Project());
+        when(projectRepository.findById(r.getProject().getProjectId())).thenReturn(Optional.empty());
+        assertThrows(ResponseStatusException.class, () -> sut.addRequest(r));
+    }
+
+    @Test
+    void testAddRequestAccountNotFound() {
+        Project p = new Project("title", "desc", false);
+        Account a = new Account("uname", "Name", "pw", true, false);
+        Request r = new Request("title", "description", false, a , p);
+        when(projectRepository.findById(p.getProjectId())).thenReturn(Optional.of(p));
+        when(accountRepository.findById(a.getUsername())).thenReturn(Optional.empty());
+        assertThrows(ResponseStatusException.class, () -> sut.addRequest(r));
+    }
+
+    @Test
+    void testAddRequestConflict() {
+        Project p = new Project("title", "desc", false);
+        Account a = new Account("uname", "Name", "pw", true, false) {
+            @Override
+            public boolean hasRequestForProject(UUID projectId) {
+                return true;
+            }
+        };
+        Request r = new Request("title", "description", false, a , p);
+        when(projectRepository.findById(p.getProjectId())).thenReturn(Optional.of(p));
+        when(accountRepository.findById(a.getUsername())).thenReturn(Optional.of(a));
+        assertThrows(ResponseStatusException.class, () -> sut.addRequest(r));
+    }
+
+    @Test
+    void testGetRequestsForProjectNull() {
         assertThrows(ResponseStatusException.class, () -> sut.getRequestsForProject(null));
     }
 
     @Test
-    void testGetRequestsForProjectNotFound () {
+    void testGetRequestsForProjectNotFound() {
         UUID id1 = UUID.randomUUID();
         UUID id2 = UUID.randomUUID();
-
         while(id2.equals(id1)){
             id2 = UUID.randomUUID();
         }
-
         Project p = new Project("title", "desc", false);
         p.setProjectId(id1);
         when(projectRepository.findAll()).thenReturn(List.of(p));
@@ -108,14 +133,12 @@ class RequestServiceTest {
     }
 
     @Test
-    void testGetRequestsForProjectEmptyList () {
+    void testGetRequestsForProjectEmptyList() {
         UUID id1 = UUID.randomUUID();
         UUID id2 = UUID.randomUUID();
-
         while(id2.equals(id1)){
             id2 = UUID.randomUUID();
         }
-
         Project p = new Project("title", "desc", false);
         p.setProjectId(id1);
         p.setRequests(new ArrayList<>());
@@ -124,45 +147,60 @@ class RequestServiceTest {
     }
 
     @Test
-    void testGetRequestsForProjectNonEmptyList () {
+    void testGetRequestsForProjectNonEmptyList() {
         UUID id1 = UUID.randomUUID();
         UUID id2 = UUID.randomUUID();
-
         while(id2.equals(id1)){
             id2 = UUID.randomUUID();
         }
-
         Project p = new Project("title", "desc", false);
         p.setProjectId(id1);
         Request r = new Request("title", "description", false, new Account(), new Project());
-
         p.setRequests(List.of(r));
         when(projectRepository.findAll()).thenReturn(List.of(p));
         assertEquals(sut.getRequestsForProject(id1), List.of(r));
     }
 
     @Test
-    void testDeleteIdNull () {
+    void testDeleteIdNull() {
         assertThrows(ResponseStatusException.class, () -> sut.deleteRequest(null));
     }
 
     @Test
-    void testDeleteNotFound () {
+    void testDeleteNotFound() {
         UUID id1 = UUID.randomUUID();
         when(requestRepository.findById(id1)).thenReturn(Optional.empty());
         assertThrows(ResponseStatusException.class, () -> sut.deleteRequest(id1));
     }
 
     @Test
-    void testDeleteOk () {
+    void testDeleteOk() {
         UUID id1 = UUID.randomUUID();
-
         Request r = new Request("title", "description", false, new Account(), new Project());
         when(requestRepository.findById(id1)).thenReturn(Optional.of(r));
         sut.deleteRequest(id1);
         verify(requestRepository).delete(r);
     }
 
+    @Test
+    void testAcceptRequestNotFound() {
+        UUID id1 = UUID.randomUUID();
+        when(requestRepository.findById(id1)).thenReturn(Optional.empty());
+        assertThrows(ResponseStatusException.class, () -> sut.acceptRequest(id1));
+    }
 
-
+    @Test
+    void testAcceptRequestOk() throws Exception {
+        UUID id1 = UUID.randomUUID();
+        Project p = new Project("title", "desc", false);
+        Request r = new Request("title", "description", false, new Account(), p);
+        r.setNewTitle("new title");
+        r.setNewDescription("new description");
+        when(requestRepository.findById(id1)).thenReturn(Optional.of(r));
+        sut.acceptRequest(id1);
+        assertEquals(p.getTitle(), "new title");
+        assertEquals(p.getDescription(), "new description");
+        verify(projectRepository).save(p);
+        verify(requestRepository).delete(r);
+    }
 }

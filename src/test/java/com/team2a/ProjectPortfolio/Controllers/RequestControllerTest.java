@@ -90,4 +90,13 @@ class RequestControllerTest {
         assertEquals(HttpStatus.NO_CONTENT, res.getStatusCode());
     }
 
+    @Test
+    void testAcceptRequestOk() throws Exception {
+        UUID id1 = UUID.randomUUID();
+        Request r = new Request("title", "desc",
+                true, new Account(), new Project());
+        doNothing().when(requestService).acceptRequest(id1);
+        assertEquals(sut.acceptRequest(id1).getStatusCode(), HttpStatus.NO_CONTENT);;
+    }
+
 }

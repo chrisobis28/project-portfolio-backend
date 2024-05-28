@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 import org.springframework.http.HttpStatus;
 
-import java.util.HashMap;
 import java.util.Map;
 
 @ControllerAdvice
@@ -30,7 +29,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
-    public ApiErrorResponse handleValidationExceptions(MethodArgumentNotValidException ex, HttpServletRequest request) {
+    public ApiErrorResponse handleValidationExceptions (MethodArgumentNotValidException ex, HttpServletRequest request) {
         BindingResult result = ex.getBindingResult();
         Map<String, String> errors = result.getFieldErrors().stream()
             .collect(Collectors.toMap(
@@ -52,7 +51,7 @@ public class GlobalExceptionHandler {
         );
     }
 
-    public class ApiErrorResponse {
+    public static class ApiErrorResponse {
 
         @Getter
         @Setter

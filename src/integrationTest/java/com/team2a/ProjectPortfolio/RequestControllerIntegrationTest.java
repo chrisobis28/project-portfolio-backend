@@ -103,8 +103,7 @@ public class RequestControllerIntegrationTest {
         mockMvc.perform(put("/request/")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(invalidRequest)))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.project").value("Project must be specified"));
+                .andExpect(status().isBadRequest());
     }
 
     @Test

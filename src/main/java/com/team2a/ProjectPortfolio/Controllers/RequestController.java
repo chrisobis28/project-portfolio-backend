@@ -11,7 +11,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.UUID;
-import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping(Routes.REQUESTS)
@@ -94,11 +93,7 @@ public class RequestController {
      */
     @PostMapping("/{requestId}")
     public ResponseEntity<Void> acceptRequest (@PathVariable(name = "requestId") UUID requestId) {
-        try {
-            requestService.acceptRequest(requestId);
-        } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Something went wrong: " + e.getMessage());
-        }
+        requestService.acceptRequest(requestId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
