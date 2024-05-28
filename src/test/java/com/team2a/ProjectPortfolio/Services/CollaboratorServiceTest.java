@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
@@ -36,6 +37,7 @@ public class CollaboratorServiceTest {
 
     @BeforeEach
     void setUp () {
+        cr = Mockito.mock(CollaboratorRepository.class);
         cs = new CollaboratorService(ptc, cr, projectRepository);
     }
 
@@ -140,4 +142,21 @@ public class CollaboratorServiceTest {
         UUID collaboratorId = UUID.randomUUID();
         assertThrows(EntityNotFoundException.class, () -> cs.deleteCollaboratorFromProject(projectId, collaboratorId));
     }
+
+    @Test
+    void testAddCollaboratorFound () {
+        Collaborator c1 = new Collaborator("coll1");
+        when(cr.findAllByName("coll1")).thenReturn(List.of(c1));
+        assertEquals(cs.addCollaborator("coll1"), c1);
+    }
+
+    @Test
+    void addCollaboratorNotFound () {
+        when(cr.findAllByName("coll1")).thenReturn(List.of());
+        //verify(cr).save(new Collaborator("coll1"));
+        Collaborator c1 = new Collaborator("coll1");
+        when(cr.save(any())).thenReturn(c1);
+        assertEquals(cs.addCollaborator("coll1"), c1);
+    }
+
 }

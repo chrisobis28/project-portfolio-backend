@@ -49,6 +49,22 @@ public class CollaboratorService {
     }
 
     /**
+     * Looks if a collaborator with the given name exists.
+     * If it exists, returns that collaborator, else adds one
+     * and returns it
+     * @param name the name of the collaborator to be added
+     * @return the collaborator added
+     */
+    public Collaborator addCollaborator (String name) {
+        List<Collaborator> collaborators = collaboratorRepository.findAllByName(name);
+
+        if(collaborators.size() != 0)
+            return collaborators.get(0);
+        else
+            return collaboratorRepository.save(new Collaborator(name));
+    }
+
+    /**
      * Adds a collaborator to a specified projectId.If the collaborator is already in the database, we just
      * link it to the project. Otherwise, we create it and link to the project.
      * @param projectId the projectId
