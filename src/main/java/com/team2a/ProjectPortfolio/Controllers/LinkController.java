@@ -15,6 +15,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping(Routes.LINK)
+@CrossOrigin("http://localhost:4200")
 public class    LinkController {
     private final LinkService linkService;
 
@@ -64,7 +65,7 @@ public class    LinkController {
      * @return the links associated with a project given the id of the project
      */
     @GetMapping("/{projectId}")
-    @CrossOrigin(origins = "http://localhost:4200")
+    @CrossOrigin(origins = "*")
     public ResponseEntity<List<Link>> getLinksByProjectId (@PathVariable("projectId") UUID projectId) {
         try {
             List<Link> links = linkService.getLinksByProjectId(projectId);

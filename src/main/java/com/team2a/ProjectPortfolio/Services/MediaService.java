@@ -8,16 +8,12 @@ import com.team2a.ProjectPortfolio.Repositories.MediaRepository;
 import com.team2a.ProjectPortfolio.Repositories.ProjectRepository;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import lombok.Setter;
+import org.antlr.v4.runtime.misc.Pair;
 import org.antlr.v4.runtime.misc.Triple;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -31,7 +27,7 @@ public class MediaService {
     private final MediaRepository mediaRepository;
     private final ProjectRepository projectRepository;
     @Setter
-    private FileOutputStreamFactory fileOutputStreamFactory;
+    private MediaHelper mediaHelper;
 
     /**
      * Constructor for the Media Service
@@ -42,7 +38,7 @@ public class MediaService {
     public MediaService(MediaRepository mediaRepository, ProjectRepository projectRepository) {
         this.mediaRepository = mediaRepository;
         this.projectRepository = projectRepository;
-        fileOutputStreamFactory = null;
+        mediaHelper = new MediaHelper();
     }
 
     /**
@@ -51,13 +47,11 @@ public class MediaService {
      * @return a List of Tuples that contain the media, the media name and the media description
      * @throws RuntimeException- Project doesn't exist or the id is null
      */
-    public List<Triple<String,String,String>> getMediaByProjectId (UUID projectId) throws RuntimeException {
+    public List<Triple<String,String,String>> getImagesContentByProjectId (UUID projectId){
         //https://www.geeksforgeeks.org/spring-boot-file-handling/
         checkProjectExistence(projectId);
-        String fileUploadPath = System.getProperty("user.dir") + "/assets";
-        List<String> filenames = java.util.Arrays.stream(this.getFiles()).toList();
+        List<String> filenames = java.util.Arrays.stream(mediaHelper.getFiles()).toList();
         List<Media> mediaToGetObject = mediaRepository.findAllByProjectProjectId(projectId);
-        String filePath = fileUploadPath + File.separator;
 
         Map<String, Media> filenameToMediaMap = mediaToGetObject.stream()
                 .collect(Collectors.toMap(Media::getPath, Function.identity()));
@@ -66,31 +60,31 @@ public class MediaService {
         for (String filename : filenames) {
             Media media = filenameToMediaMap.get(filename);
             if (media != null) {
-                try {
-                    Path path = Paths.get(filePath + filename);
-                    byte[] content = Files.readAllBytes(path);
-                    String encodedContent = Base64.getEncoder().encodeToString(content); // Convert to Base64
-                    String mediaName = media.getName();
-                    mediaFiles.add(new Triple<>(filename, encodedContent, mediaName));
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
+                mediaFiles.add(new Triple<>(filename, mediaHelper.getFileContents(filename),  media.getName()));
             }
         }
-
         return mediaFiles;
+    }
+    /**
+     * Gets the list of medias of a specific project
+     * @param projectId the project of which we need to get the media
+     * @return the list of media
+     */
+    public List<Media> getDocumentsByProjectId (UUID projectId){
+        checkProjectExistence(projectId);
+        return mediaRepository.findAllByProjectProjectId(projectId);
     }
 
     /**
-     * Gets the files located on the server
-     * @return the file names
+     * Gets the document from the backend
+     * @param mediaId the mediaId of the document
+     * @return a Pair containing the file contents and it's filename
      */
-    public String[] getFiles ()
-    {
+    public Pair<String,String> getDocumentByMediaId (UUID mediaId){
         //https://www.geeksforgeeks.org/spring-boot-file-handling/
-        String folderPath = System.getProperty("user.dir") +"/assets";
-        File directory= new File(folderPath);
-        return directory.list();
+        checkMediaExistence(mediaId);
+        Media mediaToGetObject = mediaRepository.findMediaByMediaId(mediaId);
+        return new Pair<>(mediaToGetObject.getPath(), mediaHelper.getFileContents(mediaToGetObject.getPath()));
     }
     /**
      * Adds a Media to a specific Project
@@ -100,7 +94,7 @@ public class MediaService {
      * @return the Media that was added
      * @throws RuntimeException - Project doesn't exist or the id is null
      */
-    public Media addMediaToProject (UUID projectId, MultipartFile file,String name) throws RuntimeException {
+    public Media addMediaToProject (UUID projectId, MultipartFile file,String name){
         Project p = checkProjectExistence(projectId);
         checkPathUniqueness(file.getOriginalFilename());
         String filePath = System.getProperty("user.dir") + "/assets" + File.separator + file.getOriginalFilename();
@@ -108,21 +102,10 @@ public class MediaService {
         media.setProject(p);
         //https://www.geeksforgeeks.org/spring-boot-file-handling/
         // Try block to check exceptions
-        try {
-            myMethod(filePath,file);
-        }
-
-        // Catch block to handle exceptions
-        catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        mediaHelper.saveFile(filePath,file);
         return mediaRepository.save(media);
     }
-    public void myMethod (String path,MultipartFile file) throws IOException {
-        try (FileOutputStream fout = fileOutputStreamFactory.create(path)) {
-            fout.write(file.getBytes());
-        }
-    }
+
 
     /**
      * Deletes a Media from the database

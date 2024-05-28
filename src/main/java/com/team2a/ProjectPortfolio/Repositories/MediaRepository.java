@@ -9,4 +9,5 @@ import java.util.UUID;
 @Repository
 public interface MediaRepository extends JpaRepository<Media, UUID> {
     List<Media> findAllByProjectProjectId (UUID projectId);
+    Media findMediaByMediaId (UUID mediaId);
 }

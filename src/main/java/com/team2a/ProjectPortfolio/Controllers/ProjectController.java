@@ -13,6 +13,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping(Routes.PROJECT)
+@CrossOrigin("http://localhost:4200")
 public class ProjectController {
 
     private final ProjectService projectService;
@@ -78,7 +79,6 @@ public class ProjectController {
      * @return a response entity that contains the project with the specified id
      */
     @GetMapping("/{projectId}")
-    @CrossOrigin(origins = "http://localhost:4200")
     public ResponseEntity<Project> getProjectById (@PathVariable("projectId") UUID projectId) {
         try {
             Project project = projectService.getProjectById(projectId);
