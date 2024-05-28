@@ -138,7 +138,7 @@ public class RequestService {
      * @param requestId the id of the request to be accepted
      */
     @Transactional
-    public void acceptRequest (UUID requestId) throws Exception {
+    public void acceptRequest (UUID requestId) {
         Optional<Request> request = requestRepository.findById(requestId);
 
         if(request.isEmpty())

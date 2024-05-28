@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 import org.springframework.http.HttpStatus;
+
 import java.util.Map;
 
 @ControllerAdvice
@@ -50,7 +51,7 @@ public class GlobalExceptionHandler {
         );
     }
 
-    public class ApiErrorResponse {
+    public static class ApiErrorResponse {
 
         @Getter
         @Setter
@@ -80,7 +81,7 @@ public class GlobalExceptionHandler {
          * @param message String
          * @param path String
          */
-        public ApiErrorResponse (LocalDateTime timestamp, int status, String error, String message, String path) {
+        public ApiErrorResponse(LocalDateTime timestamp, int status, String error, String message, String path) {
             this.timestamp = timestamp;
             this.status = status;
             this.error = error;
