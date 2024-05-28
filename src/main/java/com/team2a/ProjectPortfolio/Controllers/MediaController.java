@@ -2,7 +2,6 @@ package com.team2a.ProjectPortfolio.Controllers;
 
 import com.team2a.ProjectPortfolio.Commons.Media;
 import com.team2a.ProjectPortfolio.CustomExceptions.MediaNotFoundException;
-import com.team2a.ProjectPortfolio.CustomExceptions.ProjectNotFoundException;
 import com.team2a.ProjectPortfolio.Routes;
 import com.team2a.ProjectPortfolio.Services.MediaService;
 import jakarta.validation.Valid;
@@ -41,7 +40,7 @@ public class MediaController {
     @GetMapping("/images/{projectId}")
     public ResponseEntity<List<Triple<String,String,String>>> getImagesContentByProjectId (@PathVariable("projectId")
                                                                                                UUID projectId) {
-            return ResponseEntity.ok(mediaService.getImagesContentByProjectId(projectId));
+        return ResponseEntity.ok(mediaService.getImagesContentByProjectId(projectId));
     }
 
     /**
@@ -51,7 +50,7 @@ public class MediaController {
      */
     @GetMapping("/file/content/{mediaId}")
     public ResponseEntity<Pair<String,String>> getDocumentContentByMediaId (@PathVariable("mediaId") UUID mediaId) {
-            return ResponseEntity.ok(mediaService.getDocumentByMediaId(mediaId));
+        return ResponseEntity.ok(mediaService.getDocumentByMediaId(mediaId));
     }
 
     /**
