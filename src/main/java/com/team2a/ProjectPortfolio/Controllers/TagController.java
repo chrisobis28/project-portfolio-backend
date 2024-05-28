@@ -3,9 +3,11 @@ package com.team2a.ProjectPortfolio.Controllers;
 import com.team2a.ProjectPortfolio.Commons.Tag;
 import com.team2a.ProjectPortfolio.Routes;
 import com.team2a.ProjectPortfolio.Services.TagService;
+
 import java.util.List;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -102,5 +104,18 @@ public class TagController {
     (@PathVariable("projectId") UUID projectId, @PathVariable("tagId") UUID tagId) {
         tagService.removeTagFromProject(projectId, tagId);
         return ResponseEntity.ok().build();
+    }
+
+
+    /**
+     * Get all tags from the database.
+     * @return a list of all tags
+     */
+    @GetMapping("/")
+    public ResponseEntity<List<Tag>> getAllTags() {
+
+        List<Tag> tags = tagService.getAllTags();
+        return new ResponseEntity<>(tags, HttpStatus.OK);
+
     }
 }

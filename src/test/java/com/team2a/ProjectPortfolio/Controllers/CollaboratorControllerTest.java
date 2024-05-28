@@ -129,4 +129,14 @@ class CollaboratorControllerTest {
         assertNull(responseEntity.getBody());
         assertEquals(HttpStatus.NOT_FOUND, responseEntity.getStatusCode());
     }
+
+    @Test
+    void testAddCollaborator () {
+
+        Collaborator c1 = new Collaborator("coll1");
+        when(cs.addCollaborator("coll1")).thenReturn(c1);
+        ResponseEntity<Collaborator> res = cc.addCollaborator("coll1");
+        assertEquals(res.getBody(), c1);
+        assertEquals(res.getStatusCode(), HttpStatus.OK);
+    }
 }
