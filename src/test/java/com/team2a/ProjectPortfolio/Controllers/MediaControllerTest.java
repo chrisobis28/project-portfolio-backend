@@ -15,6 +15,8 @@ import com.team2a.ProjectPortfolio.Services.MediaService;
 import java.util.List;
 import java.util.UUID;
 
+import jakarta.persistence.Tuple;
+import org.antlr.v4.runtime.misc.Pair;
 import org.antlr.v4.runtime.misc.Triple;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -43,28 +45,31 @@ public class MediaControllerTest {
     mediaController = new MediaController(mediaService);
   }
 
-  @Test
-  void testGetMediaByProjectIdProjectNotFoundException() {
-    when(mediaService.getMediaByProjectId(any(UUID.class))).thenThrow(new ProjectNotFoundException(""));
-    ResponseEntity<List<Triple<String,String,String>>> entity = mediaController.getMediaByProjectId(UUID.randomUUID());
-    assertEquals(HttpStatus.NOT_FOUND, entity.getStatusCode());
-    assertNull(entity.getBody());
-  }
 
   @Test
-  void testGetMediaByProjectIdSuccess() {
-    when(mediaService.getMediaByProjectId(any(UUID.class))).thenReturn(List.of(new Triple<>("test","test","name")));
-    ResponseEntity<List<Triple<String,String,String>>> entity = mediaController.getMediaByProjectId(UUID.randomUUID());
+  void TestGetImagesContentByProjectIdSuccess() {
+    when(mediaService.getImagesContentByProjectId(any(UUID.class))).thenReturn(List.of(new Triple<>("test","test","name")));
+    ResponseEntity<List<Triple<String,String,String>>> entity = mediaController.getImagesContentByProjectId(UUID.randomUUID());
     assertEquals(HttpStatus.OK, entity.getStatusCode());
     assertEquals(List.of(new Triple<>("test","test","name")), entity.getBody());
   }
 
   @Test
-  void testAddMediaToProjectProjectNotFoundException() {
-    when(mediaService.addMediaToProject(any(UUID.class), any(MultipartFile.class),any(String.class))).thenThrow(new ProjectNotFoundException(""));
-    ResponseEntity<Media> entity = mediaController.addMediaToProject(UUID.randomUUID(), new MockMultipartFile("file", "test.md", "text/plain", "test".getBytes()),"Test");
-    assertEquals(HttpStatus.NOT_FOUND, entity.getStatusCode());
-    assertNull(entity.getBody());
+  void TestGetDocumentContentByMediaIdSuccess() {
+    Pair p1 = new Pair<>("test","test");
+    when(mediaService.getDocumentByMediaId(any(UUID.class))).thenReturn(p1);
+    ResponseEntity<Pair<String,String>> entity = mediaController.getDocumentContentByMediaId(UUID.randomUUID());
+    assertEquals(HttpStatus.OK, entity.getStatusCode());
+    assertEquals(p1, entity.getBody());
+  }
+
+  @Test
+  void TestGetDocumentsByProjectIdSuccess() {
+    Media m1 = new Media("test","test");
+    when(mediaService.getDocumentsByProjectId(any(UUID.class))).thenReturn(List.of(m1));
+    ResponseEntity<List<Media>> entity = mediaController.getDocumentsByProjectId(UUID.randomUUID());
+    assertEquals(HttpStatus.OK, entity.getStatusCode());
+    assertEquals(List.of(m1), entity.getBody());
   }
 
   @Test

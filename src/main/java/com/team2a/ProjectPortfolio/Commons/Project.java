@@ -61,6 +61,7 @@ public class Project {
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @OnDelete(action=OnDeleteAction.CASCADE)
     @JoinColumn(name="PROJECT_ID")
+    @JsonIgnore
     private List<ProjectsToAccounts> projectsToAccounts = new ArrayList<>();
 
 

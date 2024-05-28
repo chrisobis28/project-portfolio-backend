@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(Routes.TAGS)
+@CrossOrigin("http://localhost:4200")
 public class TagController {
 
     private final TagService tagService;
@@ -34,7 +35,6 @@ public class TagController {
      * @return a list of tags
      */
     @GetMapping("/{projectId}")
-    @CrossOrigin(origins = "http://localhost:4200")
     public ResponseEntity<List<Tag>> getTagsByProjectId (@PathVariable("projectId") UUID projectId) {
         List<Tag> tagsList = tagService.getTagsByProjectId(projectId);
         return ResponseEntity.ok(tagsList);
