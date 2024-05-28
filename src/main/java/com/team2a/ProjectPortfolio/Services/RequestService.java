@@ -1,15 +1,17 @@
 package com.team2a.ProjectPortfolio.Services;
 
 import com.team2a.ProjectPortfolio.Commons.*;
-import com.team2a.ProjectPortfolio.CustomExceptions.NotFoundException;
 import com.team2a.ProjectPortfolio.Repositories.*;
+import jakarta.transaction.Transactional;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class RequestService {
@@ -32,21 +34,13 @@ public class RequestService {
      * @return the list of requests corresponding to the username
      */
     public List<Request> getRequestsForUser (String username) {
-        if(username == null)
-            throw new NotFoundException();
 
-        List<Account> accounts = accountRepository
-                .findAll()
-                .stream()
-                .filter(x -> x.getUsername().equals(username))
-                .toList();
+        Optional<Account> account = accountRepository.findById(username);
 
-        if(accounts.isEmpty())
-            throw new NotFoundException();
+        if(account.isEmpty())
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No account found with that username.");
 
-        return  accounts
-                .get(0)
-                .getRequests();
+        return account.get().getRequests();
     }
 
     /**
@@ -61,46 +55,26 @@ public class RequestService {
     /**
      * Method for adding a request to the database
      * @param request the request to be added
-     * @param projectId the id of the project changed in a request
      * @return the Request added or NotFoundException, if no project found
      */
-    public Request addRequest (Request request, UUID projectId) {
-        Optional<Project> proj = projectRepository.findById(projectId);
+    public Request addRequest (Request request) {
+        Optional<Project> proj = projectRepository.findById(request.getProject().getProjectId());
 
         if(proj.isEmpty())
-            throw new NotFoundException();
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Project not found");
 
         Project p = proj.get();
 
-        //Project p = new Project();
-        //projectRepository.save(p);
+        Optional<Account> account = accountRepository.findById(request.getAccount().getUsername());
 
-        // if you want to test in isolation, uncomment lines above and comment the three lines above it
+        if(account.isEmpty())
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Account not found");
 
-        List<Request> requests = requestRepository
-                .findAll()
-                .stream()
-                .filter(x -> x.getNewTitle().equals(request.getNewTitle()) &&
-                            x.getNewDescription().equals(request.getNewDescription()) &&
-                            x.isCounterOffer() == request.isCounterOffer() &&
-                            x.getProject().equals(p) &&
-                            x.getMedia().equals(request.getMedia()) &&
-                            x.getLinks().equals(request.getLinks()) &&
-                            x.getTags().equals(request.getTags()) &&
-                            x.getCollaborators().equals(request.getCollaborators()))
-                .toList();
+        Account a = account.get();
 
-        if(!requests.isEmpty())
-            return requests.get(0);
-        else {
-            request.setProject(p);
+        if(a.hasRequestForProject(p.getProjectId()))
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Account already has a request for this project");
 
-//            //delete later - Just for testing
-
-//            //You need to have these in the database in order to add this request to the db.
-//            //In the final product, the client will send these to you and guarantee they
-//            //  are in the db. ATM, you can not test this endpoint in isolation
-//            // if you do not first add these to the db. To test with postman, uncomment below.
 
 //            for (Media m : request.getMedia()) {
 //                request.setMediaChanged(List.of(mediaRepository.save(m)));
@@ -115,14 +89,11 @@ public class RequestService {
 //                request.setCollaboratorsChanged(List.of(collaboratorRepository.save(c)));
 //            }
 
-//            //delete later
 
-
-            requestRepository.save(request);
-
-
-            return request;
-        }
+        requestRepository.save(request);
+        a.getRequests().add(request);
+        accountRepository.save(a);
+        return request;
     }
 
     /**
@@ -132,8 +103,6 @@ public class RequestService {
      */
     public List<Request> getRequestsForProject (UUID projectId) {
 
-        if(projectId == null)
-            throw new NotFoundException();
 
         List<Project> projects = projectRepository
                 .findAll()
@@ -141,7 +110,7 @@ public class RequestService {
                 .filter(x -> x.getProjectId().equals(projectId))
                 .toList();
         if(projects.isEmpty())
-            throw new NotFoundException();
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Project not found.");
 
         Project p = projects.get(0);
 
@@ -155,14 +124,36 @@ public class RequestService {
      * @param requestId the id of the request to be deleted
      */
     public void deleteRequest (UUID requestId) {
-        if(requestId == null)
-            throw new NotFoundException();
 
         Optional<Request> request = requestRepository.findById(requestId);
 
         if(request.isEmpty())
-            throw new NotFoundException();
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Request not found.");
 
         requestRepository.delete(request.get());
+    }
+
+    /**
+     * Method for accepting a request
+     * @param requestId the id of the request to be accepted
+     */
+    @Transactional
+    public void acceptRequest (UUID requestId) {
+        Optional<Request> request = requestRepository.findById(requestId);
+
+        if(request.isEmpty())
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Request not found.");
+
+        Request r = request.get();
+        Project p = r.getProject();
+        if(r.getNewTitle() != null)
+            p.setTitle(r.getNewTitle());
+        if(r.getNewDescription() != null)
+            p.setDescription(r.getNewDescription());
+
+        //Resolve other fields
+
+        projectRepository.save(p);
+        requestRepository.delete(r);
     }
 }

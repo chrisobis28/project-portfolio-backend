@@ -2,9 +2,9 @@ package com.team2a.ProjectPortfolio.Controllers;
 
 
 import com.team2a.ProjectPortfolio.Commons.Request;
-import com.team2a.ProjectPortfolio.CustomExceptions.NotFoundException;
 import com.team2a.ProjectPortfolio.Routes;
 import com.team2a.ProjectPortfolio.Services.RequestService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,15 +34,10 @@ public class RequestController {
      * @return A list of requests corresponding to the specified username
      * or a Response with adequate error code
      */
-    @GetMapping("/{username}")
+    @GetMapping("/user/{username}")
     public ResponseEntity<List<Request>> getRequestsForUser (@PathVariable(name="username") String username) {
-
-        try{
-            List<Request> requests = requestService.getRequestsForUser (username);
-            return new ResponseEntity<>(requests, HttpStatus.OK);
-        } catch (NotFoundException e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+        List<Request> requests = requestService.getRequestsForUser (username);
+        return new ResponseEntity<>(requests, HttpStatus.OK);
     }
 
 
@@ -58,22 +53,14 @@ public class RequestController {
 
     /**
      * Controller method which adds a request to the database
-     * @param projectId the project which the request would modify
      * @param request The body of the request which we want to add
      * @return Response entity containing the request as a body.
      */
 
-    @PutMapping("/{requestId}")
-    public ResponseEntity<Request> addRequest (@PathVariable(name="requestId") UUID projectId,
-                                               @RequestBody Request request) {
-        try{
-//            Logger logger = LoggerFactory.getLogger(RequestController.class);
-//            logger.info(request.toString());
-            Request r = requestService.addRequest(request, projectId);
-            return new ResponseEntity<>(r, HttpStatus.CREATED);
-        } catch (NotFoundException e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+    @PutMapping("/")
+    public ResponseEntity<Request> addRequest (@Valid @RequestBody Request request) {
+        Request r = requestService.addRequest(request);
+        return new ResponseEntity<>(r, HttpStatus.CREATED);
     }
 
 
@@ -82,30 +69,32 @@ public class RequestController {
      * @param projectID the id of the project
      * @return response entity with body as the list of requests
      */
-    @GetMapping("/{requestId}")
-    public ResponseEntity<List<Request>> getRequestsForProject (@PathVariable(name = "requestId") UUID projectID) {
-        try{
-            List<Request> requests = requestService.getRequestsForProject(projectID);
-            return new ResponseEntity<>(requests, HttpStatus.OK);
-        } catch (NotFoundException e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+    @GetMapping("/project/{projectId}")
+    public ResponseEntity<List<Request>> getRequestsForProject (@PathVariable(name = "projectId") UUID projectID) {
+        List<Request> requests = requestService.getRequestsForProject(projectID);
+        return new ResponseEntity<>(requests, HttpStatus.OK);
     }
 
     /**
      * controller method for deleting a request
-     * @param projectId the id of the project to remove
+     * @param requestId the id of the project to remove
      * @return response entity showing status of the removal
      */
     @DeleteMapping("/{requestId}")
-    public ResponseEntity<Void> deleteRequest (@PathVariable(name = "requestId") UUID projectId) {
-        try {
-            requestService.deleteRequest(projectId);
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } catch (NotFoundException e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+    public ResponseEntity<Void> deleteRequest (@PathVariable(name = "requestId") UUID requestId) {
+        requestService.deleteRequest(requestId);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
 
+    /**
+     * Controller method for accepting a request
+     * @param requestId the id of the request to accept
+     * @return response entity showing status of the acceptance
+     */
+    @PostMapping("/{requestId}")
+    public ResponseEntity<Void> acceptRequest (@PathVariable(name = "requestId") UUID requestId) {
+        requestService.acceptRequest(requestId);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
 

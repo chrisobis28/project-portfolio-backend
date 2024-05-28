@@ -53,6 +53,7 @@ public class Project {
     @OneToMany(cascade=CascadeType.ALL, orphanRemoval = true)
     @OnDelete(action=OnDeleteAction.CASCADE)
     @JoinColumn(name="PROJECT_ID")
+    @JsonIgnore
     private List<Media> media = new ArrayList<>();
 
     @Getter
@@ -89,6 +90,7 @@ public class Project {
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @OnDelete(action= OnDeleteAction.CASCADE)
     @JoinColumn(name="REQUEST_PROJECT")
+    @JsonIgnore
     private List<Request> requests = new ArrayList<>();
 
     /**

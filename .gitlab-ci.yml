@@ -24,9 +24,6 @@ test:
   stage: test
   script:
     - ./gradlew test jacocoTestCoverageVerification integrationTest
-  only:
-    - dev
-    - main
   artifacts:
     paths:
       - build/reports/tests/test
