@@ -1,7 +1,9 @@
 package com.team2a.ProjectPortfolio.Services;
 
 import com.team2a.ProjectPortfolio.CustomExceptions.FileNotSavedException;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -19,7 +21,7 @@ public class MediaHelper {
         try {
             content = Files.readAllBytes(path);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
         }
         return Base64.getEncoder().encodeToString(content);
     }
@@ -36,7 +38,7 @@ public class MediaHelper {
             fileSave.write(file.getBytes());
         }
         catch (IOException e) {
-            throw new FileNotSavedException("Problem when Saving File");
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
         }
     }
 }

@@ -71,7 +71,12 @@ public class MediaService {
      * @return the list of media
      */
     public List<Media> getDocumentsByProjectId (UUID projectId){
-        checkProjectExistence(projectId);
+        try {
+            checkProjectExistence(projectId);
+        }
+        catch (ProjectNotFoundException e){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+        }
         return mediaRepository.findAllByProjectProjectId(projectId);
     }
 
@@ -82,7 +87,12 @@ public class MediaService {
      */
     public Pair<String,String> getDocumentByMediaId (UUID mediaId){
         //https://www.geeksforgeeks.org/spring-boot-file-handling/
-        checkMediaExistence(mediaId);
+        try {
+            checkMediaExistence(mediaId);
+        }
+        catch (MediaNotFoundException e){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+        }
         Media mediaToGetObject = mediaRepository.findMediaByMediaId(mediaId);
         return new Pair<>(mediaToGetObject.getPath(), mediaHelper.getFileContents(mediaToGetObject.getPath()));
     }
@@ -95,7 +105,13 @@ public class MediaService {
      * @throws RuntimeException - Project doesn't exist or the id is null
      */
     public Media addMediaToProject (UUID projectId, MultipartFile file,String name){
-        Project p = checkProjectExistence(projectId);
+        Project p = null;
+        try {
+            p = checkProjectExistence(projectId);
+        }
+        catch (ProjectNotFoundException e){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+        }
         checkPathUniqueness(file.getOriginalFilename());
         String filePath = System.getProperty("user.dir") + "/assets" + File.separator + file.getOriginalFilename();
         Media media = new Media(name,file.getOriginalFilename());

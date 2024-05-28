@@ -71,12 +71,7 @@ public class MediaController {
      */
     @GetMapping("/file/{projectId}")
     public ResponseEntity<List<Media>> getDocumentsByProjectId (@PathVariable("projectId") UUID projectId) {
-        try {
             return ResponseEntity.ok(mediaService.getDocumentsByProjectId(projectId));
-        }
-        catch (ProjectNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
     }
 
     /**
@@ -89,12 +84,7 @@ public class MediaController {
     @PostMapping("/{projectId}")
     public ResponseEntity<Media> addMediaToProject (@PathVariable("projectId") UUID projectId,
                                                     @RequestParam("file") MultipartFile file, @RequestParam String name) {
-        try {
             return ResponseEntity.ok(mediaService.addMediaToProject(projectId, file,name));
-        }
-        catch (ProjectNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
     }
 
     /**
@@ -104,13 +94,8 @@ public class MediaController {
      */
     @DeleteMapping("/{mediaId}")
     public ResponseEntity<String> deleteMedia (@PathVariable("mediaId") UUID mediaId) {
-        try {
             mediaService.deleteMedia(mediaId);
             return ResponseEntity.status(HttpStatus.OK).body("Media deleted successfully.");
-        }
-        catch (MediaNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        }
     }
 
     /**
