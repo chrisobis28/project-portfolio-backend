@@ -86,7 +86,7 @@ public class MediaServiceTest {
   void getDocumentsByProjectIdNotFound(){
     UUID x = UUID.randomUUID();
     when(projectRepository.findById(x)).thenReturn(Optional.empty());
-    assertThrows(ProjectNotFoundException.class, () -> mediaService.getDocumentsByProjectId(x));
+    assertThrows(ResponseStatusException.class, () -> mediaService.getDocumentsByProjectId(x));
   }
   @Test
   void getDocumentsByProjectIdSuccess(){
@@ -123,14 +123,14 @@ public class MediaServiceTest {
   void getDocumentByMediaIdNotFound(){
     UUID x = UUID.randomUUID();
     when(mediaRepository.findById(x)).thenReturn(Optional.empty());
-    assertThrows(MediaNotFoundException.class, () -> mediaService.getDocumentByMediaId(x));
+    assertThrows(ResponseStatusException.class, () -> mediaService.getDocumentByMediaId(x));
   }
 
   @Test
   void testAddMediaToProjectNotFound() {
     UUID x = UUID.randomUUID();
     when(projectRepository.findById(x)).thenReturn(Optional.empty());
-    assertThrows(ProjectNotFoundException.class, () -> mediaService.addMediaToProject(x, new MockMultipartFile("file", "test.md", "text/plain", "test".getBytes()),"Test"),"test");
+    assertThrows(ResponseStatusException.class, () -> mediaService.addMediaToProject(x, new MockMultipartFile("file", "test.md", "text/plain", "test".getBytes()),"Test"),"test");
   }
 
   @Test
@@ -143,7 +143,7 @@ public class MediaServiceTest {
   }
 
   @Test
-  void testAddMediaToProjectSuccess() throws IOException {
+  void testAddMediaToProjectSuccess(){
     UUID projectId = UUID.randomUUID();
     Project project = new Project();
     when(projectRepository.findById(projectId)).thenReturn(Optional.of(project));
@@ -161,7 +161,7 @@ public class MediaServiceTest {
     verify(mediaHelper).saveFile(anyString(),any(MultipartFile.class));
   }
   @Test
-  void testAddMediaToProjectError() throws IOException {
+  void testAddMediaToProjectError(){
     UUID projectId = UUID.randomUUID();
     Project project = new Project();
     when(projectRepository.findById(projectId)).thenReturn(Optional.of(project));

@@ -45,13 +45,6 @@ public class MediaControllerTest {
     mediaController = new MediaController(mediaService);
   }
 
-  @Test
-  void TestGetImagesContentByProjectIdNotFound() {
-    when(mediaService.getImagesContentByProjectId(any(UUID.class))).thenThrow(new ProjectNotFoundException(""));
-    ResponseEntity<List<Triple<String,String,String>>> entity = mediaController.getImagesContentByProjectId(UUID.randomUUID());
-    assertEquals(HttpStatus.NOT_FOUND, entity.getStatusCode());
-    assertNull(entity.getBody());
-  }
 
   @Test
   void TestGetImagesContentByProjectIdSuccess() {
@@ -59,13 +52,6 @@ public class MediaControllerTest {
     ResponseEntity<List<Triple<String,String,String>>> entity = mediaController.getImagesContentByProjectId(UUID.randomUUID());
     assertEquals(HttpStatus.OK, entity.getStatusCode());
     assertEquals(List.of(new Triple<>("test","test","name")), entity.getBody());
-  }
-  @Test
-  void TestGetDocumentContentByMediaIdNotFound() {
-    when(mediaService.getDocumentByMediaId(any(UUID.class))).thenThrow(new MediaNotFoundException(""));
-    ResponseEntity<Pair<String,String>> entity = mediaController.getDocumentContentByMediaId(UUID.randomUUID());
-    assertEquals(HttpStatus.NOT_FOUND, entity.getStatusCode());
-    assertNull(entity.getBody());
   }
 
   @Test
@@ -76,13 +62,6 @@ public class MediaControllerTest {
     assertEquals(HttpStatus.OK, entity.getStatusCode());
     assertEquals(p1, entity.getBody());
   }
-  @Test
-  void TestGetDocumentsByProjectIdNotFound() {
-    when(mediaService.getDocumentsByProjectId(any(UUID.class))).thenThrow(new ProjectNotFoundException(""));
-    ResponseEntity<List<Media>> entity = mediaController.getDocumentsByProjectId(UUID.randomUUID());
-    assertEquals(HttpStatus.NOT_FOUND, entity.getStatusCode());
-    assertNull(entity.getBody());
-  }
 
   @Test
   void TestGetDocumentsByProjectIdSuccess() {
@@ -91,13 +70,6 @@ public class MediaControllerTest {
     ResponseEntity<List<Media>> entity = mediaController.getDocumentsByProjectId(UUID.randomUUID());
     assertEquals(HttpStatus.OK, entity.getStatusCode());
     assertEquals(List.of(m1), entity.getBody());
-  }
-  @Test
-  void testAddMediaToProjectProjectNotFoundException() {
-    when(mediaService.addMediaToProject(any(UUID.class), any(MultipartFile.class),any(String.class))).thenThrow(new ProjectNotFoundException(""));
-    ResponseEntity<Media> entity = mediaController.addMediaToProject(UUID.randomUUID(), new MockMultipartFile("file", "test.md", "text/plain", "test".getBytes()),"Test");
-    assertEquals(HttpStatus.NOT_FOUND, entity.getStatusCode());
-    assertNull(entity.getBody());
   }
 
   @Test

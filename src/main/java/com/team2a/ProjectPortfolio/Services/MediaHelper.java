@@ -32,11 +32,9 @@ public class MediaHelper {
         return directory.list();
     }
     public void saveFile (String path, MultipartFile file) throws RuntimeException {
-        try {
-            FileOutputStream fileSave = new FileOutputStream(path);
+        try (FileOutputStream fileSave = new FileOutputStream(path)) {
             fileSave.write(file.getBytes());
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
         }
     }
