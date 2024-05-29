@@ -139,4 +139,13 @@ class CollaboratorControllerTest {
         assertEquals(res.getBody(), c1);
         assertEquals(res.getStatusCode(), HttpStatus.OK);
     }
+
+    @Test
+    void testGetCollaborators () {
+        Collaborator c1 = new Collaborator("coll1");
+        when(cs.getAllCollaborators()).thenReturn(List.of(c1));
+        ResponseEntity<List<Collaborator>> res = cc.getAllCollaborators();
+        assertEquals(res.getStatusCode(), HttpStatus.OK);
+        assertEquals(res.getBody(), List.of(c1));
+    }
 }

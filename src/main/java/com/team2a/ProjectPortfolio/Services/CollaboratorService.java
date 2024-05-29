@@ -125,4 +125,12 @@ public class CollaboratorService {
 
         return "Deleted collaborator";
     }
+
+    /**
+     * gets all collaborators
+     * @return a list of all the collaborators
+     */
+    public List<Collaborator> getAllCollaborators () {
+        return collaboratorRepository.findAll();
+    }
 }
