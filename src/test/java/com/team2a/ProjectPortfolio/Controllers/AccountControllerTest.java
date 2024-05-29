@@ -39,24 +39,6 @@ public class AccountControllerTest {
   }
 
   @Test
-  void testCreateAccountDuplicatedUsernameException() {
-    when(accountService.createAccount(any(Account.class))).thenThrow(new DuplicatedUsernameException(""));
-    Account account = new Account("username", "name", "password", false, false);
-    ResponseEntity<Account> re = accountController.createAccount(account);
-    assertEquals(HttpStatus.FORBIDDEN, re.getStatusCode());
-    assertNull(re.getBody());
-  }
-
-  @Test
-  void testCreateAccountSuccess() {
-    Account account = new Account("username", "name", "password", false, false);
-    when(accountService.createAccount(account)).thenReturn(account);
-    ResponseEntity<Account> re = accountController.createAccount(account);
-    assertEquals(HttpStatus.OK, re.getStatusCode());
-    assertEquals(account, re.getBody());
-  }
-
-  @Test
   void testEditAccountNotFoundException() {
     when(accountService.editAccount(any(Account.class))).thenThrow(new AccountNotFoundException(""));
     Account account = new Account("username", "name", "password", false, false);

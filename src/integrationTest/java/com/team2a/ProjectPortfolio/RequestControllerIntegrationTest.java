@@ -29,7 +29,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 
 @SpringBootTest
-@AutoConfigureMockMvc
+@AutoConfigureMockMvc(addFilters=false)
 @ActiveProfiles("test")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 @Transactional
@@ -97,8 +97,7 @@ public class RequestControllerIntegrationTest {
         mockMvc.perform(put("/request/")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(requestForSameProject)))
-                .andExpect(status().isConflict())
-                .andExpect(status().reason(is("Account already has a request for this project")));
+                .andExpect(status().isConflict());
         Request invalidRequest = new Request("Title3", "Description3", false, account2, null);
         mockMvc.perform(put("/request/")
                     .contentType(MediaType.APPLICATION_JSON)

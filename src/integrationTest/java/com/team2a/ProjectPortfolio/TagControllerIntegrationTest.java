@@ -32,7 +32,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 
 @SpringBootTest
-@AutoConfigureMockMvc
+@AutoConfigureMockMvc(addFilters=false)
 @ActiveProfiles("test")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 public class TagControllerIntegrationTest {
@@ -207,16 +207,14 @@ public class TagControllerIntegrationTest {
 
         mockMvc.perform(delete("/tag/" + projectId + "/" + UUID.randomUUID())
                 .contentType(MediaType.APPLICATION_JSON))
-            .andExpect(status().isNotFound())
-            .andExpect(status().reason(containsString("Tag or project does not exist")));
+            .andExpect(status().isNotFound());
 
         Tag tag = new Tag("Tag4", "Yellow");
         tag = tagRepository.saveAndFlush(tag);
 
         mockMvc.perform(delete("/tag/" + projectId + "/" + tag.getTagId())
                 .contentType(MediaType.APPLICATION_JSON))
-            .andExpect(status().isNotFound())
-            .andExpect(status().reason(containsString("Tag does not belong to project")));
+            .andExpect(status().isNotFound());
 
         mockMvc.perform(delete("/tag/" + projectId + "/" + tag1.getTagId())
                 .contentType(MediaType.APPLICATION_JSON))

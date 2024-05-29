@@ -39,21 +39,6 @@ public class AccountService {
     }
 
     /**
-     * Creates an Account in the database
-     * @param account - the Account to create
-     * @return - the Account that was created
-     * @throws RuntimeException - Duplicated username or the id is null
-     */
-    public Account createAccount (Account account) throws RuntimeException {
-        Optional<Account> o = accountRepository.findById(account.getUsername());
-        if(o.isPresent()) {
-            throw new DuplicatedUsernameException("An account with the username "
-                + account.getUsername() + " already exists.");
-        }
-        return accountRepository.save(account);
-    }
-
-    /**
      * Edits an Account in the database
      * @param account - the Account that needs to be edited
      * @return - the Account with the modifications applied
