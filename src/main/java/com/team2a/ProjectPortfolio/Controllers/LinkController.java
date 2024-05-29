@@ -65,7 +65,6 @@ public class    LinkController {
      * @return the links associated with a project given the id of the project
      */
     @GetMapping("/{projectId}")
-    @CrossOrigin(origins = "*")
     public ResponseEntity<List<Link>> getLinksByProjectId (@PathVariable("projectId") UUID projectId) {
         try {
             List<Link> links = linkService.getLinksByProjectId(projectId);
