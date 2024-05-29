@@ -3,21 +3,18 @@ package com.team2a.ProjectPortfolio.Controllers;
 import com.team2a.ProjectPortfolio.Commons.Tag;
 import com.team2a.ProjectPortfolio.Routes;
 import com.team2a.ProjectPortfolio.Services.TagService;
+
+import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(Routes.TAGS)
+@CrossOrigin("http://localhost:4200")
 public class TagController {
 
     private final TagService tagService;
@@ -49,11 +46,11 @@ public class TagController {
     /**
      * Create a tag
      *
-     * @param tag
+     * @param tag the tag to be created
      * @return the tag
      */
     @PostMapping("/create")
-    public ResponseEntity<Tag> createTag (@RequestBody Tag tag) {
+    public ResponseEntity<Tag> createTag (@Valid @RequestBody Tag tag) {
         Tag newTag = tagService.createTag(tag);
         return ResponseEntity.ok(newTag);
     }
@@ -79,7 +76,7 @@ public class TagController {
      * @return the tag
      */
     @PutMapping("/edit")
-    public ResponseEntity<Tag> editTag (@RequestBody Tag tag) {
+    public ResponseEntity<Tag> editTag (@Valid @RequestBody Tag tag) {
         Tag newTag = tagService.editTag(tag);
         return ResponseEntity.ok(newTag);
     }
@@ -108,5 +105,18 @@ public class TagController {
     (@PathVariable("projectId") UUID projectId, @PathVariable("tagId") UUID tagId) {
         tagService.removeTagFromProject(projectId, tagId);
         return ResponseEntity.ok().build();
+    }
+
+
+    /**
+     * Get all tags from the database.
+     * @return a list of all tags
+     */
+    @GetMapping("/")
+    public ResponseEntity<List<Tag>> getAllTags () {
+
+        List<Tag> tags = tagService.getAllTags();
+        return new ResponseEntity<>(tags, HttpStatus.OK);
+
     }
 }

@@ -3,6 +3,7 @@ package com.team2a.ProjectPortfolio.Commons;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
@@ -36,12 +37,6 @@ public class Request {
     @Setter
     private String newDescription;
 
-    @Column(name="NEW_BIBTEX")
-    @Nullable
-    @Getter
-    @Setter
-    private String newBibtex;
-
     @Column(name="IS_COUNTEROFFER")
     @Getter
     @Setter
@@ -51,53 +46,61 @@ public class Request {
     @Setter
     @ManyToOne
     @JoinColumn(name="REQUEST_PROJECT")
-    @JsonIgnore
+    @NotNull (message = "Project must be specified")
     private Project project;
 
     @Getter
-    @OneToMany(cascade=CascadeType.ALL, orphanRemoval = true)
-    @OnDelete(action= OnDeleteAction.CASCADE)
-    @JoinColumn(name="REQUEST_ID")
-    private List<RequestTagProject> requestTagProjects;
+    @Setter
+    @ManyToOne
+    @JoinColumn(name="ACCOUNT_USERNAME", nullable=false)
+    @NotNull (message = "Account must be specified")
+    private Account account;
+
 
     @Getter
     @OneToMany(cascade=CascadeType.ALL, orphanRemoval = true)
     @OnDelete(action= OnDeleteAction.CASCADE)
-    @JoinColumn(name="REQUEST_ID")
-    private List<RequestMediaProject> requestMediaProjects;
+    @JoinColumn(name="REQUEST_ID", updatable = false, insertable = false)
+    @JsonIgnore
+    private List<RequestTagProject> requestTagProjects = new ArrayList<>();
 
     @Getter
     @OneToMany(cascade=CascadeType.ALL, orphanRemoval = true)
     @OnDelete(action= OnDeleteAction.CASCADE)
-    @JoinColumn(name="REQUEST_ID")
-    private List<RequestLinkProject> requestLinkProjects;
+    @JoinColumn(name="REQUEST_ID", updatable = false, insertable = false)
+    @JsonIgnore
+    private List<RequestMediaProject> requestMediaProjects = new ArrayList<>();
+
+    @Getter
+    @OneToMany(cascade=CascadeType.ALL, orphanRemoval = true)
+    @OnDelete(action= OnDeleteAction.CASCADE)
+    @JoinColumn(name="REQUEST_ID", updatable = false, insertable = false)
+    @JsonIgnore
+    private List<RequestLinkProject> requestLinkProjects = new ArrayList<>();
 
 
     @Getter
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @OnDelete(action= OnDeleteAction.CASCADE)
-    @JoinColumn(name="REQUEST_ID")
-    private List<RequestCollaboratorsProjects> requestCollaboratorsProjects;
+    @JoinColumn(name="REQUEST_ID", updatable = false, insertable = false)
+    @JsonIgnore
+    private List<RequestCollaboratorsProjects> requestCollaboratorsProjects = new ArrayList<>();
 
     /**
      * Constructor for the Request class
-     * @param requestId the id of the request
      * @param newTitle the new title set
      * @param newDescription the new description set
-     * @param newBibtex the new Bibtex set
      * @param isCounterOffer whether the request is a counter offer
+     * @param account the account associated with the request
+     * @param project the project associated with the request
      */
-
-    public Request (UUID requestId, String newTitle, String newDescription, String newBibtex, Boolean isCounterOffer) {
-        this.requestId = requestId;
+    public Request(String newTitle, String newDescription, boolean isCounterOffer,
+                   Account account, Project project) {
         this.newTitle = newTitle;
         this.newDescription = newDescription;
-        this.newBibtex = newBibtex;
         this.isCounterOffer = isCounterOffer;
-        this.requestMediaProjects = new ArrayList<>();
-        this.requestTagProjects = new ArrayList<>();
-        this.requestLinkProjects = new ArrayList<>();
-        this.requestCollaboratorsProjects = new ArrayList<>();
+        this.account = account;
+        this.project = project;
     }
 
     /**

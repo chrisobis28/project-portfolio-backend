@@ -178,4 +178,10 @@ class TagServiceTest {
         tagService.removeTagFromProject(projectId, tagId);
         verify(tagToProjectRepository, times(1)).deleteByProjectProjectIdAndTagTagId(projectId, tagId);
     }
+
+    @Test
+    void testGetAllTags() {
+        when(tagRepository.findAll()).thenReturn(List.of(new Tag("tag1", "blue")));
+        assertEquals(tagService.getAllTags(), List.of(new Tag("tag1", "blue")));
+    }
 }

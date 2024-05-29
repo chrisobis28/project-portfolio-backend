@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
@@ -36,13 +37,14 @@ public class CollaboratorServiceTest {
 
     @BeforeEach
     void setUp () {
+        cr = Mockito.mock(CollaboratorRepository.class);
         cs = new CollaboratorService(ptc, cr, projectRepository);
     }
 
     @Test
     void testGetCollaboratorsByProjectIdSuccess () {
         UUID projectId = UUID.randomUUID();
-        Project project = new Project("Test", "Test", "Test", false);
+        Project project = new Project("Test", "Test", false);
         Collaborator collaborator = new Collaborator("Filip");
         String role = "Role";
         ProjectsToCollaborators projectsToCollaborators = new ProjectsToCollaborators(project, collaborator,role);
@@ -66,7 +68,7 @@ public class CollaboratorServiceTest {
         UUID projectId = UUID.randomUUID();
         UUID collaboratorId = UUID.randomUUID();
         String role = "Role";
-        Project project = new Project("Test", "Test", "Test", false);
+        Project project = new Project("Test", "Test", false);
         Collaborator collaborator = new Collaborator("Test");
         collaborator.setCollaboratorId(collaboratorId);
         when(projectRepository.findById(projectId)).thenReturn(java.util.Optional.of(project));
@@ -123,7 +125,7 @@ public class CollaboratorServiceTest {
         UUID projectId = UUID.randomUUID();
         UUID collaboratorId = UUID.randomUUID();
         Collaborator collaborator = new Collaborator("Filip");
-        Project project = new Project("Test", "Test", "Test", false);
+        Project project = new Project("Test", "Test", false);
         when(cr.findById(collaboratorId)).thenReturn(java.util.Optional.of(collaborator));
         when(projectRepository.findById(projectId)).thenReturn(java.util.Optional.of(project));
         when(ptc.findAllByProjectProjectIdAndCollaboratorCollaboratorId(projectId, collaboratorId)).
@@ -140,4 +142,21 @@ public class CollaboratorServiceTest {
         UUID collaboratorId = UUID.randomUUID();
         assertThrows(EntityNotFoundException.class, () -> cs.deleteCollaboratorFromProject(projectId, collaboratorId));
     }
+
+    @Test
+    void testAddCollaboratorFound () {
+        Collaborator c1 = new Collaborator("coll1");
+        when(cr.findAllByName("coll1")).thenReturn(List.of(c1));
+        assertEquals(cs.addCollaborator("coll1"), c1);
+    }
+
+    @Test
+    void addCollaboratorNotFound () {
+        when(cr.findAllByName("coll1")).thenReturn(List.of());
+        //verify(cr).save(new Collaborator("coll1"));
+        Collaborator c1 = new Collaborator("coll1");
+        when(cr.save(any())).thenReturn(c1);
+        assertEquals(cs.addCollaborator("coll1"), c1);
+    }
+
 }

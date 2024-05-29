@@ -13,6 +13,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping(Routes.PROJECT)
+@CrossOrigin("http://localhost:4200")
 public class ProjectController {
 
     private final ProjectService projectService;
@@ -54,7 +55,7 @@ public class ProjectController {
     }
 
     /**
-     * Returns a an updated project given an ID
+     * Returns an updated project given an ID
      * @param projectId the id of a project
      * @param project the project updates that will be persisted in the DB
      * @return the changed project with the specified ID

@@ -15,7 +15,8 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping(Routes.LINK)
-public class LinkController {
+@CrossOrigin("http://localhost:4200")
+public class    LinkController {
     private final LinkService linkService;
 
     /**

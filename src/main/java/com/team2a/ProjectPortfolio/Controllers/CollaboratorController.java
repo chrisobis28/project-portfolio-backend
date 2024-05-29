@@ -5,6 +5,7 @@ import com.team2a.ProjectPortfolio.Routes;
 import com.team2a.ProjectPortfolio.Services.CollaboratorService;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,6 +14,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping(Routes.COLLABORATOR)
+@CrossOrigin("http://localhost:4200")
 public class CollaboratorController {
     private final CollaboratorService collaboratorService;
 
@@ -38,6 +40,19 @@ public class CollaboratorController {
         } catch (EntityNotFoundException e) {
             return ResponseEntity.notFound().build();
         }
+    }
+
+    /**
+     * Adds a collaborator to the database. If it already exists a collaborator
+     * with the same name, returns that one
+     * @param name the name of the collaborator to be added
+     * @return the collaborator with the specified name
+     */
+    @PutMapping("/")
+    public ResponseEntity<Collaborator> addCollaborator
+    (@RequestBody String name) {
+        Collaborator c = collaboratorService.addCollaborator(name);
+        return new ResponseEntity<>(c, HttpStatus.OK);
     }
 
     /**

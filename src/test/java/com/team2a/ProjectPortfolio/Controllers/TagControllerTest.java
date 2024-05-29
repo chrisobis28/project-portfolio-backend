@@ -17,7 +17,6 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
@@ -61,9 +60,9 @@ class TagControllerTest {
         doThrow(new ResponseStatusException(HttpStatus.NOT_FOUND))
             .when(tagService).getTagsByProjectId(projectId);
 
-        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
-            tagService.getTagsByProjectId(projectId);
-        });
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () ->
+            tagService.getTagsByProjectId(projectId)
+        );
 
         assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
     }
@@ -82,9 +81,8 @@ class TagControllerTest {
         doThrow(new ResponseStatusException(HttpStatus.CONFLICT))
             .when(tagService).createTag(any(Tag.class));
 
-        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
-            tagService.createTag(tag);
-        });
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () ->
+            tagService.createTag(tag));
 
         assertEquals(HttpStatus.CONFLICT, exception.getStatusCode());
     }
@@ -102,9 +100,8 @@ class TagControllerTest {
         doThrow(new ResponseStatusException(HttpStatus.CONFLICT, "Tag already exists in project"))
             .when(tagService).addTagToProject(projectId, tagId);
 
-        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
-            tagService.addTagToProject(projectId, tagId);
-        });
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () ->
+            tagService.addTagToProject(projectId, tagId));
 
         assertEquals(HttpStatus.CONFLICT, exception.getStatusCode());
         assertEquals("Tag already exists in project", exception.getReason());
@@ -124,9 +121,8 @@ class TagControllerTest {
         doThrow(new ResponseStatusException(HttpStatus.NOT_FOUND))
             .when(tagService).editTag(any(Tag.class));
 
-        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
-            tagService.editTag(tag);
-        });
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () ->
+            tagService.editTag(tag));
 
         assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
     }
@@ -144,9 +140,8 @@ class TagControllerTest {
         doThrow(new ResponseStatusException(HttpStatus.NOT_FOUND))
             .when(tagService).deleteTag(tagId);
 
-        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
-            tagService.deleteTag(tagId);
-        });
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () ->
+            tagService.deleteTag(tagId));
 
         assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
     }
@@ -164,10 +159,17 @@ class TagControllerTest {
         doThrow(new ResponseStatusException(HttpStatus.NOT_FOUND))
             .when(tagService).removeTagFromProject(projectId, tagId);
 
-        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
-            tagService.removeTagFromProject(projectId, tagId);
-        });
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () ->
+            tagService.removeTagFromProject(projectId, tagId));
 
         assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
+    }
+
+    @Test
+    void testGetAllTags() {
+        when(tagService.getAllTags()).thenReturn(List.of(new Tag("tag1", "blue")));
+        ResponseEntity<List<Tag>> res = tagController.getAllTags();
+        assertEquals(res.getStatusCode(), HttpStatus.OK);
+        assertEquals(res.getBody(), List.of(new Tag("tag1", "blue")));
     }
 }
