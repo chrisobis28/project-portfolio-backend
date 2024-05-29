@@ -58,7 +58,7 @@ public class AccountControllerIntegrationTest {
     projectRepository.deleteAll();
     projectsToAccountsRepository.deleteAll();
     account = new Account("username1", "name1", "password1", false, false);
-    project = new Project("title", "description", false);
+    project = new Project("title", "description", "bibtex", false);
     project = projectRepository.save(project);
     account = accountRepository.saveAndFlush(account);
   }
@@ -180,7 +180,7 @@ public class AccountControllerIntegrationTest {
             .content(objectMapper.writeValueAsString("proxyRole")))
         .andExpect(status().isNotFound());
 
-    mockMvc.perform(post(Routes.ACCOUNT + "/" + account.getUsername() + "/" + id)
+    mockMvc.perform(post(Routes.ACCOUNT + "/" + "username2" + "/" + id)
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString("proxyRole")))
         .andExpect(status().isNotFound());

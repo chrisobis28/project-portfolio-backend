@@ -13,6 +13,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
 import java.util.UUID;
 
+
 @Service
 public class LinkService {
 
@@ -69,6 +70,9 @@ public class LinkService {
      */
     public List<Link> getLinksByProjectId (UUID projectId) {
         List<Link> links = linkRepository.findAllByProjectProjectId(projectId);
+        if (links.isEmpty()) {
+            throw new EntityNotFoundException();
+        }
         return links;
     }
 

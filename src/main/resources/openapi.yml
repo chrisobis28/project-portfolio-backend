@@ -22,8 +22,6 @@ tags:
     description: Collaborator specific API
   - name: Request
     description: Request specific API
-  - name: Template
-    description: Template specific API
 
 paths:
 
@@ -145,31 +143,6 @@ paths:
           description: Project not found
 
 #Media
-  /media:
-    put:
-      tags:
-        - Media
-      summary: Edit a Media.
-      operationId: editMedia
-      description: Edit an existing Media.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Media'
-      responses:
-        '201':
-          description: Media edited successfully.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Media'
-        '400':
-          description: Bad Request - Invalid fields
-        '404':
-          description: Not Found - Media id not found
-
   /media/{projectId}:
     get:
       tags:
@@ -989,142 +962,6 @@ paths:
         '404':
           description: Request not found
 
-#Template
-  /template:
-    post:
-      tags:
-        - Template
-      summary: Creates a Template
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Template'
-      responses:
-        '200':
-          description: The created Template
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Template'
-        '403':
-          description: Forbidden - Template name already in use
-    get:
-      tags:
-        - Template
-      summary: Retrieves all Templates
-      responses:
-        '200':
-          description: The list of Templates
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Template'
-
-  /template/{templateName}:
-    get:
-      tags:
-        - Template
-      summary: Retrieves a Template
-      parameters:
-        - name: templateName
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: The Template searched
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Template'
-        '404':
-          description: Not Found - Template could not be found
-    delete:
-      tags:
-        - Template
-      summary: Deletes a Template
-      parameters:
-        - name: templateName
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Deletion status
-        '404':
-          description: Not Found - Template could not be found
-
-  /template/additions/{templateAdditionId}:
-    delete:
-      tags:
-        - Template
-      summary: Deletes a Template Addition
-      parameters:
-        - name: templateAdditionId
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-      responses:
-        '200':
-          description: Deletion status
-        '404':
-          description: Not Found - Template Addition could not be found
-
-  /template/additions/{templateName}:
-    post:
-      tags:
-        - Template
-      summary: Adds a Template Addition
-      parameters:
-        - name: templateName
-          in: path
-          required: true
-          schema:
-            type: string
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/TemplateAddition'
-      responses:
-        '200':
-          description: The added Template Addition
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/TemplateAddition'
-        '404':
-          description: Not Found - Template could not be found
-    get:
-      tags:
-        - Template
-      summary: Retrieves all Template Additions for a Template
-      parameters:
-        - name: templateName
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: The list of Template Additions
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/TemplateAddition'
-        '404':
-          description: Not Found - Template could not be found
 
 components:
   schemas:
@@ -1249,26 +1086,3 @@ components:
           format: uuid
         name:
           type: string
-
-    Template:
-      type: object
-      properties:
-        templateName:
-          type: string
-        standardDescription:
-          type: string
-        standardBibtex:
-          type: string
-        numberOfCollaborators:
-          type: integer
-
-    TemplateAddition:
-      type: object
-      properties:
-        templateAdditionId:
-          type: string
-          format: uuid
-        templateAdditionName:
-          type: string
-        isMedia:
-          type: boolean
