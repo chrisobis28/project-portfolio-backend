@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import java.util.ArrayList;
 import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -46,7 +47,6 @@ public class Media {
     @ManyToOne
     @OnDelete(action=OnDeleteAction.CASCADE)
     @JoinColumn(name="PROJECT_ID")
-    @JsonIgnore
     private Project project;
 
     @Getter

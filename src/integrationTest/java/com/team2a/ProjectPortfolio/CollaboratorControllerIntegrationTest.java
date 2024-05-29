@@ -46,7 +46,7 @@ public class CollaboratorControllerIntegrationTest {
         collaboratorRepository.deleteAll();
         projectRepository.deleteAll();
 
-        Project project = new Project("Test Project", "Description", "Bibtex", false);
+        Project project = new Project("Test Project", "Description", false);
         project = projectRepository.saveAndFlush(project);
         projectId = project.getProjectId();
 
