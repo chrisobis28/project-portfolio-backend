@@ -31,21 +31,6 @@ public class AccountController {
     }
 
     /**
-     * Creates an Account in the database
-     * @param account - the Account to be created
-     * @return - the Account that was created
-     */
-    @PostMapping("")
-    public ResponseEntity<Account> createAccount (@Valid @RequestBody Account account) {
-        try {
-            return ResponseEntity.ok(accountService.createAccount(account));
-        }
-        catch(DuplicatedUsernameException e){
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        }
-    }
-
-    /**
      * Edits an already existing Account
      * @param account - the Account to be modified
      * @return - the Account with the necessary modifications

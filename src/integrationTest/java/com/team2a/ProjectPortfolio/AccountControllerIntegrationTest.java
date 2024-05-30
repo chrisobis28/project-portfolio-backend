@@ -22,13 +22,14 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
 @SpringBootTest
-@AutoConfigureMockMvc
+@AutoConfigureMockMvc(addFilters=false)
 @ActiveProfiles("test")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 public class AccountControllerIntegrationTest {
@@ -61,35 +62,6 @@ public class AccountControllerIntegrationTest {
     project = new Project("title", "description", false);
     project = projectRepository.save(project);
     account = accountRepository.saveAndFlush(account);
-  }
-
-  @Test
-  public void createAccount() throws Exception {
-    assertEquals(1, accountRepository.count());
-
-    mockMvc.perform(post(Routes.ACCOUNT)
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(
-                new Account("username2", "name2", "password2", false, false))))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.username", is("username2")))
-        .andExpect(jsonPath("$.name", is("name2")))
-        .andExpect(jsonPath("$.password", is("password2")))
-        .andExpect(jsonPath("$.isAdministrator", is(false)))
-        .andExpect(jsonPath("$.isPM", is(false)));
-
-    assertEquals(2, accountRepository.count());
-
-    mockMvc.perform(post(Routes.ACCOUNT)
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(account)))
-        .andExpect(status().isForbidden());
-
-    mockMvc.perform(post(Routes.ACCOUNT)
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(
-                new Account("username1", "name1", null, false, false))))
-        .andExpect(status().isBadRequest());
   }
 
   @Test

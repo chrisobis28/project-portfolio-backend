@@ -52,25 +52,6 @@ public class AccountServiceTest {
     projectsToAccountsRepository = Mockito.mock(ProjectsToAccountsRepository.class);
     accountService = new AccountService(accountRepository, projectRepository, projectsToAccountsRepository);
   }
-
-  @Test
-  void testCreateAccountDuplicatedUsernameException() {
-    Account account = new Account("username", "name", "password", false, false);
-    when(accountRepository.findById("username")).thenReturn(Optional.of(account));
-    assertThrows(DuplicatedUsernameException.class, () -> accountService.createAccount(account));
-    verify(accountRepository, never()).save(any(Account.class));
-  }
-
-  @Test
-  void testCreateAccountSuccess() {
-    Account account = new Account("username", "name", "password", false, false);
-    when(accountRepository.findById("username")).thenReturn(Optional.empty());
-    when(accountRepository.save(account)).thenReturn(account);
-    Account retrieved_account = accountService.createAccount(account);
-    assertEquals(retrieved_account, account);
-    verify(accountRepository, times(1)).save(account);
-  }
-
   @Test
   void testEditAccountAccountNotFoundException() {
     Account account = new Account("username", "name", "password", false, false);

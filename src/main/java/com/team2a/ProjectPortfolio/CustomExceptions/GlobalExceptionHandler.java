@@ -5,6 +5,7 @@ import java.util.stream.Collectors;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.http.HttpStatus;
 
 import java.util.Map;
+import org.springframework.web.server.ResponseStatusException;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
@@ -49,6 +51,26 @@ public class GlobalExceptionHandler {
             formattedMessage,
             request.getRequestURI()
         );
+    }
+
+    /**
+     * Handle response status exceptions
+     * @param ex ResponseStatusException
+     * @param request HttpServletRequest
+     * @return ResponseEntity<ApiErrorResponse>
+     */
+    @ExceptionHandler(ResponseStatusException.class)
+    @ResponseBody
+    public ResponseEntity<ApiErrorResponse> handleResponseStatusException (ResponseStatusException ex,
+                                                                           HttpServletRequest request) {
+        ApiErrorResponse response = new ApiErrorResponse(
+            LocalDateTime.now(),
+            ex.getStatusCode().value(),
+            ex.getMessage(),
+            ex.getReason(),
+            request.getRequestURI()
+        );
+        return new ResponseEntity<>(response, ex.getStatusCode());
     }
 
     public static class ApiErrorResponse {
