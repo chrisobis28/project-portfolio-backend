@@ -1,6 +1,5 @@
 package com.team2a.ProjectPortfolio.Controllers;
 
-import com.team2a.ProjectPortfolio.Commons.Account;
 import com.team2a.ProjectPortfolio.Routes;
 import com.team2a.ProjectPortfolio.Services.AuthenticationService;
 import com.team2a.ProjectPortfolio.dto.LoginUserRequest;
@@ -40,14 +39,14 @@ public class AuthenticationController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-//    /**
-//     * Logs in an Account
-//     * @param loginUserRequest - the request to log in
-//     * @return - the token of the Account
-//     */
-//    @PostMapping("/login")
-//    public ResponseEntity<String> login(@Valid @RequestBody LoginUserRequest loginUserRequest) {
-//        String token = authenticationService.authenticate(loginUserRequest);
-//        return ResponseEntity.ok(token);
-//    }
+    /**
+     * Logs in an Account
+     * @param loginUserRequest - the request to log in
+     * @return - the token of the Account
+     */
+    @PostMapping("/login")
+    public ResponseEntity<String> login (@Valid @RequestBody LoginUserRequest loginUserRequest) {
+        String token = authenticationService.authenticate(loginUserRequest);
+        return ResponseEntity.ok(token);
+    }
 }

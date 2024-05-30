@@ -4,7 +4,7 @@ import com.team2a.ProjectPortfolio.Commons.Account;
 import com.team2a.ProjectPortfolio.Repositories.AccountRepository;
 import com.team2a.ProjectPortfolio.dto.LoginUserRequest;
 import com.team2a.ProjectPortfolio.dto.RegisterUserRequest;
-//import com.team2a.ProjectPortfolio.security.JwtTokenUtil;
+import com.team2a.ProjectPortfolio.security.JwtTokenUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -18,27 +18,28 @@ public class AuthenticationService {
 
     private final PasswordEncoder passwordEncoder;
 
-//    private final JwtTokenUtil jwtTokenUtil;
+    private final JwtTokenUtil jwtTokenUtil;
 
     /**
      * Constructor for the Authentication Service
      * @param accountRepository - the Account Repository
      * @param passwordEncoder - the Password Encoder
-//     * @param jwtTokenUtil - the JWT Token Util
+     * @param jwtTokenUtil - the JWT Token Util
      */
     @Autowired
     public AuthenticationService(AccountRepository accountRepository,
-                                 PasswordEncoder passwordEncoder) {
+                                 PasswordEncoder passwordEncoder,
+                                 JwtTokenUtil jwtTokenUtil) {
         this.accountRepository = accountRepository;
         this.passwordEncoder = passwordEncoder;
-//        this.jwtTokenUtil = jwtTokenUtil;
+        this.jwtTokenUtil = jwtTokenUtil;
     }
 
     /**
      * Registers a user
      * @param registerUserRequest - the Register User Request
      */
-    public void registerUser(RegisterUserRequest registerUserRequest) {
+    public void registerUser (RegisterUserRequest registerUserRequest) {
         if (accountRepository.existsById(registerUserRequest.getUsername())) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Username already exists.");
         }
@@ -51,19 +52,19 @@ public class AuthenticationService {
         accountRepository.save(newAccount);
     }
 
-//    /**
-//     * Authenticates a user
-//     * @param loginUserRequest - the Login User Request
-//     * @return - the JWT token
-//     */
-//    public String authenticate(LoginUserRequest loginUserRequest) {
-//        Account account = accountRepository.findById(loginUserRequest.getUsername())
-//            .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Username or password is incorrect."));
-//
-//        if (!passwordEncoder.matches(loginUserRequest.getPassword(), account.getPassword())) {
-//            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Username or password is incorrect.");
-//        }
-//
-//        return jwtTokenUtil.generateToken(loginUserRequest.getUsername());
-//    }
+    /**
+     * Authenticates a user
+     * @param loginUserRequest - the Login User Request
+     * @return - the JWT token
+     */
+    public String authenticate (LoginUserRequest loginUserRequest) {
+        Account account = accountRepository.findById(loginUserRequest.getUsername())
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Username or password is incorrect."));
+
+        if (!passwordEncoder.matches(loginUserRequest.getPassword(), account.getPassword())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Username or password is incorrect.");
+        }
+
+        return jwtTokenUtil.generateToken(loginUserRequest.getUsername());
+    }
 }

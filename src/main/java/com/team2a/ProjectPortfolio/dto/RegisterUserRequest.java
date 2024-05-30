@@ -14,13 +14,16 @@ public class RegisterUserRequest {
 
     @Getter
     @NotNull(message = "Password must be specified.")
-    @Pattern(regexp = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=!])(?=\\S+$).{8,}$", message = "Password must be at least 8 characters long " +
-        "and contain at least one digit, one lowercase letter, one uppercase letter, one special character, and no whitespace.")
+    @Pattern(regexp = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=!])(?=\\S+$).{8,}$",
+        message = "Password must be at least 8 characters long " +
+        "and contain at least one digit, one lowercase letter, one uppercase letter, " +
+            "one special character,and no whitespace.")
     private String password;
 
     @Getter
     @NotNull(message = "Name must be specified.")
-    @Pattern(regexp = "^[a-zA-Z_]{1,50}$", message = "Name must consist of alphanumeric characters only, be separated by _ " +
+    @Pattern(regexp = "^[a-zA-Z_]{1,50}$",
+        message = "Name must consist of alphanumeric characters only, be separated by _ " +
         "and be between 1 to 50 characters long.")
     private String name;
 

@@ -61,7 +61,8 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(ResponseStatusException.class)
     @ResponseBody
-    public ResponseEntity<ApiErrorResponse> handleResponseStatusException(ResponseStatusException ex, HttpServletRequest request) {
+    public ResponseEntity<ApiErrorResponse> handleResponseStatusException (ResponseStatusException ex,
+                                                                           HttpServletRequest request) {
         ApiErrorResponse response = new ApiErrorResponse(
             LocalDateTime.now(),
             ex.getStatusCode().value(),
