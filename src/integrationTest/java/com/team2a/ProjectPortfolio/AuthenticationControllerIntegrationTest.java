@@ -2,6 +2,7 @@ package com.team2a.ProjectPortfolio;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -16,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
@@ -35,6 +37,9 @@ public class AuthenticationControllerIntegrationTest {
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     private RegisterUserRequest registerUserRequest;
 
@@ -57,6 +62,7 @@ public class AuthenticationControllerIntegrationTest {
         Account account = accountRepository.findById("username")
             .orElseThrow(() -> new AssertionError("Account not found"));
         assertEquals("username", account.getUsername());
+        assertTrue(passwordEncoder.matches("Password!1", account.getPassword()));
         assertEquals("user", account.getName());
         assertFalse(account.getIsPM());
         assertFalse(account.getIsAdministrator());
