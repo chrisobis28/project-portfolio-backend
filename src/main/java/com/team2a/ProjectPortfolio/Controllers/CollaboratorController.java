@@ -123,4 +123,14 @@ public class CollaboratorController {
             return ResponseEntity.notFound().build();
         }
     }
+
+    /**
+     * endpoint for retrieving all collaborators
+     * @return a list of collaborators
+     */
+    @GetMapping("/")
+    public ResponseEntity<List<Collaborator>> getAllCollaborators () {
+        List<Collaborator> collaborators = collaboratorService.getAllCollaborators();
+        return new ResponseEntity<>(collaborators, HttpStatus.OK);
+    }
 }
