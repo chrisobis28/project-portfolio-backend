@@ -2,9 +2,12 @@ package com.team2a.ProjectPortfolio.Controllers;
 
 import com.team2a.ProjectPortfolio.Commons.Project;
 import com.team2a.ProjectPortfolio.Services.ProjectService;
+import com.team2a.ProjectPortfolio.WebSocket.ProjectWebSocketHandler;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -13,18 +16,20 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 class ProjectControllerTest {
 
     private ProjectService projectService;
     private ProjectController projectController;
+    @Mock
+    private ProjectWebSocketHandler webSocketHandler;
 
     @BeforeEach
     void setUp() {
         projectService = mock(ProjectService.class);
-        projectController = new ProjectController(projectService);
+        webSocketHandler = Mockito.mock(ProjectWebSocketHandler.class);
+        projectController = new ProjectController(projectService, webSocketHandler);
     }
 
     @Test
@@ -91,6 +96,7 @@ class ProjectControllerTest {
         Project project = new Project("title1", "desc1", false);
         when(projectService.createProject(project)).thenReturn(project);
         ResponseEntity<Project> response = projectController.createProject(project);
+        verify(webSocketHandler).broadcast(any());
         assertEquals(project, response.getBody());
     }
 
@@ -125,6 +131,7 @@ class ProjectControllerTest {
         String expected = "Deleted project with specified ID";
         when(projectService.deleteProject(projectId)).thenReturn(expected);
         ResponseEntity<String> response = projectController.deleteProject(projectId);
+        verify(webSocketHandler).broadcast(any());
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(expected, response.getBody());
     }

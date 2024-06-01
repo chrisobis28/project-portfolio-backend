@@ -3,6 +3,8 @@ package com.team2a.ProjectPortfolio.Controllers;
 import com.team2a.ProjectPortfolio.Commons.Collaborator;
 import com.team2a.ProjectPortfolio.Routes;
 import com.team2a.ProjectPortfolio.Services.CollaboratorService;
+import com.team2a.ProjectPortfolio.WebSocket.CollaboratorProjectWebSocketHandler;
+import com.team2a.ProjectPortfolio.WebSocket.CollaboratorWebSocketHandler;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,13 +20,21 @@ import java.util.UUID;
 public class CollaboratorController {
     private final CollaboratorService collaboratorService;
 
+    private final CollaboratorWebSocketHandler collaboratorWebSocketHandler;
+
+    private final CollaboratorProjectWebSocketHandler collaboratorProjectWebSocketHandler;
+
     /**
      * Constructor for the collaborator controller
      * @param collaboratorService the collaborator service
      */
     @Autowired
-    public CollaboratorController(CollaboratorService collaboratorService) {
+    public CollaboratorController(CollaboratorService collaboratorService,
+                                  CollaboratorWebSocketHandler collaboratorWebSocketHandler,
+                                  CollaboratorProjectWebSocketHandler collaboratorProjectWebSocketHandler) {
         this.collaboratorService = collaboratorService;
+        this.collaboratorWebSocketHandler = collaboratorWebSocketHandler;
+        this.collaboratorProjectWebSocketHandler = collaboratorProjectWebSocketHandler;
     }
 
     /**
@@ -52,6 +62,7 @@ public class CollaboratorController {
     public ResponseEntity<Collaborator> addCollaborator
     (@RequestBody String name) {
         Collaborator c = collaboratorService.addCollaborator(name);
+        collaboratorWebSocketHandler.broadcast("Collaborator added");
         return new ResponseEntity<>(c, HttpStatus.OK);
     }
 
@@ -69,6 +80,7 @@ public class CollaboratorController {
                                                                   @RequestBody String role){
         try {
             Collaborator collaborator = collaboratorService.addCollaboratorToProject(projectId,collaboratorId,role);
+            collaboratorProjectWebSocketHandler.broadcast(projectId.toString());
             return ResponseEntity.ok(collaborator);
         } catch (EntityNotFoundException e) {
             return ResponseEntity.notFound().build();
@@ -86,6 +98,8 @@ public class CollaboratorController {
                                                                   @RequestBody String collaboratorName){
         try {
             Collaborator collaborator = collaboratorService.editCollaboratorOfProject(collaboratorId,collaboratorName);
+            collaboratorWebSocketHandler.broadcast("Collaborator Changed");
+            collaboratorProjectWebSocketHandler.broadcast("all");
             return ResponseEntity.ok(collaborator);
         } catch (EntityNotFoundException e) {
             return ResponseEntity.notFound().build();
@@ -101,6 +115,8 @@ public class CollaboratorController {
     public ResponseEntity<String> deleteCollaborator (@PathVariable("collaboratorId") UUID collaboratorId){
         try {
             String response = collaboratorService.deleteCollaborator(collaboratorId);
+            collaboratorWebSocketHandler.broadcast("Collaborator Deleted");
+            collaboratorProjectWebSocketHandler.broadcast("all");
             return ResponseEntity.ok(response);
         } catch (EntityNotFoundException e) {
             return ResponseEntity.notFound().build();
@@ -118,6 +134,7 @@ public class CollaboratorController {
                                                                  @PathVariable("collaboratorId") UUID collaboratorId){
         try {
             String response = collaboratorService.deleteCollaboratorFromProject(projectId,collaboratorId);
+            collaboratorProjectWebSocketHandler.broadcast(projectId.toString());
             return ResponseEntity.ok(response);
         } catch (EntityNotFoundException e) {
             return ResponseEntity.notFound().build();

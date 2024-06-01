@@ -3,7 +3,9 @@ package com.team2a.ProjectPortfolio.Controllers;
 import com.team2a.ProjectPortfolio.Commons.Project;
 import com.team2a.ProjectPortfolio.Routes;
 import com.team2a.ProjectPortfolio.Services.ProjectService;
+import com.team2a.ProjectPortfolio.WebSocket.ProjectWebSocketHandler;
 import jakarta.persistence.EntityNotFoundException;
+import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,13 +20,16 @@ public class ProjectController {
 
     private final ProjectService projectService;
 
+    private ProjectWebSocketHandler webSocketHandler;
+
     /**
      * Constructor for the project controller
      * @param projectService the project service
      */
     @Autowired
-    public ProjectController(ProjectService projectService) {
+    public ProjectController(ProjectService projectService, ProjectWebSocketHandler webSocketHandler) {
         this.projectService = projectService;
+        this.webSocketHandler = webSocketHandler;
     }
 
     /**
@@ -46,6 +51,7 @@ public class ProjectController {
     public ResponseEntity<String> deleteProject (@PathVariable("projectId") UUID projectId){
         try {
             String response = projectService.deleteProject(projectId);
+            webSocketHandler.broadcast("deleted");
             return ResponseEntity.ok(response);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().build();
@@ -65,6 +71,7 @@ public class ProjectController {
                                                   @RequestBody Project project) {
         try {
             Project result = projectService.updateProject(projectId, project);
+            webSocketHandler.broadcast("edited " + result.getProjectId());
             return ResponseEntity.ok(result);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().build();
@@ -99,6 +106,7 @@ public class ProjectController {
     public ResponseEntity<Project> createProject (@RequestBody Project project) {
         try {
             Project response = projectService.createProject(project);
+            webSocketHandler.broadcast("added " + response.getProjectId());
             return ResponseEntity.ok(response);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().build();
