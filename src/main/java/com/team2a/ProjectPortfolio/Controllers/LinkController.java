@@ -4,6 +4,7 @@ package com.team2a.ProjectPortfolio.Controllers;
 import com.team2a.ProjectPortfolio.Commons.Link;
 import com.team2a.ProjectPortfolio.Routes;
 import com.team2a.ProjectPortfolio.Services.LinkService;
+import com.team2a.ProjectPortfolio.WebSocket.LinkProjectWebSocketHandler;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -16,16 +17,20 @@ import java.util.UUID;
 @RestController
 @RequestMapping(Routes.LINK)
 @CrossOrigin("http://localhost:4200")
-public class    LinkController {
+public class LinkController {
     private final LinkService linkService;
+
+    private final LinkProjectWebSocketHandler linkProjectWebSocketHandler;
 
     /**
      * The constructor for the LinkController
      * @param linkService the Link Service
      */
     @Autowired
-    public LinkController(LinkService linkService) {
+    public LinkController(LinkService linkService,
+                          LinkProjectWebSocketHandler linkProjectWebSocketHandler) {
         this.linkService = linkService;
+        this.linkProjectWebSocketHandler = linkProjectWebSocketHandler;
     }
 
     /**
@@ -38,6 +43,7 @@ public class    LinkController {
     public ResponseEntity<Link> addLinkToProject (@RequestBody Link link,@PathVariable("projectId") UUID projectId) {
         try {
             Link newLink = linkService.addLinkToProject(link,projectId);
+            linkProjectWebSocketHandler.broadcast(projectId.toString());
             return ResponseEntity.ok(newLink);
         } catch (ResponseStatusException e) {
             return ResponseEntity.status(e.getStatusCode()).body(null);
@@ -53,6 +59,7 @@ public class    LinkController {
     public ResponseEntity<Link> editLinkOfProject (@RequestBody Link link) {
         try {
             Link updatedLink = linkService.editLinkOfProject(link);
+            linkProjectWebSocketHandler.broadcast(updatedLink.getProject().getProjectId().toString());
             return ResponseEntity.ok(updatedLink);
         } catch (EntityNotFoundException e) {
             return ResponseEntity.notFound().build();
@@ -83,6 +90,7 @@ public class    LinkController {
     public ResponseEntity<String> deleteLinkById (@PathVariable("linkId") UUID linkId) {
         try {
             String returnedMessage = linkService.deleteLinkById(linkId);
+            linkProjectWebSocketHandler.broadcast(returnedMessage);
             return ResponseEntity.ok(returnedMessage);
         } catch (EntityNotFoundException e) {
             return ResponseEntity.notFound().build();

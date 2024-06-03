@@ -78,9 +78,9 @@ public class LinkService {
      * @return a string if the link is deleted
      */
     public String deleteLinkById (UUID linkId){
-        linkRepository.findById(linkId).orElseThrow(EntityNotFoundException::new);
+        Link l = linkRepository.findById(linkId).orElseThrow(EntityNotFoundException::new);
         linkRepository.deleteById(linkId);
-        return "Deleted link";
+        return l.getProject().getProjectId().toString();
     }
 
 

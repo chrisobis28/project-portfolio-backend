@@ -4,6 +4,8 @@ import com.team2a.ProjectPortfolio.Commons.Tag;
 import com.team2a.ProjectPortfolio.Routes;
 import com.team2a.ProjectPortfolio.Services.TagService;
 
+import com.team2a.ProjectPortfolio.WebSocket.TagProjectWebSocketHandler;
+import com.team2a.ProjectPortfolio.WebSocket.TagWebSocketHandler;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
@@ -19,14 +21,21 @@ public class TagController {
 
     private final TagService tagService;
 
+    private final TagWebSocketHandler tagWebSocketHandler;
+
+    private final TagProjectWebSocketHandler tagProjectWebSocketHandler;
+
     /**
      * Constructor for the tag controller
      *
      * @param tagService the tag service
      */
     @Autowired
-    public TagController(TagService tagService) {
+    public TagController(TagService tagService, TagWebSocketHandler tagWebSocketHandler,
+                         TagProjectWebSocketHandler tagProjectWebSocketHandler) {
         this.tagService = tagService;
+        this.tagWebSocketHandler = tagWebSocketHandler;
+        this.tagProjectWebSocketHandler = tagProjectWebSocketHandler;
     }
 
 
@@ -52,6 +61,7 @@ public class TagController {
     @PostMapping("/create")
     public ResponseEntity<Tag> createTag (@Valid @RequestBody Tag tag) {
         Tag newTag = tagService.createTag(tag);
+        tagWebSocketHandler.broadcast("tag added");
         return ResponseEntity.ok(newTag);
     }
 
@@ -66,6 +76,7 @@ public class TagController {
     public ResponseEntity<String> addTagToProject
     (@PathVariable("projectId") UUID projectId, @PathVariable("tagId") UUID tagId) {
         tagService.addTagToProject(projectId, tagId);
+        tagProjectWebSocketHandler.broadcast(projectId.toString());
         return ResponseEntity.ok().build();
     }
 
@@ -78,6 +89,8 @@ public class TagController {
     @PutMapping("/edit")
     public ResponseEntity<Tag> editTag (@Valid @RequestBody Tag tag) {
         Tag newTag = tagService.editTag(tag);
+        tagWebSocketHandler.broadcast("tagChanged");
+        tagProjectWebSocketHandler.broadcast("all");
         return ResponseEntity.ok(newTag);
     }
 
@@ -90,6 +103,8 @@ public class TagController {
     @DeleteMapping("/{tagId}")
     public ResponseEntity<Void> deleteTag (@PathVariable("tagId") UUID tagId) {
         tagService.deleteTag(tagId);
+        tagWebSocketHandler.broadcast("tagDeleted");
+        tagProjectWebSocketHandler.broadcast("all");
         return ResponseEntity.ok().build();
     }
 
@@ -104,6 +119,7 @@ public class TagController {
     public ResponseEntity<Void> removeTagFromProject
     (@PathVariable("projectId") UUID projectId, @PathVariable("tagId") UUID tagId) {
         tagService.removeTagFromProject(projectId, tagId);
+        tagProjectWebSocketHandler.broadcast(projectId.toString());
         return ResponseEntity.ok().build();
     }
 

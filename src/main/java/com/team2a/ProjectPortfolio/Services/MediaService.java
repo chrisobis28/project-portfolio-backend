@@ -128,9 +128,10 @@ public class MediaService {
      * @param mediaId the id of the Media to delete
      * @throws RuntimeException - Media doesn't exist or the id is null
      */
-    public void deleteMedia (UUID mediaId) {
-        checkMediaExistence(mediaId);
+    public Media deleteMedia (UUID mediaId) {
+        Media m = checkMediaExistence(mediaId);
         mediaRepository.deleteById(mediaId);
+        return m;
     }
 
     /**
@@ -138,11 +139,12 @@ public class MediaService {
      * @param mediaId the id of the Media to verify
      * @throws RuntimeException - Media doesn't exist
      */
-    public void checkMediaExistence (UUID mediaId) throws RuntimeException {
+    public Media checkMediaExistence (UUID mediaId) throws RuntimeException {
         Optional<Media> m = mediaRepository.findById(mediaId);
         if(m.isEmpty()){
             throw new MediaNotFoundException("No media with the id " + mediaId + " could be found.");
         }
+        return m.get();
     }
 
     /**

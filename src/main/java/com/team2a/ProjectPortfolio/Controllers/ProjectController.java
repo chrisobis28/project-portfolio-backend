@@ -51,7 +51,7 @@ public class ProjectController {
     public ResponseEntity<String> deleteProject (@PathVariable("projectId") UUID projectId){
         try {
             String response = projectService.deleteProject(projectId);
-            webSocketHandler.broadcast("deleted");
+            webSocketHandler.broadcast("deleted " + projectId.toString());
             return ResponseEntity.ok(response);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().build();

@@ -19,6 +19,18 @@ public class WebSocketConfig implements WebSocketConfigurer {
     @Autowired
     private CollaboratorProjectWebSocketHandler collaboratorProjectWebSocketHandler;
 
+    @Autowired
+    private TagWebSocketHandler tagWebSocketHandler;
+
+    @Autowired
+    private TagProjectWebSocketHandler tagProjectWebSocketHandler;
+
+    @Autowired
+    private MediaProjectWebSocketHandler mediaProjectWebSocketHandler;
+
+    @Autowired
+    private LinkProjectWebSocketHandler linkProjectWebSocketHandler;
+
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
         registry.addHandler(projectWebSocketHandler, "/topic/projects")
@@ -26,6 +38,14 @@ public class WebSocketConfig implements WebSocketConfigurer {
         registry.addHandler(collaboratorWebSocketHandler, "/topic/collaborators")
                 .setAllowedOrigins("*");
         registry.addHandler(collaboratorProjectWebSocketHandler, "/topic/collaborators/project")
+                .setAllowedOrigins("*");
+        registry.addHandler(tagWebSocketHandler, "/topic/tags")
+                .setAllowedOrigins("*");
+        registry.addHandler(tagProjectWebSocketHandler, "/topic/tags/project")
+                .setAllowedOrigins("*");
+        registry.addHandler(mediaProjectWebSocketHandler, "/topic/media/project")
+                .setAllowedOrigins("*");
+        registry.addHandler(linkProjectWebSocketHandler, "/topic/link/project")
                 .setAllowedOrigins("*");
     }
 }

@@ -4,6 +4,8 @@ import com.team2a.ProjectPortfolio.Commons.Media;
 import com.team2a.ProjectPortfolio.CustomExceptions.MediaNotFoundException;
 import com.team2a.ProjectPortfolio.Routes;
 import com.team2a.ProjectPortfolio.Services.MediaService;
+import com.team2a.ProjectPortfolio.WebSocket.MediaProjectWebSocketHandler;
+import com.team2a.ProjectPortfolio.WebSocket.MediaWebSocketHandler;
 import jakarta.validation.Valid;
 import org.antlr.v4.runtime.misc.Pair;
 import org.antlr.v4.runtime.misc.Triple;
@@ -24,13 +26,17 @@ public class MediaController {
 
     private final MediaService mediaService;
 
+    private final MediaProjectWebSocketHandler mediaProjectWebSocketHandler;
+
     /**
      * Constructor for the Media Controller
      * @param mediaService - the Media Service
      */
     @Autowired
-    public MediaController (MediaService mediaService) {
+    public MediaController (MediaService mediaService,
+                            MediaProjectWebSocketHandler mediaProjectWebSocketHandler) {
         this.mediaService = mediaService;
+        this.mediaProjectWebSocketHandler = mediaProjectWebSocketHandler;
     }
 
     /**
@@ -74,7 +80,9 @@ public class MediaController {
     @PostMapping("/{projectId}")
     public ResponseEntity<Media> addMediaToProject (@PathVariable("projectId") UUID projectId,
                                                     @RequestParam("file") MultipartFile file, @RequestParam String name) {
-        return ResponseEntity.ok(mediaService.addMediaToProject(projectId, file,name));
+        Media body = mediaService.addMediaToProject(projectId, file,name);
+        mediaProjectWebSocketHandler.broadcast(projectId.toString());
+        return ResponseEntity.ok(body);
     }
 
     /**
@@ -85,7 +93,8 @@ public class MediaController {
     @DeleteMapping("/{mediaId}")
     public ResponseEntity<String> deleteMedia (@PathVariable("mediaId") UUID mediaId) {
         try {
-            mediaService.deleteMedia(mediaId);
+            Media m = mediaService.deleteMedia(mediaId);
+            mediaProjectWebSocketHandler.broadcast(m.getProject().getProjectId().toString());
             return ResponseEntity.status(HttpStatus.OK).body("Media deleted successfully.");
         }
         catch (MediaNotFoundException e) {
@@ -100,6 +109,8 @@ public class MediaController {
      */
     @PutMapping("")
     public ResponseEntity<Media> editMedia (@Valid @RequestBody Media media) {
-        return ResponseEntity.status(HttpStatus.OK).body(mediaService.editMedia(media));
+        Media body = mediaService.editMedia(media);
+        mediaProjectWebSocketHandler.broadcast(media.getProject().getProjectId().toString());
+        return ResponseEntity.status(HttpStatus.OK).body(body);
     }
 }
