@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -19,17 +20,22 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 public class SecurityConfig {
-
-
+    @Value("#{'${public.endpoints}'.split(',')}")
+    private List<String> publicEndpoints;
     @Autowired
     private JwtRequestFilter jwtRequestFilter;
 
-    @Autowired
-    private CustomUserDetailsService userDetailsService;
-
-    @Value("#{'${public.endpoints}'.split(',')}")
-    private List<String> publicEndpoints;
+    /**
+     * Custom security service
+     *
+     * @return the custom security service
+     */
+    @Bean
+    public CustomSecurityService customSecurityService () {
+        return new CustomSecurityService();
+    }
 
     /**
      * Password encoder

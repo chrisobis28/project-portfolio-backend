@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.UUID;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,11 +13,14 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 import java.util.List;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 @Entity
 @Table(name="ACCOUNT")
 @NoArgsConstructor
-public class Account {
+public class Account implements UserDetails {
 
     @Id
     @Column(name="USERNAME")
@@ -53,7 +57,7 @@ public class Account {
     @Setter
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @OnDelete(action= OnDeleteAction.CASCADE)
-    @JoinColumn(name="ACCOUNT_USERNAME")
+    @JoinColumn(name="ACCOUNT_USERNAME", updatable = false, insertable = false)
     private List<ProjectsToAccounts> projectsToAccounts = new ArrayList<>();
 
     @Getter
@@ -89,5 +93,43 @@ public class Account {
      */
     public boolean hasRequestForProject (UUID projectID) {
         return requests.stream().anyMatch(request -> request.getProject().getProjectId().equals(projectID));
+    }
+
+    /**
+     * Gets authorities for the account
+     * @return the authorities for the account
+     */
+    @Override
+    @JsonIgnore
+    public Collection<? extends GrantedAuthority> getAuthorities () {
+        List<SimpleGrantedAuthority> authorities = new ArrayList<>();
+        if(isAdministrator) {
+            authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
+        }
+        if(isPM) {
+            authorities.add(new SimpleGrantedAuthority("ROLE_PM"));
+        }
+        authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
+        return authorities;
+    }
+
+    @Override
+    public boolean isAccountNonExpired () {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked () {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired () {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled () {
+        return true;
     }
 }

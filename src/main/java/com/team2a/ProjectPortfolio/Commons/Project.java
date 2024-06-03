@@ -2,6 +2,7 @@ package com.team2a.ProjectPortfolio.Commons;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -28,11 +29,13 @@ public class Project {
     @Column(name="TITLE")
     @Getter
     @Setter
+    @NotNull(message = "Title is required")
     private String title;
 
     @Column(name="DESCRIPTION")
     @Getter
     @Setter
+    @NotNull(message = "Description is required")
     @Size(max = 4000)
     private String description;
 
@@ -60,7 +63,7 @@ public class Project {
     @Setter
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @OnDelete(action=OnDeleteAction.CASCADE)
-    @JoinColumn(name="PROJECT_ID")
+    @JoinColumn(name="PROJECT_ID", updatable = false, insertable = false)
     @JsonIgnore
     private List<ProjectsToAccounts> projectsToAccounts = new ArrayList<>();
 
@@ -69,28 +72,28 @@ public class Project {
     @Setter
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @OnDelete(action=OnDeleteAction.CASCADE)
-    @JoinColumn(name="PROJECT_ID")
+    @JoinColumn(name="PROJECT_ID", updatable = false, insertable = false)
     private List<ProjectsToCollaborators> projectsToCollaborators = new ArrayList<>();
 
     @Getter
     @Setter
     @OneToMany(cascade=CascadeType.ALL, orphanRemoval = true)
     @OnDelete(action=OnDeleteAction.CASCADE)
-    @JoinColumn(name="PROJECT_ID")
+    @JoinColumn(name="PROJECT_ID", updatable = false, insertable = false)
     private List<TagsToProject> tagsToProjects = new ArrayList<>();
 
     @Getter
     @Setter
     @OneToMany(cascade=CascadeType.ALL, orphanRemoval = true)
     @OnDelete(action=OnDeleteAction.CASCADE)
-    @JoinColumn(name="PROJECT_ID")
+    @JoinColumn(name="PROJECT_ID", updatable = false, insertable = false)
     private List<Link> links = new ArrayList<>();
 
     @Getter
     @Setter
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @OnDelete(action= OnDeleteAction.CASCADE)
-    @JoinColumn(name="REQUEST_PROJECT")
+    @JoinColumn(name="REQUEST_PROJECT", updatable = false, insertable = false)
     @JsonIgnore
     private List<Request> requests = new ArrayList<>();
 

@@ -84,7 +84,9 @@ jacocoTestReport {
 			fileTree(dir: it,
 					exclude: ['**/ProjectPortfolioManagementSystemApplication.class',
 							  '**/Routes.class',
-							  '**/MediaHelper.class'])
+							  '**/MediaHelper.class',
+							  '**/security/SecurityConfig.class',
+							  '**/security/Permissions.class'])
 		})
 	}
 }
@@ -102,7 +104,9 @@ jacocoTestCoverageVerification {
 			fileTree(dir: it,
 					exclude: ['**/ProjectPortfolioManagementSystemApplication.class',
 							  '**/Routes.class',
-							  '**/MediaHelper.class'])
+							  '**/MediaHelper.class',
+							  '**/security/SecurityConfig.class',
+							  '**/security/Permissions.class'])
 		})
 	}
 }

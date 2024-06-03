@@ -3,6 +3,8 @@ package com.team2a.ProjectPortfolio.security;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.team2a.ProjectPortfolio.Commons.Account;
+import com.team2a.ProjectPortfolio.Repositories.AccountRepository;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -10,6 +12,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -27,7 +30,7 @@ class JwtRequestFilterTest {
     private JwtTokenUtil jwtTokenUtil;
 
     @Mock
-    private CustomUserDetailsService customUserDetailsService;
+    private AccountRepository accountRepository;
 
     @Mock
     private ApplicationContext context;
@@ -42,7 +45,7 @@ class JwtRequestFilterTest {
     private HttpServletResponse response;
 
     @Mock
-    private UserDetails userDetails;
+    private Account account;
     private final List<String> publicEndpoints = List.of("/public");
 
 
@@ -66,11 +69,10 @@ class JwtRequestFilterTest {
 
     @Test
     public void testDoFilterInternal_ValidToken() throws ServletException, IOException {
-        when(userDetails.getUsername()).thenReturn("username");
         when(request.getHeader("Authorization")).thenReturn("Bearer validToken");
         when(jwtTokenUtil.getUsernameFromToken("validToken")).thenReturn("username");
-        when(userDetails.getUsername()).thenReturn("username");
-        when(customUserDetailsService.loadUserByUsername("username")).thenReturn(userDetails);
+        when(account.getUsername()).thenReturn("username");
+        when(accountRepository.findById("username")).thenReturn(Optional.of(account));
         when(jwtTokenUtil.validateToken("validToken", "username")).thenReturn(true);
         jwtRequestFilter.doFilterInternal(request, response, filterChain);
         verify(filterChain).doFilter(request, response);
@@ -89,8 +91,8 @@ class JwtRequestFilterTest {
     public void testDoFilterInternal_InvalidToken() throws ServletException, IOException {
         when(request.getHeader("Authorization")).thenReturn("Bearer invalidToken");
         when(jwtTokenUtil.getUsernameFromToken("invalidToken")).thenReturn("username");
-        when(userDetails.getUsername()).thenReturn("username");
-        when(customUserDetailsService.loadUserByUsername("username")).thenReturn(userDetails);
+        when(account.getUsername()).thenReturn("username");
+        when(accountRepository.findById("username")).thenReturn(Optional.of(account));
         when(jwtTokenUtil.validateToken("invalidToken", "username")).thenReturn(false);
 
         jwtRequestFilter.doFilterInternal(request, response, filterChain);

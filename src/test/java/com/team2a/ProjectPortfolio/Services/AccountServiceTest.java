@@ -12,6 +12,7 @@ import static org.mockito.Mockito.when;
 import com.team2a.ProjectPortfolio.Commons.Account;
 import com.team2a.ProjectPortfolio.Commons.Project;
 import com.team2a.ProjectPortfolio.Commons.ProjectsToAccounts;
+import com.team2a.ProjectPortfolio.Commons.RoleInProject;
 import com.team2a.ProjectPortfolio.CustomExceptions.AccountNotFoundException;
 import com.team2a.ProjectPortfolio.CustomExceptions.DuplicatedUsernameException;
 import com.team2a.ProjectPortfolio.CustomExceptions.NotFoundException;
@@ -104,7 +105,7 @@ public class AccountServiceTest {
   @Test
   void testAddRoleAccountNotFound() {
     when(accountRepository.findById("username")).thenReturn(Optional.empty());
-    assertThrows(AccountNotFoundException.class, () -> accountService.addRole("username", UUID.randomUUID(), "role"));
+    assertThrows(AccountNotFoundException.class, () -> accountService.addRole("username", UUID.randomUUID(), RoleInProject.CONTENT_CREATOR));
   }
 
   @Test
@@ -112,7 +113,7 @@ public class AccountServiceTest {
     UUID id = UUID.randomUUID();
     when(accountRepository.findById("username")).thenReturn(Optional.of(new Account()));
     when(projectRepository.findById(id)).thenReturn(Optional.empty());
-    assertThrows(ProjectNotFoundException.class, () -> accountService.addRole("username", id, "role"));
+    assertThrows(ProjectNotFoundException.class, () -> accountService.addRole("username", id, RoleInProject.CONTENT_CREATOR));
   }
 
   @Test
@@ -124,8 +125,8 @@ public class AccountServiceTest {
     Account a = new Account();
     when(projectRepository.findById(id)).thenReturn(Optional.of(p));
     when(accountRepository.findById("username")).thenReturn(Optional.of(a));
-    when(projectsToAccountsRepository.findAll()).thenReturn(List.of(new ProjectsToAccounts("role", a, p)));
-    assertThrows(DuplicatedUsernameException.class, () -> accountService.addRole("username", id, "role"));
+    when(projectsToAccountsRepository.findAll()).thenReturn(List.of(new ProjectsToAccounts(RoleInProject.CONTENT_CREATOR, a, p)));
+    assertThrows(DuplicatedUsernameException.class, () -> accountService.addRole("username", id, RoleInProject.CONTENT_CREATOR));
   }
 
   @Test
@@ -134,7 +135,7 @@ public class AccountServiceTest {
     when(accountRepository.findById("username")).thenReturn(Optional.of(new Account()));
     when(projectRepository.findById(id)).thenReturn(Optional.of(new Project()));
     when(projectsToAccountsRepository.findAll()).thenReturn(List.of());
-    accountService.addRole("username", id, "role");
+    accountService.addRole("username", id, RoleInProject.CONTENT_CREATOR);
     verify(projectsToAccountsRepository, times(1)).save(any());
   }
 
@@ -145,7 +146,7 @@ public class AccountServiceTest {
     p.setProjectId(id);
     Account a = new Account();
     a.setUsername("username");
-    ProjectsToAccounts pta = new ProjectsToAccounts("role", a, p);
+    ProjectsToAccounts pta = new ProjectsToAccounts(RoleInProject.CONTENT_CREATOR, a, p);
     when(projectsToAccountsRepository.findAll()).thenReturn(List.of(pta));
     assertThrows(NotFoundException.class, () -> accountService.deleteRole("username1", id));
   }
@@ -161,7 +162,7 @@ public class AccountServiceTest {
     } while (id2.equals(id));
     Account a = new Account();
     a.setUsername("username");
-    ProjectsToAccounts pta = new ProjectsToAccounts("role", a, p);
+    ProjectsToAccounts pta = new ProjectsToAccounts(RoleInProject.CONTENT_CREATOR, a, p);
     when(projectsToAccountsRepository.findAll()).thenReturn(List.of(pta));
     UUID finalId = id2;
     assertThrows(NotFoundException.class, () -> accountService.deleteRole("username1", finalId));
@@ -174,7 +175,7 @@ public class AccountServiceTest {
     p.setProjectId(id);
     Account a = new Account();
     a.setUsername("username");
-    ProjectsToAccounts pta = new ProjectsToAccounts("role", a, p);
+    ProjectsToAccounts pta = new ProjectsToAccounts(RoleInProject.CONTENT_CREATOR, a, p);
     when(projectsToAccountsRepository.findAll()).thenReturn(List.of(pta));
     accountService.deleteRole("username", id);
     verify(projectsToAccountsRepository, times(1)).deleteById(any());

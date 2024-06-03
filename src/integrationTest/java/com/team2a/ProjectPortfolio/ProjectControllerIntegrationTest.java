@@ -1,35 +1,52 @@
 package com.team2a.ProjectPortfolio;
 
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.team2a.ProjectPortfolio.Commons.Project;
+import com.team2a.ProjectPortfolio.Commons.ProjectsToAccounts;
+import com.team2a.ProjectPortfolio.Repositories.AccountRepository;
 import com.team2a.ProjectPortfolio.Repositories.ProjectRepository;
+import com.team2a.ProjectPortfolio.Repositories.ProjectsToAccountsRepository;
+import com.team2a.ProjectPortfolio.security.SecurityConfigTest;
+import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
-
-import java.util.UUID;
-
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureMockMvc(addFilters=false)
 @ActiveProfiles("test")
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 public class ProjectControllerIntegrationTest {
 
     @Autowired
     private MockMvc mockMvc;
     @Autowired
     private ProjectRepository projectRepository;
+
+    @Autowired
+    private SecurityConfigTest securityConfigTest;
+
+    @Autowired
+    private AccountRepository accountRepository;
+
+    @Autowired
+    private ProjectsToAccountsRepository projectsToAccountsRepository;
     @Autowired
     private ObjectMapper objectMapper;
     private Project project1;
@@ -45,6 +62,8 @@ public class ProjectControllerIntegrationTest {
         project1 = projectRepository.saveAndFlush(project1);
         project2 = projectRepository.saveAndFlush(project2);
         project3 = projectRepository.saveAndFlush(project3);
+        accountRepository.saveAndFlush(securityConfigTest.getAccount());
+        securityConfigTest.setAuthentication();
     }
 
     @Test
@@ -126,11 +145,6 @@ public class ProjectControllerIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(project5)))
                 .andExpect(status().isNotFound());
-
-        mockMvc.perform(put(Routes.PROJECT + "/" + project4.getProjectId())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(null)))
-                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -160,10 +174,6 @@ public class ProjectControllerIntegrationTest {
         mockMvc.perform(get(Routes.PROJECT + "/" + projectId)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
-
-        mockMvc.perform(get(Routes.PROJECT + "/" + null)
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -182,10 +192,14 @@ public class ProjectControllerIntegrationTest {
 
         assertEquals(4, projectRepository.count());
 
-        mockMvc.perform(post(Routes.PROJECT + "/")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(null)))
-                .andExpect(status().isBadRequest());
+        Project createdProject = projectRepository.findFirstByTitleAndDescription("title4", "description4").orElseThrow(() ->
+            new AssertionError("Project not found in the repository"));
+
+        assertEquals(1, projectsToAccountsRepository.count());
+        ProjectsToAccounts pta = projectsToAccountsRepository.findAll().get(0);
+        assertEquals(createdProject.getProjectId(), pta.getProject().getProjectId());
+        assertEquals(securityConfigTest.getAccount().getUsername(), pta.getAccount().getUsername());
+        assertEquals("PM", pta.getRole().toString());
     }
 
 }

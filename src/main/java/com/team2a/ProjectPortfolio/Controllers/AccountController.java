@@ -1,6 +1,7 @@
 package com.team2a.ProjectPortfolio.Controllers;
 
 import com.team2a.ProjectPortfolio.Commons.Account;
+import com.team2a.ProjectPortfolio.Commons.RoleInProject;
 import com.team2a.ProjectPortfolio.CustomExceptions.AccountNotFoundException;
 import com.team2a.ProjectPortfolio.CustomExceptions.DuplicatedUsernameException;
 import com.team2a.ProjectPortfolio.CustomExceptions.NotFoundException;
@@ -85,7 +86,7 @@ public class AccountController {
      */
     @PostMapping("/{username}/{projectId}")
     public ResponseEntity<Void> addRole (@PathVariable("username") String username,
-                                              @PathVariable("projectId") UUID projectId, @RequestBody String role) {
+                                              @PathVariable("projectId") UUID projectId, @RequestBody RoleInProject role) {
         try {
             accountService.addRole(username, projectId, role);
             return ResponseEntity.status(HttpStatus.OK).build();
