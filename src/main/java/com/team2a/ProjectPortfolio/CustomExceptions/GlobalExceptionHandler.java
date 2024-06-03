@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -72,6 +73,27 @@ public class GlobalExceptionHandler {
         );
         return new ResponseEntity<>(response, ex.getStatusCode());
     }
+
+    /**
+     * Handle access denied exceptions
+     * @param ex AccessDeniedException
+     * @param request HttpServletRequest
+     * @return ResponseEntity<ApiErrorResponse>
+     */
+    @ExceptionHandler(AccessDeniedException.class)
+    @ResponseBody
+    public ResponseEntity<ApiErrorResponse> handleAccessDeniedException (AccessDeniedException ex,
+                                                                         HttpServletRequest request) {
+        ApiErrorResponse response = new ApiErrorResponse(
+            LocalDateTime.now(),
+            HttpStatus.FORBIDDEN.value(),
+            "Access Denied",
+            ex.getMessage(),
+            request.getRequestURI()
+        );
+        return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
+    }
+
 
     public static class ApiErrorResponse {
 

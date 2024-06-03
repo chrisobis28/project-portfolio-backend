@@ -1,5 +1,7 @@
 package com.team2a.ProjectPortfolio.Controllers;
 
+import static com.team2a.ProjectPortfolio.security.Permissions.EDITOR_IN_PROJECT;
+
 import com.team2a.ProjectPortfolio.Commons.Media;
 import com.team2a.ProjectPortfolio.CustomExceptions.MediaNotFoundException;
 import com.team2a.ProjectPortfolio.Routes;
@@ -10,6 +12,7 @@ import org.antlr.v4.runtime.misc.Triple;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import org.springframework.web.bind.annotation.*;
@@ -72,6 +75,7 @@ public class MediaController {
      * @return the Media instance generated and saved
      */
     @PostMapping("/{projectId}")
+    @PreAuthorize(EDITOR_IN_PROJECT)
     public ResponseEntity<Media> addMediaToProject (@PathVariable("projectId") UUID projectId,
                                                     @RequestParam("file") MultipartFile file, @RequestParam String name) {
         return ResponseEntity.ok(mediaService.addMediaToProject(projectId, file,name));

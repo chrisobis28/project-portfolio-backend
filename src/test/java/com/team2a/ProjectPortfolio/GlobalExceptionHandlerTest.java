@@ -6,6 +6,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -61,6 +62,23 @@ public class GlobalExceptionHandlerTest {
         assertThat(response.getError()).isEqualTo("404 NOT_FOUND \"Resource not found\"");
         assertThat(response.getMessage()).isEqualTo("Resource not found");
         assertThat(response.getPath()).isEqualTo("/project/1");
+        assertThat(response.getTimestamp()).isNotNull();
+    }
+
+    @Test
+    public void whenAccessDeniedException_thenReturnsForbiddenResponse() {
+        AccessDeniedException ex = new AccessDeniedException("You do not have permission to access this resource");
+        when(request.getRequestURI()).thenReturn("/protected/resource");
+
+        ResponseEntity<GlobalExceptionHandler.ApiErrorResponse> responseEntity = exceptionHandler.handleAccessDeniedException(ex, request);
+
+        GlobalExceptionHandler.ApiErrorResponse response = responseEntity.getBody();
+
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
+        assertThat(response.getError()).isEqualTo("Access Denied");
+        assertThat(response.getMessage()).isEqualTo("You do not have permission to access this resource");
+        assertThat(response.getPath()).isEqualTo("/protected/resource");
         assertThat(response.getTimestamp()).isNotNull();
     }
 }

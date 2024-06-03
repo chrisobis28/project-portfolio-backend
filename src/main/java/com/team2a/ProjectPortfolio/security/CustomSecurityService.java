@@ -58,4 +58,19 @@ public class CustomSecurityService {
         }
         return true;
     }
+
+    /**
+     * Checks if the user is the owner of the account
+     * @param authentication the authentication object
+     * @param username the username of the account
+     * @return true if the user is the owner of the account
+     * @throws ResponseStatusException(403) if the user does not have the required permissions
+     */
+    public boolean userSpecific (Authentication authentication, String username) {
+        Account account = (Account) authentication.getPrincipal();
+        if(!account.getUsername().equals(username)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You do not have the required permissions");
+        }
+        return true;
+    }
 }

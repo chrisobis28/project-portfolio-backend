@@ -2,6 +2,7 @@ package com.team2a.ProjectPortfolio;
 
 import com.team2a.ProjectPortfolio.Commons.*;
 import com.team2a.ProjectPortfolio.Repositories.*;
+import com.team2a.ProjectPortfolio.security.SecurityConfigUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +38,9 @@ public class CollaboratorControllerIntegrationTest {
     @Autowired
     private ProjectsToCollaboratorsRepository projectsToCollaboratorsRepository;
 
+    @Autowired
+    private SecurityConfigUtils securityConfigUtils;
+
     private UUID projectId;
     private Collaborator collaborator1;
     private Collaborator collaborator2;
@@ -61,6 +65,7 @@ public class CollaboratorControllerIntegrationTest {
         String role = "Role";
         projectsToCollaboratorsRepository.saveAndFlush(new ProjectsToCollaborators(project, collaborator2,role));
         projectsToCollaboratorsRepository.saveAndFlush(new ProjectsToCollaborators(project, collaborator3,role));
+        securityConfigUtils.setAuthentication();
 
     }
 

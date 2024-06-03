@@ -16,7 +16,7 @@ import com.team2a.ProjectPortfolio.Commons.ProjectsToAccounts;
 import com.team2a.ProjectPortfolio.Repositories.AccountRepository;
 import com.team2a.ProjectPortfolio.Repositories.ProjectRepository;
 import com.team2a.ProjectPortfolio.Repositories.ProjectsToAccountsRepository;
-import com.team2a.ProjectPortfolio.security.SecurityConfigTest;
+import com.team2a.ProjectPortfolio.security.SecurityConfigUtils;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -40,7 +40,7 @@ public class ProjectControllerIntegrationTest {
     private ProjectRepository projectRepository;
 
     @Autowired
-    private SecurityConfigTest securityConfigTest;
+    private SecurityConfigUtils securityConfigUtils;
 
     @Autowired
     private AccountRepository accountRepository;
@@ -62,8 +62,8 @@ public class ProjectControllerIntegrationTest {
         project1 = projectRepository.saveAndFlush(project1);
         project2 = projectRepository.saveAndFlush(project2);
         project3 = projectRepository.saveAndFlush(project3);
-        accountRepository.saveAndFlush(securityConfigTest.getAccount());
-        securityConfigTest.setAuthentication();
+        securityConfigUtils.setAuthentication();
+        accountRepository.saveAndFlush(securityConfigUtils.getAccount());
     }
 
     @Test
@@ -198,7 +198,7 @@ public class ProjectControllerIntegrationTest {
         assertEquals(1, projectsToAccountsRepository.count());
         ProjectsToAccounts pta = projectsToAccountsRepository.findAll().get(0);
         assertEquals(createdProject.getProjectId(), pta.getProject().getProjectId());
-        assertEquals(securityConfigTest.getAccount().getUsername(), pta.getAccount().getUsername());
+        assertEquals(securityConfigUtils.getAccount().getUsername(), pta.getAccount().getUsername());
         assertEquals("PM", pta.getRole().toString());
     }
 

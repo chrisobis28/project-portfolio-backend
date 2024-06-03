@@ -75,4 +75,32 @@ class CustomSecurityServiceTest {
         assertTrue(customSecurityService.editorInProject(authentication, projectId));
     }
 
+    @Test
+    void editorInProject_withoutPmOrEditorRole_shouldThrowException() {
+        UUID projectId = UUID.randomUUID();
+        when(projectService.userBelongsToProject("testUser", projectId)).thenReturn(RoleInProject.CONTENT_CREATOR);
+
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
+            customSecurityService.editorInProject(authentication, projectId);
+        });
+
+        assertEquals(HttpStatus.FORBIDDEN, exception.getStatusCode());
+        assertEquals("You do not have the required permissions", exception.getReason());
+    }
+
+    @Test
+    void userSpecific_withMatchingUsername_shouldReturnTrue() {
+        assertTrue(customSecurityService.userSpecific(authentication, "testUser"));
+    }
+
+    @Test
+    void userSpecific_withoutMatchingUsername_shouldThrowException() {
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
+            customSecurityService.userSpecific(authentication, "otherUser");
+        });
+
+        assertEquals(HttpStatus.FORBIDDEN, exception.getStatusCode());
+        assertEquals("You do not have the required permissions", exception.getReason());
+    }
+
 }

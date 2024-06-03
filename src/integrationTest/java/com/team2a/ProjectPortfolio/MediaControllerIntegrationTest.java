@@ -5,6 +5,7 @@ import com.team2a.ProjectPortfolio.Commons.Media;
 import com.team2a.ProjectPortfolio.Commons.Project;
 import com.team2a.ProjectPortfolio.Repositories.MediaRepository;
 import com.team2a.ProjectPortfolio.Repositories.ProjectRepository;
+import com.team2a.ProjectPortfolio.security.SecurityConfigUtils;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -41,6 +42,9 @@ public class MediaControllerIntegrationTest {
   @Autowired
   private ObjectMapper objectMapper;
 
+  @Autowired
+  private SecurityConfigUtils securityConfigUtils;
+
   private UUID projectId;
 
   private UUID otherProjectId;
@@ -72,6 +76,7 @@ public class MediaControllerIntegrationTest {
     media = mediaRepository.saveAndFlush(media);
     mediaRepository.saveAndFlush(media2);
     mediaRepository.saveAndFlush(media3);
+    securityConfigUtils.setAuthentication();
   }
 //
 //  @Test
