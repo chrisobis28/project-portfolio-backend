@@ -139,21 +139,17 @@ public class MediaControllerIntegrationTest {
   public void deleteMedia() throws Exception {
     assertEquals(3, mediaRepository.count());
 
-    mockMvc.perform(delete(Routes.MEDIA + "/" + media.getMediaId())
+    mockMvc.perform(delete(Routes.MEDIA + "/"+ UUID.randomUUID() + "/" + media.getMediaId())
             .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$", is("Media deleted successfully.")));
 
     assertEquals(2, mediaRepository.count());
 
-    mockMvc.perform(delete(Routes.MEDIA + "/" + media.getMediaId())
+    mockMvc.perform(delete(Routes.MEDIA + "/" + UUID.randomUUID() + "/" + media.getMediaId())
             .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isNotFound())
         .andExpect(jsonPath("$", is("No media with the id " + media.getMediaId() + " could be found.")));
-
-    mockMvc.perform(delete(Routes.MEDIA + "/" + "id")
-            .contentType(MediaType.APPLICATION_JSON))
-        .andExpect(status().isBadRequest());
   }
 
   @Test
@@ -178,7 +174,7 @@ public class MediaControllerIntegrationTest {
             .content(objectMapper.writeValueAsString(media)))
         .andExpect(status().isForbidden());
 
-    mockMvc.perform(delete(Routes.MEDIA + "/" + media.getMediaId())
+    mockMvc.perform(delete(Routes.MEDIA + "/"+ UUID.randomUUID() + "/" + media.getMediaId())
             .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$", is("Media deleted successfully.")));

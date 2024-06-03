@@ -84,10 +84,13 @@ public class MediaController {
     /**
      * Deletes a media from the database
      * @param mediaId the id of the Media under deletion
+     * @param projectId the id of the Project that the Media belongs to
      * @return the status of the operation
      */
-    @DeleteMapping("/{mediaId}")
-    public ResponseEntity<String> deleteMedia (@PathVariable("mediaId") UUID mediaId) {
+    @DeleteMapping("/{projectId}/{mediaId}")
+    @PreAuthorize(EDITOR_IN_PROJECT)
+    public ResponseEntity<String> deleteMedia (@PathVariable("projectId") UUID projectId,
+                                               @PathVariable("mediaId") UUID mediaId) {
         try {
             mediaService.deleteMedia(mediaId);
             return ResponseEntity.status(HttpStatus.OK).body("Media deleted successfully.");
