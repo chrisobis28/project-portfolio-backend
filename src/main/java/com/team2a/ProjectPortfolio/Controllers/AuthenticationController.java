@@ -81,7 +81,7 @@ public class AuthenticationController {
         response.addCookie(cookie);
 
         Instant now = Instant.now();
-        Instant expirationInstant = now.plus(60, ChronoUnit.SECONDS);
+        Instant expirationInstant = now.plus(60, ChronoUnit.MINUTES);
         Date expirationDate = Date.from(expirationInstant);
 
         return ResponseEntity.ok(expirationDate.toString());
@@ -89,12 +89,11 @@ public class AuthenticationController {
 
     /**
      * the Logout into an Account method
-     * @param httpServletRequest - the request with the cookies contained
      * @param response - the response given which contains and invalid cookie
      * @return - the status of the logout
      */
     @PostMapping("/logout")
-    public ResponseEntity<String> logout (HttpServletRequest httpServletRequest, HttpServletResponse response) {
+    public ResponseEntity<String> logout (HttpServletResponse response) {
         Cookie cookie = new Cookie(cookieName, null);
         cookie.setHttpOnly(true);
         cookie.setSecure(true);
