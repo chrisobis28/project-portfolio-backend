@@ -13,8 +13,8 @@ class ProjectsToAccountsTest {
         UUID id1 = UUID.randomUUID();
         Project p = new Project();
         Account a = new Account();
-        ProjectsToAccounts pta = new ProjectsToAccounts("role", a, p);
-        assertEquals("role", pta.getRole());
+        ProjectsToAccounts pta = new ProjectsToAccounts(RoleInProject.CONTENT_CREATOR, a, p);
+        assertEquals(RoleInProject.CONTENT_CREATOR, pta.getRole());
         assertEquals(a, pta.getAccount());
         assertEquals(p, pta.getProject());
     }

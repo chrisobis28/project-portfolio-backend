@@ -1,5 +1,8 @@
 package com.team2a.ProjectPortfolio.Controllers;
 
+import static com.team2a.ProjectPortfolio.security.Permissions.EDITOR_IN_PROJECT;
+import static com.team2a.ProjectPortfolio.security.Permissions.PM_ONLY;
+
 import com.team2a.ProjectPortfolio.Commons.Tag;
 import com.team2a.ProjectPortfolio.Routes;
 import com.team2a.ProjectPortfolio.Services.TagService;
@@ -10,6 +13,7 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -50,6 +54,7 @@ public class TagController {
      * @return the tag
      */
     @PostMapping("/create")
+    @PreAuthorize(PM_ONLY)
     public ResponseEntity<Tag> createTag (@Valid @RequestBody Tag tag) {
         Tag newTag = tagService.createTag(tag);
         return ResponseEntity.ok(newTag);
@@ -63,6 +68,7 @@ public class TagController {
      * @return the response entity
      */
     @PostMapping("/{projectId}/{tagId}")
+    @PreAuthorize(EDITOR_IN_PROJECT)
     public ResponseEntity<String> addTagToProject
     (@PathVariable("projectId") UUID projectId, @PathVariable("tagId") UUID tagId) {
         tagService.addTagToProject(projectId, tagId);
@@ -76,6 +82,7 @@ public class TagController {
      * @return the tag
      */
     @PutMapping("/edit")
+    @PreAuthorize(PM_ONLY)
     public ResponseEntity<Tag> editTag (@Valid @RequestBody Tag tag) {
         Tag newTag = tagService.editTag(tag);
         return ResponseEntity.ok(newTag);
@@ -88,6 +95,7 @@ public class TagController {
      * @return the response entity
      */
     @DeleteMapping("/{tagId}")
+    @PreAuthorize(PM_ONLY)
     public ResponseEntity<Void> deleteTag (@PathVariable("tagId") UUID tagId) {
         tagService.deleteTag(tagId);
         return ResponseEntity.ok().build();
@@ -101,6 +109,7 @@ public class TagController {
      * @return the response entity
      */
     @DeleteMapping("/{projectId}/{tagId}")
+    @PreAuthorize(EDITOR_IN_PROJECT)
     public ResponseEntity<Void> removeTagFromProject
     (@PathVariable("projectId") UUID projectId, @PathVariable("tagId") UUID tagId) {
         tagService.removeTagFromProject(projectId, tagId);

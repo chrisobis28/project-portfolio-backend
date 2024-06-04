@@ -3,6 +3,7 @@ package com.team2a.ProjectPortfolio.Services;
 import com.team2a.ProjectPortfolio.Commons.Account;
 import com.team2a.ProjectPortfolio.Commons.Project;
 import com.team2a.ProjectPortfolio.Commons.ProjectsToAccounts;
+import com.team2a.ProjectPortfolio.Commons.RoleInProject;
 import com.team2a.ProjectPortfolio.CustomExceptions.AccountNotFoundException;
 import com.team2a.ProjectPortfolio.CustomExceptions.DuplicatedUsernameException;
 import com.team2a.ProjectPortfolio.CustomExceptions.NotFoundException;
@@ -106,7 +107,7 @@ public class AccountService {
      * @param projectId - the id of the Project
      * @param role - the role given
      */
-    public void addRole (String username, UUID projectId, String role) {
+    public void addRole (String username, UUID projectId, RoleInProject role) {
         Account optionalAccount = checkAccountExistence(username);
         Project optionalProject = checkProjectExistence(projectId);
         if(projectsToAccountsRepository.findAll().stream()

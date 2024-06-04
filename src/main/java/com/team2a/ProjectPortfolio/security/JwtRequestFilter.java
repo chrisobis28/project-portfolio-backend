@@ -1,18 +1,21 @@
 package com.team2a.ProjectPortfolio.security;
 
+import com.team2a.ProjectPortfolio.Commons.Account;
+import com.team2a.ProjectPortfolio.Repositories.AccountRepository;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
+import java.util.NoSuchElementException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
@@ -25,7 +28,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
     private JwtTokenUtil jwtTokenUtil;
 
     @Autowired
-    private CustomUserDetailsService userDetailsService;
+    private AccountRepository accountRepository;
 
     @Value("#{'${public.endpoints}'.split(',')}")
     private List<String> publicEndpoints;
@@ -50,13 +53,19 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                 .anyMatch(endpoint -> new AntPathMatcher().match(endpoint, requestURI));
 
         if (!isPublicEndpoint) {
-            final String requestTokenHeader = request.getHeader("Authorization");
+            if(request.getCookies()==null){
+                logger.warn("Cookies are null");
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                return;
+            }
+            final String jwtToken = Arrays.stream(request.getCookies())
+                .filter(cookie -> cookie.getName().equals("auth-cookie"))
+                .findFirst().map(Cookie::getValue)
+                .orElse(null);
 
             String username;
-            String jwtToken;
 
-            if (requestTokenHeader != null && requestTokenHeader.startsWith("Bearer ")) {
-                jwtToken = requestTokenHeader.substring(7);
+            if (jwtToken != null) {
                 try {
                     username = jwtTokenUtil.getUsernameFromToken(jwtToken);
                 } catch (ExpiredJwtException e) {
@@ -69,32 +78,36 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                     return;
                 }
             } else {
-                logger.warn("JWT Token does not begin with Bearer String");
+                logger.warn("Token is null");
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 return;
             }
 
-            UserDetails userDetails;
+            Account account;
             try {
-                userDetails = this.userDetailsService.loadUserByUsername(username);
-            } catch (UsernameNotFoundException e) {
+                account = accountRepository.findById(username).get();
+            } catch (NoSuchElementException e) {
                 logger.warn(e.getMessage());
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 return;
             }
-            if (jwtTokenUtil.validateToken(jwtToken, userDetails.getUsername())) {
+            if (jwtTokenUtil.validateToken(jwtToken, account.getUsername())) {
                 UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken
                     = new UsernamePasswordAuthenticationToken(
-                    userDetails, null, userDetails.getAuthorities());
+                    account, null, account.getAuthorities());
+                logger.info(account.getAuthorities());
                 usernamePasswordAuthenticationToken
                     .setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+                logger.info("JTW Token is valid");
+                filterChain.doFilter(request, response);
             } else {
+                logger.warn("JWT Token is not valid");
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                return;
             }
+        } else{
+            if(!new AntPathMatcher().match("/h2-console/**", requestURI))logger.info("Public endpoint");
+            filterChain.doFilter(request, response);
         }
-
-        filterChain.doFilter(request, response);
     }
 }

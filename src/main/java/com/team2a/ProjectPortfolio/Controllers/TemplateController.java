@@ -1,5 +1,8 @@
 package com.team2a.ProjectPortfolio.Controllers;
 
+import static com.team2a.ProjectPortfolio.security.Permissions.ADMIN_ONLY;
+import static com.team2a.ProjectPortfolio.security.Permissions.PM_ONLY;
+
 import com.team2a.ProjectPortfolio.Commons.Template;
 import com.team2a.ProjectPortfolio.Commons.TemplateAddition;
 import com.team2a.ProjectPortfolio.Routes;
@@ -10,6 +13,7 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -34,6 +38,7 @@ public class TemplateController {
      * @return - the created Template
      */
     @PostMapping("")
+    @PreAuthorize(PM_ONLY)
     public ResponseEntity<Template> createTemplate (@Valid @RequestBody Template template) {
         return ResponseEntity.status(HttpStatus.OK).body(templateService.createTemplate(template));
     }
@@ -44,6 +49,7 @@ public class TemplateController {
      * @return - deletion status
      */
     @DeleteMapping("/{templateName}")
+    @PreAuthorize(ADMIN_ONLY)
     public ResponseEntity<Void> deleteTemplate (@PathVariable("templateName") String templateName) {
         templateService.deleteTemplate(templateName);
         return ResponseEntity.status(HttpStatus.OK).build();
