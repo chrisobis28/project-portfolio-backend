@@ -8,6 +8,7 @@ import com.team2a.ProjectPortfolio.Repositories.AccountRepository;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -20,7 +21,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationContext;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.test.util.ReflectionTestUtils;
 
 @ExtendWith(MockitoExtension.class)
@@ -31,9 +31,6 @@ class JwtRequestFilterTest {
 
     @Mock
     private AccountRepository accountRepository;
-
-    @Mock
-    private ApplicationContext context;
 
     @Mock
     private FilterChain filterChain;
@@ -69,7 +66,7 @@ class JwtRequestFilterTest {
 
     @Test
     public void testDoFilterInternal_ValidToken() throws ServletException, IOException {
-        when(request.getHeader("Authorization")).thenReturn("Bearer validToken");
+        when(request.getCookies()).thenReturn(new Cookie[]{new Cookie("auth-cookie", "validToken")});
         when(jwtTokenUtil.getUsernameFromToken("validToken")).thenReturn("username");
         when(account.getUsername()).thenReturn("username");
         when(accountRepository.findById("username")).thenReturn(Optional.of(account));
@@ -80,7 +77,7 @@ class JwtRequestFilterTest {
 
     @Test
     public void testDoFilterInternal_ExpiredToken() throws ServletException, IOException {
-        when(request.getHeader("Authorization")).thenReturn("Bearer expiredToken");
+        when(request.getCookies()).thenReturn(new Cookie[]{new Cookie("auth-cookie", "expiredToken")});
         when(jwtTokenUtil.getUsernameFromToken("expiredToken")).thenThrow(ExpiredJwtException.class);
 
         jwtRequestFilter.doFilterInternal(request, response, filterChain);
@@ -89,11 +86,11 @@ class JwtRequestFilterTest {
 
     @Test
     public void testDoFilterInternal_InvalidToken() throws ServletException, IOException {
-        when(request.getHeader("Authorization")).thenReturn("Bearer invalidToken");
         when(jwtTokenUtil.getUsernameFromToken("invalidToken")).thenReturn("username");
         when(account.getUsername()).thenReturn("username");
         when(accountRepository.findById("username")).thenReturn(Optional.of(account));
         when(jwtTokenUtil.validateToken("invalidToken", "username")).thenReturn(false);
+        when(request.getCookies()).thenReturn(new Cookie[]{new Cookie("auth-cookie", "invalidToken")});
 
         jwtRequestFilter.doFilterInternal(request, response, filterChain);
 
@@ -102,7 +99,7 @@ class JwtRequestFilterTest {
 
     @Test
     public void testDoFilterInternal_NoToken() throws ServletException, IOException {
-        when(request.getHeader("Authorization")).thenReturn(null);
+        when(request.getCookies()).thenReturn(null);
 
         jwtRequestFilter.doFilterInternal(request, response, filterChain);
 
