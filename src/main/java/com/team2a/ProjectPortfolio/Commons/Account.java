@@ -102,15 +102,13 @@ public class Account implements UserDetails {
     @Override
     @JsonIgnore
     public Collection<? extends GrantedAuthority> getAuthorities () {
-        List<SimpleGrantedAuthority> authorities = new ArrayList<>();
         if(isAdministrator) {
-            authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
+            return List.of(new SimpleGrantedAuthority("ROLE_ADMIN"));
         }
         if(isPM) {
-            authorities.add(new SimpleGrantedAuthority("ROLE_PM"));
+            return List.of(new SimpleGrantedAuthority("ROLE_PM"));
         }
-        authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
-        return authorities;
+        return List.of(new SimpleGrantedAuthority("ROLE_USER"));
     }
 
     @Override

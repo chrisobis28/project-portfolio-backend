@@ -124,4 +124,32 @@ public class AccountController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
+
+    /**
+     * Updates the role of an Account in a Project
+     * @param username - the username of the Account
+     * @param projectId - the id of the Project
+     * @param role - the new role to be assigned
+     * @return - the status of the update
+     */
+    @PutMapping("/{username}/{projectId}")
+    @PreAuthorize(PM_IN_PROJECT)
+    public ResponseEntity<Void> updateRole (@PathVariable("username") String username,
+                                            @PathVariable("projectId") UUID projectId,
+                                            @RequestBody RoleInProject role) {
+        accountService.updateRole(username, projectId, role);
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+    /**
+     * Gets the role of an Account in a Project
+     * @param username - the username of the Account
+     * @param projectId - the id of the Project
+     * @return - the role of the Account in the Project
+     */
+    @GetMapping("/role/{username}/{projectId}")
+    public ResponseEntity<String> getRole (@PathVariable("username") String username,
+                                                 @PathVariable("projectId") UUID projectId) {
+        return ResponseEntity.ok(accountService.getRole(username, projectId));
+    }
 }

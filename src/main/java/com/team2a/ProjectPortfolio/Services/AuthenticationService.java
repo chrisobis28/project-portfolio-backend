@@ -5,6 +5,7 @@ import com.team2a.ProjectPortfolio.Repositories.AccountRepository;
 import com.team2a.ProjectPortfolio.dto.LoginUserRequest;
 import com.team2a.ProjectPortfolio.dto.RegisterUserRequest;
 import com.team2a.ProjectPortfolio.security.JwtTokenUtil;
+import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -66,5 +67,25 @@ public class AuthenticationService {
         }
 
         return jwtTokenUtil.generateToken(loginUserRequest.getUsername());
+    }
+
+    /**
+     * Gets the role of an account
+     * @param username - the username of the account
+     * @return - the role of the account or "ROLE_VISITOR" if the account does not exist
+     */
+    public String getAccountRole (String username){
+        Optional<Account> a = accountRepository.findById(username);
+        if(a.isEmpty()){
+            return "ROLE_VISITOR";
+        }
+        Account account = a.get();
+        if(account.getIsAdministrator()){
+            return "ROLE_ADMIN";
+        } else if(account.getIsPM()){
+            return "ROLE_PM";
+        } else {
+            return "ROLE_USER";
+        }
     }
 }

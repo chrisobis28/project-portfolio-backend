@@ -15,7 +15,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class AccountService {
@@ -132,5 +134,39 @@ public class AccountService {
             throw new NotFoundException();
         }
         projectsToAccountsRepository.deleteById(list.get(0).getPtaId());
+    }
+
+    /**
+     * Updates the role of an Account in a Project
+     * @param username - the username of the Account
+     * @param projectId - the id of the Project
+     * @param role - the new role to be set
+     */
+    public void updateRole (String username, UUID projectId, RoleInProject role) {
+        List<ProjectsToAccounts>
+            list = projectsToAccountsRepository.findAll().stream().filter(x -> x.getAccount().getUsername().equals(username))
+            .filter(x -> x.getProject().getProjectId().equals(projectId)).toList();
+        if(list.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Project or account not found.");
+        }
+        ProjectsToAccounts pta = list.get(0);
+        pta.setRole(role);
+        projectsToAccountsRepository.save(pta);
+    }
+
+    /**
+     * Gets the role of an Account in a Project
+     * @param username - the username of the Account
+     * @param projectId - the id of the Project
+     * @return - the role of the Account in the Project
+     */
+    public String getRole (String username, UUID projectId) {
+        List<ProjectsToAccounts>
+            list = projectsToAccountsRepository.findAll().stream().filter(x -> x.getAccount().getUsername().equals(username))
+            .filter(x -> x.getProject().getProjectId().equals(projectId)).toList();
+        if(list.isEmpty()) {
+            return "VISITOR";
+        }
+        return list.get(0).getRole().toString();
     }
 }
