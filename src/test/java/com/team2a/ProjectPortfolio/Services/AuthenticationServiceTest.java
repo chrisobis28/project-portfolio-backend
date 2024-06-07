@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 
 import com.team2a.ProjectPortfolio.Commons.Account;
 import com.team2a.ProjectPortfolio.Repositories.AccountRepository;
+import com.team2a.ProjectPortfolio.Repositories.CollaboratorRepository;
 import com.team2a.ProjectPortfolio.dto.LoginUserRequest;
 import com.team2a.ProjectPortfolio.dto.RegisterUserRequest;
 import com.team2a.ProjectPortfolio.security.JwtTokenUtil;
@@ -24,6 +25,9 @@ public class AuthenticationServiceTest {
 
     @Mock
     private AccountRepository accountRepository;
+
+    @Mock
+    private CollaboratorRepository collaboratorRepository;
 
     @Mock
     private PasswordEncoder passwordEncoder;
@@ -44,6 +48,7 @@ public class AuthenticationServiceTest {
     @Test
     void testRegisterUserSuccess() {
         when(accountRepository.existsById("username")).thenReturn(false);
+        when(collaboratorRepository.findByName("username")).thenReturn(Optional.empty());
         RegisterUserRequest request = new RegisterUserRequest("username", "name", "password");
         assertDoesNotThrow(() -> authenticationService.registerUser(request));
     }

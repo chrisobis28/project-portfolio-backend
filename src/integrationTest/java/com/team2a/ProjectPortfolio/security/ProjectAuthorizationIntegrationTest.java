@@ -5,8 +5,10 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.team2a.ProjectPortfolio.Commons.Collaborator;
 import com.team2a.ProjectPortfolio.Commons.Project;
 import com.team2a.ProjectPortfolio.Repositories.AccountRepository;
+import com.team2a.ProjectPortfolio.Repositories.CollaboratorRepository;
 import com.team2a.ProjectPortfolio.Repositories.ProjectRepository;
 import com.team2a.ProjectPortfolio.Repositories.ProjectsToAccountsRepository;
 import com.team2a.ProjectPortfolio.Routes;
@@ -39,6 +41,9 @@ public class ProjectAuthorizationIntegrationTest {
     private AccountRepository accountRepository;
 
     @Autowired
+    private CollaboratorRepository collaboratorRepository;
+
+    @Autowired
     private ProjectsToAccountsRepository projectsToAccountsRepository;
     @Autowired
     private ObjectMapper objectMapper;
@@ -48,8 +53,10 @@ public class ProjectAuthorizationIntegrationTest {
     public void setUp() {
         accountRepository.deleteAll();
         projectRepository.deleteAll();
+        collaboratorRepository.deleteAll();
         projectsToAccountsRepository.deleteAll();
         project1 = new Project("title1", "description1", true);
+        collaboratorRepository.saveAndFlush(new Collaborator("name"));
     }
 
     @Test

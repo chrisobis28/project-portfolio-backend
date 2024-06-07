@@ -1,10 +1,13 @@
 package com.team2a.ProjectPortfolio.Services;
 
 import com.team2a.ProjectPortfolio.Commons.Account;
+import com.team2a.ProjectPortfolio.Commons.Collaborator;
 import com.team2a.ProjectPortfolio.Repositories.AccountRepository;
+import com.team2a.ProjectPortfolio.Repositories.CollaboratorRepository;
 import com.team2a.ProjectPortfolio.dto.LoginUserRequest;
 import com.team2a.ProjectPortfolio.dto.RegisterUserRequest;
 import com.team2a.ProjectPortfolio.security.JwtTokenUtil;
+import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -16,21 +19,26 @@ public class AuthenticationService {
 
     private final AccountRepository accountRepository;
 
+    private final CollaboratorRepository collaboratorRepository;
+
     private final PasswordEncoder passwordEncoder;
 
     private final JwtTokenUtil jwtTokenUtil;
 
     /**
-     * Constructor for the Authentication Service
+     * Constructor for the AuthenticationService
      * @param accountRepository - the Account Repository
+     * @param collaboratorRepository - the Collaborator Repository
      * @param passwordEncoder - the Password Encoder
      * @param jwtTokenUtil - the JWT Token Util
      */
     @Autowired
     public AuthenticationService(AccountRepository accountRepository,
+                                 CollaboratorRepository collaboratorRepository,
                                  PasswordEncoder passwordEncoder,
                                  JwtTokenUtil jwtTokenUtil) {
         this.accountRepository = accountRepository;
+        this.collaboratorRepository = collaboratorRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtTokenUtil = jwtTokenUtil;
     }
@@ -49,6 +57,18 @@ public class AuthenticationService {
         newAccount.setName(registerUserRequest.getName());
         newAccount.setIsAdministrator(false);
         newAccount.setIsPM(false);
+        Optional<Collaborator> collaborator = collaboratorRepository.findByName(registerUserRequest.getUsername());
+
+        // If the collaborator does not exist, create a new collaborator,
+        // otherwise, do nothing
+        // in the future there should be a way to allow somebody to link up their
+        // account with an existing collaborator, but that would require additional security
+
+        if  (collaborator.isEmpty()){
+            Collaborator newCollaborator = new Collaborator();
+            newCollaborator.setName(registerUserRequest.getName());
+            collaboratorRepository.save(newCollaborator);
+        }
         accountRepository.save(newAccount);
     }
 

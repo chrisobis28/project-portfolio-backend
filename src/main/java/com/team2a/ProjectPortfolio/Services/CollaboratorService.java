@@ -7,6 +7,7 @@ import com.team2a.ProjectPortfolio.Repositories.CollaboratorRepository;
 import com.team2a.ProjectPortfolio.Repositories.ProjectRepository;
 import com.team2a.ProjectPortfolio.Repositories.ProjectsToCollaboratorsRepository;
 import jakarta.persistence.EntityNotFoundException;
+import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
@@ -132,5 +133,15 @@ public class CollaboratorService {
      */
     public List<Collaborator> getAllCollaborators () {
         return collaboratorRepository.findAll();
+    }
+
+    /**
+     * Finds a collaborator by name
+     * @param name the name of the collaborator
+     * @return the collaborator ID
+     */
+    public UUID findCollaboratorIdByName (String name) {
+        Optional<Collaborator> collaborator = collaboratorRepository.findByName(name);
+        return collaborator.map(Collaborator::getCollaboratorId).orElse(null);
     }
 }
