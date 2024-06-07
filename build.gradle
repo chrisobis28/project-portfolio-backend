@@ -85,7 +85,8 @@ jacocoTestReport {
 			fileTree(dir: it,
 					exclude: ['**/ProjectPortfolioManagementSystemApplication.class',
 							  '**/Routes.class',
-							  '**/MediaHelper.class'])
+							  '**/MediaHelper.class',
+								'**/WebSocket'])
 		})
 	}
 }
