@@ -1,11 +1,8 @@
 package com.team2a.ProjectPortfolio.Services;
 
 import com.team2a.ProjectPortfolio.Commons.Account;
-<<<<<<< src/main/java/com/team2a/ProjectPortfolio/Services/AuthenticationService.java
 import com.team2a.ProjectPortfolio.Commons.Role;
-=======
 import com.team2a.ProjectPortfolio.Commons.Collaborator;
->>>>>>> src/main/java/com/team2a/ProjectPortfolio/Services/AuthenticationService.java
 import com.team2a.ProjectPortfolio.Repositories.AccountRepository;
 import com.team2a.ProjectPortfolio.Repositories.CollaboratorRepository;
 import com.team2a.ProjectPortfolio.dto.LoginUserRequest;

@@ -62,7 +62,7 @@ public class AccountServiceTest {
     accountRepository = Mockito.mock(AccountRepository.class);
     projectRepository = Mockito.mock(ProjectRepository.class);
     projectsToAccountsRepository = Mockito.mock(ProjectsToAccountsRepository.class);
-    accountService = new AccountService(accountRepository, projectRepository, projectsToAccountsRepository);
+    accountService = new AccountService(accountRepository, projectRepository, projectsToAccountsRepository, collaboratorService);
     a = new Account("username", "name", "password", Role.ROLE_USER);
     Project project = new Project();
     project.setProjectId(projectId);
