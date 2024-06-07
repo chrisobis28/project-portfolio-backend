@@ -41,17 +41,11 @@ public class Account implements UserDetails {
     @NotNull(message = "password can't be null")
     private String password;
 
-    @Column(name= "IS_ADMINISTRATOR")
+    @Enumerated(EnumType.STRING)
+    @Column(name="ROLE")
     @Getter
     @Setter
-    @NotNull(message = "isAdministrator can't be null")
-    private Boolean isAdministrator;
-
-    @Column(name= "IS_PM")
-    @Getter
-    @Setter
-    @NotNull(message = "isPM can't be null")
-    private Boolean isPM;
+    private Role role;
 
     @Getter
     @Setter
@@ -74,16 +68,13 @@ public class Account implements UserDetails {
      * @param username the username of the account
      * @param name the name of the account
      * @param password the password of the account
-     * @param isAdministrator whether the account is an administrator
-     * @param isPM whether the account is a project manager
+     * @param role the role of the account
      */
-    public Account (String username, String name, String password, Boolean isAdministrator,
-                   Boolean isPM) {
+    public Account (String username, String name, String password, Role role) {
         this.username = username;
         this.name = name;
         this.password = password;
-        this.isAdministrator = isAdministrator;
-        this.isPM = isPM;
+        this.role = role;
     }
 
     /**
@@ -102,15 +93,7 @@ public class Account implements UserDetails {
     @Override
     @JsonIgnore
     public Collection<? extends GrantedAuthority> getAuthorities () {
-        List<SimpleGrantedAuthority> authorities = new ArrayList<>();
-        if(isAdministrator) {
-            authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
-        }
-        if(isPM) {
-            authorities.add(new SimpleGrantedAuthority("ROLE_PM"));
-        }
-        authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
-        return authorities;
+        return List.of(new SimpleGrantedAuthority(role.toString()));
     }
 
     @Override

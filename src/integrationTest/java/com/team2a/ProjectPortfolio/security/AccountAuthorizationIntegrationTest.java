@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.team2a.ProjectPortfolio.Commons.Account;
 import com.team2a.ProjectPortfolio.Commons.Collaborator;
 import com.team2a.ProjectPortfolio.Commons.Project;
+import com.team2a.ProjectPortfolio.Commons.Role;
 import com.team2a.ProjectPortfolio.Repositories.AccountRepository;
 import com.team2a.ProjectPortfolio.Repositories.CollaboratorRepository;
 import com.team2a.ProjectPortfolio.Repositories.ProjectRepository;
@@ -71,7 +72,7 @@ public class AccountAuthorizationIntegrationTest {
 
         UUID project1Id = projectRepository.findAll().get(0).getProjectId();
 
-        Account accountToBeAdded = new Account("username2", "name2", "password2", false, false);
+        Account accountToBeAdded = new Account("username2", "name2", "password2", Role.ROLE_USER);
         accountRepository.save(accountToBeAdded);
         collaboratorRepository.save(new Collaborator("name2"));
 
@@ -92,7 +93,7 @@ public class AccountAuthorizationIntegrationTest {
 
         UUID project1Id = projectRepository.findAll().get(0).getProjectId();
 
-        Account accountToBeAdded = new Account("username2", "name2", "password2", false, false);
+        Account accountToBeAdded = new Account("username2", "name2", "password2", Role.ROLE_USER);
         accountRepository.save(accountToBeAdded);
 
         securityConfigUtils.setProjectManagerWithUsername("username3");
@@ -114,7 +115,7 @@ public class AccountAuthorizationIntegrationTest {
 
         UUID project1Id = projectRepository.findAll().get(0).getProjectId();
 
-        Account accountToBeAdded = new Account("username2", "name2", "password2", false, false);
+        Account accountToBeAdded = new Account("username2", "name2", "password2", Role.ROLE_USER);
         accountRepository.save(accountToBeAdded);
         collaboratorRepository.save(new Collaborator("name2"));
         mockMvc.perform(post(Routes.ACCOUNT + "/" + accountToBeAdded.getUsername() + "/" + project1Id)

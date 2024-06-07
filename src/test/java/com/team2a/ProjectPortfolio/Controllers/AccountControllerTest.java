@@ -8,6 +8,7 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
 import com.team2a.ProjectPortfolio.Commons.Account;
+import com.team2a.ProjectPortfolio.Commons.Role;
 import com.team2a.ProjectPortfolio.Commons.RoleInProject;
 import com.team2a.ProjectPortfolio.CustomExceptions.AccountNotFoundException;
 import com.team2a.ProjectPortfolio.CustomExceptions.DuplicatedUsernameException;
@@ -42,7 +43,7 @@ public class AccountControllerTest {
   @Test
   void testEditAccountNotFoundException() {
     when(accountService.editAccount(any(Account.class))).thenThrow(new AccountNotFoundException(""));
-    Account account = new Account("username", "name", "password", false, false);
+    Account account = new Account("username", "name", "password", Role.ROLE_USER);
     ResponseEntity<Account> re = accountController.editAccount(account);
     assertEquals(HttpStatus.NOT_FOUND, re.getStatusCode());
     assertNull(re.getBody());
@@ -50,7 +51,7 @@ public class AccountControllerTest {
 
   @Test
   void testEditAccountSuccess() {
-    Account account = new Account("username", "name", "password", false, false);
+    Account account = new Account("username", "name", "password", Role.ROLE_USER);
     when(accountService.editAccount(any(Account.class))).thenReturn(account);
     ResponseEntity<Account> re = accountController.editAccount(account);
     assertEquals(HttpStatus.OK, re.getStatusCode());
@@ -67,7 +68,7 @@ public class AccountControllerTest {
 
   @Test
   void testGetAccountByIdSuccess() {
-    Account account = new Account("username", "name", "password", false, false);
+    Account account = new Account("username", "name", "password", Role.ROLE_USER);
     when(accountService.getAccountById("username")).thenReturn(account);
     ResponseEntity<Account> re = accountController.getAccountById("username");
     assertEquals(HttpStatus.OK, re.getStatusCode());

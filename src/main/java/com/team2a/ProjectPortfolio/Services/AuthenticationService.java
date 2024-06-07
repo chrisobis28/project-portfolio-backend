@@ -1,6 +1,7 @@
 package com.team2a.ProjectPortfolio.Services;
 
 import com.team2a.ProjectPortfolio.Commons.Account;
+import com.team2a.ProjectPortfolio.Commons.Role;
 import com.team2a.ProjectPortfolio.Commons.Collaborator;
 import com.team2a.ProjectPortfolio.Repositories.AccountRepository;
 import com.team2a.ProjectPortfolio.Repositories.CollaboratorRepository;
@@ -55,8 +56,7 @@ public class AuthenticationService {
         newAccount.setUsername(registerUserRequest.getUsername());
         newAccount.setPassword(passwordEncoder.encode(registerUserRequest.getPassword()));
         newAccount.setName(registerUserRequest.getName());
-        newAccount.setIsAdministrator(false);
-        newAccount.setIsPM(false);
+        newAccount.setRole(Role.ROLE_USER);
         Optional<Collaborator> collaborator = collaboratorRepository.findByName(registerUserRequest.getUsername());
 
         // If the collaborator does not exist, create a new collaborator,
@@ -86,5 +86,19 @@ public class AuthenticationService {
         }
 
         return jwtTokenUtil.generateToken(loginUserRequest.getUsername());
+    }
+
+    /**
+     * Gets the role of an account
+     * @param username - the username of the account
+     * @return - the role of the account or "ROLE_VISITOR" if the account does not exist
+     */
+    public String getAccountRole (String username){
+        Optional<Account> a = accountRepository.findById(username);
+        if(a.isEmpty()){
+            return "ROLE_VISITOR";
+        }
+        Account account = a.get();
+        return account.getRole().toString();
     }
 }

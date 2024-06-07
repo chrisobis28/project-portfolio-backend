@@ -2,6 +2,8 @@ package com.team2a.ProjectPortfolio.Services;
 
 import com.team2a.ProjectPortfolio.Commons.Account;
 import com.team2a.ProjectPortfolio.Commons.Project;
+import com.team2a.ProjectPortfolio.Commons.ProjectsToAccounts;
+import com.team2a.ProjectPortfolio.Commons.RoleInProject;
 import com.team2a.ProjectPortfolio.Repositories.ProjectRepository;
 import com.team2a.ProjectPortfolio.Repositories.ProjectsToAccountsRepository;
 import com.team2a.ProjectPortfolio.security.SecurityUtils;
@@ -121,6 +123,34 @@ class ProjectServiceTest {
     void getProjectByIdNotFound() {
         UUID projectId = UUID.randomUUID();
         assertThrows(ResponseStatusException.class, () -> projectService.getProjectById(projectId));
+    }
+
+    @Test
+    void testUserBelongsToProjectProjectNotFound() {
+        UUID projectId = UUID.randomUUID();
+        when(projectRepository.findById(projectId)).thenReturn(Optional.empty());
+        assertThrows(ResponseStatusException.class, () -> projectService.userBelongsToProject("username",projectId));
+    }
+
+    @Test
+    void testUserBelongsToProjectUserNotInProject() {
+        UUID projectId = UUID.randomUUID();
+        Project project = new Project("Title1", "Description1", false);
+        project.setProjectsToAccounts(new ArrayList<>());
+        when(projectRepository.findById(projectId)).thenReturn(Optional.of(project));
+        assertThrows(ResponseStatusException.class, () -> projectService.userBelongsToProject("username",projectId));
+    }
+
+    @Test
+    void testUserBelongsToProjectUserInProject() {
+        UUID projectId = UUID.randomUUID();
+        Project project = new Project("Title1", "Description1", false);
+        Account account = new Account();
+        account.setUsername("username");
+        project.setProjectsToAccounts(List.of(new ProjectsToAccounts(RoleInProject.PM, account, project)));
+        when(projectRepository.findById(projectId)).thenReturn(Optional.of(project));
+        RoleInProject response = projectService.userBelongsToProject("username",projectId);
+        assertEquals(RoleInProject.PM, response);
     }
 
 }
