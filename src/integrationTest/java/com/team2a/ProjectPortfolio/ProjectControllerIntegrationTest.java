@@ -65,6 +65,7 @@ public class ProjectControllerIntegrationTest {
     @BeforeEach
     public void setUp() {
         projectRepository.deleteAll();
+        collaboratorRepository.deleteAll();
         project1 = new Project("title1", "description1", false);
         project2 = new Project("title2", "description2", true);
         project3 = new Project("title3", "description3", false);

@@ -67,6 +67,7 @@ public class AccountControllerIntegrationTest {
     accountRepository.deleteAll();
     projectRepository.deleteAll();
     projectsToAccountsRepository.deleteAll();
+    collaboratorRepository.deleteAll();
     account = new Account("username1", "name1", "password1", false, false);
     project = new Project("title", "description", false);
     project = projectRepository.save(project);

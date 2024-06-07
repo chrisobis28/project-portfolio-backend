@@ -53,6 +53,7 @@ public class ProjectAuthorizationIntegrationTest {
     public void setUp() {
         accountRepository.deleteAll();
         projectRepository.deleteAll();
+        collaboratorRepository.deleteAll();
         projectsToAccountsRepository.deleteAll();
         project1 = new Project("title1", "description1", true);
         collaboratorRepository.saveAndFlush(new Collaborator("name"));
