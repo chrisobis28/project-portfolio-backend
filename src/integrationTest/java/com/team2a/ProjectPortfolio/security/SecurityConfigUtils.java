@@ -1,6 +1,7 @@
 package com.team2a.ProjectPortfolio.security;
 
 import com.team2a.ProjectPortfolio.Commons.Account;
+import com.team2a.ProjectPortfolio.Commons.Role;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -10,7 +11,7 @@ public class SecurityConfigUtils {
 
     private Account currentAccount;
 
-    private Account adminAccount = new Account("username","name","Password!1",true,false);
+    private Account adminAccount = new Account("username","name","Password!1", Role.ROLE_ADMIN);
 
     /**
      * Use in integration tests to set an admin user
@@ -29,7 +30,7 @@ public class SecurityConfigUtils {
      * @param username
      */
     public void setProjectManagerWithUsername (String username){
-        Account projectManagerAccount = new Account(username,"name","Password!1",false,true);
+        Account projectManagerAccount = new Account(username,"name","Password!1",Role.ROLE_PM);
         UsernamePasswordAuthenticationToken authenticationToken =
             new UsernamePasswordAuthenticationToken(projectManagerAccount, null,projectManagerAccount.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(authenticationToken);
@@ -42,7 +43,7 @@ public class SecurityConfigUtils {
      * @param username
      */
     public void setUserWithUsername (String username){
-        Account user = new Account(username,"name","Password!1",false,false);
+        Account user = new Account(username,"name","Password!1",Role.ROLE_USER);
         UsernamePasswordAuthenticationToken authenticationToken =
             new UsernamePasswordAuthenticationToken(user, null,user.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(authenticationToken);

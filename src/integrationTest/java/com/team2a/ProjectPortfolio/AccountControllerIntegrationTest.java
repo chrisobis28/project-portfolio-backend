@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.team2a.ProjectPortfolio.Commons.Account;
 import com.team2a.ProjectPortfolio.Commons.Project;
 import com.team2a.ProjectPortfolio.Commons.ProjectsToAccounts;
+import com.team2a.ProjectPortfolio.Commons.Role;
 import com.team2a.ProjectPortfolio.Commons.RoleInProject;
 import com.team2a.ProjectPortfolio.Repositories.AccountRepository;
 import com.team2a.ProjectPortfolio.Repositories.ProjectRepository;
@@ -62,7 +63,7 @@ public class AccountControllerIntegrationTest {
     accountRepository.deleteAll();
     projectRepository.deleteAll();
     projectsToAccountsRepository.deleteAll();
-    account = new Account("username1", "name1", "password1", false, false);
+    account = new Account("username1", "name1", "password1", Role.ROLE_USER);
     project = new Project("title", "description", false);
     project = projectRepository.save(project);
     account = accountRepository.saveAndFlush(account);
@@ -97,22 +98,20 @@ public class AccountControllerIntegrationTest {
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.username", is("username1")))
         .andExpect(jsonPath("$.name", is("name2")))
-        .andExpect(jsonPath("$.password", is("password1")))
-        .andExpect(jsonPath("$.isAdministrator", is(false)))
-        .andExpect(jsonPath("$.isPM", is(false)));
+        .andExpect(jsonPath("$.password", is("password1")));
 
     assertEquals(1, accountRepository.count());
 
     mockMvc.perform(put(Routes.ACCOUNT)
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(
-                new Account("username2", "name", "password", false, false))))
+                new Account("username2", "name", "password", Role.ROLE_USER))))
         .andExpect(status().isNotFound());
 
     mockMvc.perform(put(Routes.ACCOUNT)
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(
-                new Account("username1", null, "password", false, false))))
+                new Account("username1", null, "password", Role.ROLE_USER))))
         .andExpect(status().isBadRequest());
   }
 
@@ -123,9 +122,7 @@ public class AccountControllerIntegrationTest {
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.username", is("username1")))
         .andExpect(jsonPath("$.name", is("name1")))
-        .andExpect(jsonPath("$.password", is("password1")))
-        .andExpect(jsonPath("$.isAdministrator", is(false)))
-        .andExpect(jsonPath("$.isPM", is(false)));
+        .andExpect(jsonPath("$.password", is("password1")));
 
     mockMvc.perform(get(Routes.ACCOUNT + "/" + "username2")
             .contentType(MediaType.APPLICATION_JSON))

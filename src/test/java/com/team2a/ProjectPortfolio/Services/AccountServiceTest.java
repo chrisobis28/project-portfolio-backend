@@ -12,6 +12,7 @@ import static org.mockito.Mockito.when;
 import com.team2a.ProjectPortfolio.Commons.Account;
 import com.team2a.ProjectPortfolio.Commons.Project;
 import com.team2a.ProjectPortfolio.Commons.ProjectsToAccounts;
+import com.team2a.ProjectPortfolio.Commons.Role;
 import com.team2a.ProjectPortfolio.Commons.RoleInProject;
 import com.team2a.ProjectPortfolio.CustomExceptions.AccountNotFoundException;
 import com.team2a.ProjectPortfolio.CustomExceptions.DuplicatedUsernameException;
@@ -55,7 +56,7 @@ public class AccountServiceTest {
   }
   @Test
   void testEditAccountAccountNotFoundException() {
-    Account account = new Account("username", "name", "password", false, false);
+    Account account = new Account("username", "name", "password", Role.ROLE_USER);
     when(accountRepository.findById("username")).thenReturn(Optional.empty());
     assertThrows(AccountNotFoundException.class, () -> accountService.editAccount(account));
     verify(accountRepository, never()).save(any(Account.class));
@@ -63,7 +64,7 @@ public class AccountServiceTest {
 
   @Test
   void testEditAccountSuccess() {
-    Account account = new Account("username", "name", "password", false, false);
+    Account account = new Account("username", "name", "password", Role.ROLE_USER);
     when(accountRepository.findById("username")).thenReturn(Optional.of(account));
     when(accountRepository.save(account)).thenReturn(account);
     Account retrieved_account = accountService.editAccount(account);
@@ -79,7 +80,7 @@ public class AccountServiceTest {
 
   @Test
   void testGetAccountByIdSuccess() {
-    Account account = new Account("username", "name", "password", false, false);
+    Account account = new Account("username", "name", "password", Role.ROLE_USER);
     when(accountRepository.findById("username")).thenReturn(Optional.of(account));
     Account retrieved_account = accountService.getAccountById("username");
     assertEquals(retrieved_account, account);
@@ -95,7 +96,7 @@ public class AccountServiceTest {
 
   @Test
   void testDeleteAccountSuccess() {
-    Account account = new Account("username", "name", "password", false, false);
+    Account account = new Account("username", "name", "password", Role.ROLE_USER);
     when(accountRepository.findById("username")).thenReturn(Optional.of(account));
     doNothing().when(accountRepository).deleteById("username");
     accountService.deleteAccount("username");

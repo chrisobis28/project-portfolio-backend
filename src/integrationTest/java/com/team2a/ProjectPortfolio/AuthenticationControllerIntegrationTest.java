@@ -8,6 +8,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.team2a.ProjectPortfolio.Commons.Account;
+import com.team2a.ProjectPortfolio.Commons.Role;
 import com.team2a.ProjectPortfolio.Repositories.AccountRepository;
 import com.team2a.ProjectPortfolio.dto.LoginUserRequest;
 import com.team2a.ProjectPortfolio.dto.RegisterUserRequest;
@@ -64,8 +65,7 @@ public class AuthenticationControllerIntegrationTest {
         assertEquals("username", account.getUsername());
         assertTrue(passwordEncoder.matches("Password!1", account.getPassword()));
         assertEquals("user", account.getName());
-        assertFalse(account.getIsPM());
-        assertFalse(account.getIsAdministrator());
+        assertEquals(Role.ROLE_USER, account.getRole());
     }
 
     @Test

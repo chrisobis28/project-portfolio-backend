@@ -1,6 +1,7 @@
 package com.team2a.ProjectPortfolio.Services;
 
 import com.team2a.ProjectPortfolio.Commons.Account;
+import com.team2a.ProjectPortfolio.Commons.Role;
 import com.team2a.ProjectPortfolio.Repositories.AccountRepository;
 import com.team2a.ProjectPortfolio.dto.LoginUserRequest;
 import com.team2a.ProjectPortfolio.dto.RegisterUserRequest;
@@ -48,8 +49,7 @@ public class AuthenticationService {
         newAccount.setUsername(registerUserRequest.getUsername());
         newAccount.setPassword(passwordEncoder.encode(registerUserRequest.getPassword()));
         newAccount.setName(registerUserRequest.getName());
-        newAccount.setIsAdministrator(false);
-        newAccount.setIsPM(false);
+        newAccount.setRole(Role.ROLE_USER);
         accountRepository.save(newAccount);
     }
 
@@ -80,12 +80,6 @@ public class AuthenticationService {
             return "ROLE_VISITOR";
         }
         Account account = a.get();
-        if(account.getIsAdministrator()){
-            return "ROLE_ADMIN";
-        } else if(account.getIsPM()){
-            return "ROLE_PM";
-        } else {
-            return "ROLE_USER";
-        }
+        return account.getRole().toString();
     }
 }

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.team2a.ProjectPortfolio.Commons.Project;
 import com.team2a.ProjectPortfolio.Commons.Account;
 import com.team2a.ProjectPortfolio.Commons.Request;
+import com.team2a.ProjectPortfolio.Commons.Role;
 import com.team2a.ProjectPortfolio.Repositories.AccountRepository;
 import com.team2a.ProjectPortfolio.Repositories.ProjectRepository;
 import com.team2a.ProjectPortfolio.Repositories.RequestRepository;
@@ -68,7 +69,7 @@ public class RequestControllerIntegrationTest {
         project = projectRepository.saveAndFlush(project);
         projectId = project.getProjectId();
 
-        account = new Account("username", "name", "password", false, false);
+        account = new Account("username", "name", "password", Role.ROLE_USER);
         account = accountRepository.saveAndFlush(account);
         accountId = account.getUsername();
 
@@ -80,7 +81,7 @@ public class RequestControllerIntegrationTest {
     public void addRequest() throws Exception {
         Project project2 = new Project("Test Project2", "Description2", false);
         project2 = projectRepository.saveAndFlush(project2);
-        Account account2 = new Account("username2", "name2", "password2", false, false);
+        Account account2 = new Account("username2", "name2", "password2", Role.ROLE_USER);
         account2 = accountRepository.saveAndFlush(account2);
         Request request = new Request("Title2", "Description2", false, account2, project2);
         mockMvc.perform(put("/request/")

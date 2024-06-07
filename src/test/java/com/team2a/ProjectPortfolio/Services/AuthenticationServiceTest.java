@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 import com.team2a.ProjectPortfolio.Commons.Account;
+import com.team2a.ProjectPortfolio.Commons.Role;
 import com.team2a.ProjectPortfolio.Repositories.AccountRepository;
 import com.team2a.ProjectPortfolio.dto.LoginUserRequest;
 import com.team2a.ProjectPortfolio.dto.RegisterUserRequest;
@@ -58,7 +59,7 @@ public class AuthenticationServiceTest {
     @Test
     void testLoginUserPasswordIncorrect() {
         LoginUserRequest request = new LoginUserRequest("username", "passwordIncorrect");
-        when(accountRepository.findById("username")).thenReturn(Optional.of(new Account("username", "name", "password", false, false)));
+        when(accountRepository.findById("username")).thenReturn(Optional.of(new Account("username", "name", "password", Role.ROLE_USER)));
         when(passwordEncoder.matches("passwordIncorrect", "password")).thenReturn(false);
         assertThrows(ResponseStatusException.class, () -> authenticationService.authenticate(request));
     }
@@ -66,7 +67,7 @@ public class AuthenticationServiceTest {
     @Test
     void testLoginUserSuccess() {
         LoginUserRequest request = new LoginUserRequest("username", "password");
-        when(accountRepository.findById("username")).thenReturn(Optional.of(new Account("username", "name", "password", false, false)));
+        when(accountRepository.findById("username")).thenReturn(Optional.of(new Account("username", "name", "password", Role.ROLE_USER)));
         when(passwordEncoder.matches("password", "password")).thenReturn(true);
         when(jwtTokenUtil.generateToken("username")).thenReturn("token");
         assertEquals("token", authenticationService.authenticate(request));
