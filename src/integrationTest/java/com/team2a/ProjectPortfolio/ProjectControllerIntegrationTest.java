@@ -11,11 +11,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.team2a.ProjectPortfolio.Commons.Collaborator;
 import com.team2a.ProjectPortfolio.Commons.Project;
 import com.team2a.ProjectPortfolio.Commons.ProjectsToAccounts;
 import com.team2a.ProjectPortfolio.Repositories.AccountRepository;
+import com.team2a.ProjectPortfolio.Repositories.CollaboratorRepository;
 import com.team2a.ProjectPortfolio.Repositories.ProjectRepository;
 import com.team2a.ProjectPortfolio.Repositories.ProjectsToAccountsRepository;
+import com.team2a.ProjectPortfolio.Repositories.ProjectsToCollaboratorsRepository;
 import com.team2a.ProjectPortfolio.security.SecurityConfigUtils;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
@@ -46,6 +49,12 @@ public class ProjectControllerIntegrationTest {
     private AccountRepository accountRepository;
 
     @Autowired
+    private CollaboratorRepository collaboratorRepository;
+
+    @Autowired
+    private ProjectsToCollaboratorsRepository projectsToCollaboratorsRepository;
+
+    @Autowired
     private ProjectsToAccountsRepository projectsToAccountsRepository;
     @Autowired
     private ObjectMapper objectMapper;
@@ -64,6 +73,7 @@ public class ProjectControllerIntegrationTest {
         project3 = projectRepository.saveAndFlush(project3);
         securityConfigUtils.setAuthentication();
         accountRepository.saveAndFlush(securityConfigUtils.getAccount());
+        collaboratorRepository.saveAndFlush(new Collaborator(securityConfigUtils.getAccount().getName()));
     }
 
     @Test
@@ -200,6 +210,8 @@ public class ProjectControllerIntegrationTest {
         assertEquals(createdProject.getProjectId(), pta.getProject().getProjectId());
         assertEquals(securityConfigUtils.getAccount().getUsername(), pta.getAccount().getUsername());
         assertEquals("PM", pta.getRole().toString());
+
+        assertEquals(1, projectsToCollaboratorsRepository.count());
     }
 
 }

@@ -6,8 +6,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.team2a.ProjectPortfolio.Commons.Account;
+import com.team2a.ProjectPortfolio.Commons.Collaborator;
 import com.team2a.ProjectPortfolio.Commons.Project;
 import com.team2a.ProjectPortfolio.Repositories.AccountRepository;
+import com.team2a.ProjectPortfolio.Repositories.CollaboratorRepository;
 import com.team2a.ProjectPortfolio.Repositories.ProjectRepository;
 import com.team2a.ProjectPortfolio.Repositories.ProjectsToAccountsRepository;
 import com.team2a.ProjectPortfolio.Routes;
@@ -40,6 +42,9 @@ public class AccountAuthorizationIntegrationTest {
     private AccountRepository accountRepository;
 
     @Autowired
+    private CollaboratorRepository collaboratorRepository;
+
+    @Autowired
     private ProjectsToAccountsRepository projectsToAccountsRepository;
     @Autowired
     private ObjectMapper objectMapper;
@@ -50,7 +55,9 @@ public class AccountAuthorizationIntegrationTest {
         accountRepository.deleteAll();
         projectRepository.deleteAll();
         projectsToAccountsRepository.deleteAll();
+        collaboratorRepository.deleteAll();
         project1 = new Project("title1", "description1", true);
+        collaboratorRepository.saveAndFlush(new Collaborator("name"));
     }
 
     @Test
@@ -66,6 +73,7 @@ public class AccountAuthorizationIntegrationTest {
 
         Account accountToBeAdded = new Account("username2", "name2", "password2", false, false);
         accountRepository.save(accountToBeAdded);
+        collaboratorRepository.save(new Collaborator("name2"));
 
         mockMvc.perform(post(Routes.ACCOUNT + "/" + accountToBeAdded.getUsername() + "/" + project1Id)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -108,7 +116,7 @@ public class AccountAuthorizationIntegrationTest {
 
         Account accountToBeAdded = new Account("username2", "name2", "password2", false, false);
         accountRepository.save(accountToBeAdded);
-
+        collaboratorRepository.save(new Collaborator("name2"));
         mockMvc.perform(post(Routes.ACCOUNT + "/" + accountToBeAdded.getUsername() + "/" + project1Id)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString("EDITOR")))
