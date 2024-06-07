@@ -103,7 +103,7 @@ public class TagController {
     @DeleteMapping("/{tagId}")
     public ResponseEntity<Void> deleteTag (@PathVariable("tagId") UUID tagId) {
         tagService.deleteTag(tagId);
-        tagWebSocketHandler.broadcast("tagDeleted");
+        tagWebSocketHandler.broadcast("deleted " + tagId);
         tagProjectWebSocketHandler.broadcast("all");
         return ResponseEntity.ok().build();
     }

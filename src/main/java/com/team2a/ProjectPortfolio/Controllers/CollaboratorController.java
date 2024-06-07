@@ -115,7 +115,7 @@ public class CollaboratorController {
     public ResponseEntity<String> deleteCollaborator (@PathVariable("collaboratorId") UUID collaboratorId){
         try {
             String response = collaboratorService.deleteCollaborator(collaboratorId);
-            collaboratorWebSocketHandler.broadcast("Collaborator Deleted");
+            collaboratorWebSocketHandler.broadcast("deleted " + collaboratorId.toString());
             collaboratorProjectWebSocketHandler.broadcast("all");
             return ResponseEntity.ok(response);
         } catch (EntityNotFoundException e) {
