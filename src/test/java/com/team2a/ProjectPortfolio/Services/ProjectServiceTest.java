@@ -30,12 +30,15 @@ class ProjectServiceTest {
     private SecurityUtils securityUtils;
     private ProjectService projectService;
 
+    private CollaboratorService collaboratorService;
+
     @BeforeEach
     void setUp() {
         projectRepository = mock(ProjectRepository.class);
         projectsToAccountsRepository = mock(ProjectsToAccountsRepository.class);
+        collaboratorService = mock(CollaboratorService.class);
         securityUtils = mock(SecurityUtils.class);
-        projectService = new ProjectService(projectRepository, securityUtils, projectsToAccountsRepository);
+        projectService = new ProjectService(projectRepository, securityUtils, projectsToAccountsRepository, collaboratorService);
     }
 
     @Test

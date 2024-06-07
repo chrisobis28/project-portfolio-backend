@@ -26,19 +26,24 @@ public class AccountService {
     private final ProjectRepository projectRepository;
     private final ProjectsToAccountsRepository projectsToAccountsRepository;
 
+    private final CollaboratorService collaboratorService;
+
     /**
-     * Constructor for the Account Service
-     * @param accountRepository - the Account Repository
-     * @param projectRepository - the Project Repository
-     * @param projectsToAccountsRepository - the Projects to Accounts Repository
+     * Constructor for the AccountService class
+     * @param accountRepository - the repository for the Account class
+     * @param projectRepository - the repository for the Project class
+     * @param projectsToAccountsRepository - the repository for the ProjectsToAccounts class
+     * @param collaboratorService - the service for the Collaborator class
      */
     @Autowired
     public AccountService (AccountRepository accountRepository,
                            ProjectRepository projectRepository,
-                           ProjectsToAccountsRepository projectsToAccountsRepository) {
+                           ProjectsToAccountsRepository projectsToAccountsRepository,
+                           CollaboratorService collaboratorService) {
         this.accountRepository = accountRepository;
         this.projectRepository = projectRepository;
         this.projectsToAccountsRepository = projectsToAccountsRepository;
+        this.collaboratorService = collaboratorService;
     }
 
     /**
@@ -119,6 +124,8 @@ public class AccountService {
         }
         ProjectsToAccounts pta = new ProjectsToAccounts(role, optionalAccount, optionalProject);
         projectsToAccountsRepository.save(pta);
+        collaboratorService.addCollaboratorToProject(projectId,
+            collaboratorService.findCollaboratorIdByName(optionalAccount.getName()), "CONTENT_CREATOR");
     }
 
     /**
@@ -134,6 +141,8 @@ public class AccountService {
             throw new NotFoundException();
         }
         projectsToAccountsRepository.deleteById(list.get(0).getPtaId());
+        collaboratorService.deleteCollaboratorFromProject(projectId,
+            collaboratorService.findCollaboratorIdByName(checkAccountExistence(username).getName()));
     }
 
     /**

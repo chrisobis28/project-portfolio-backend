@@ -47,6 +47,8 @@ public class AccountServiceTest {
   @Mock
   private ProjectsToAccountsRepository projectsToAccountsRepository;
 
+  private CollaboratorService collaboratorService;
+
   private AccountService accountService;
 
   private ProjectsToAccounts pta;
@@ -65,6 +67,8 @@ public class AccountServiceTest {
     Project project = new Project();
     project.setProjectId(projectId);
     pta = new ProjectsToAccounts(RoleInProject.CONTENT_CREATOR, a, project);
+    collaboratorService = Mockito.mock(CollaboratorService.class);
+    accountService = new AccountService(accountRepository, projectRepository, projectsToAccountsRepository, collaboratorService);
   }
   @Test
   void testEditAccountAccountNotFoundException() {
@@ -188,6 +192,8 @@ public class AccountServiceTest {
     p.setProjectId(id);
     Account a = new Account();
     a.setUsername("username");
+    when(accountRepository.findById("username")).thenReturn(Optional.of(a));
+    when(collaboratorService.deleteCollaboratorFromProject(any(), any())).thenReturn("Deleted collaborator");
     ProjectsToAccounts pta = new ProjectsToAccounts(RoleInProject.CONTENT_CREATOR, a, p);
     when(projectsToAccountsRepository.findAll()).thenReturn(List.of(pta));
     accountService.deleteRole("username", id);

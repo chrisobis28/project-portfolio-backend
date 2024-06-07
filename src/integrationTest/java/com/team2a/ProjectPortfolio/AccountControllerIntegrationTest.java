@@ -11,11 +11,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.team2a.ProjectPortfolio.Commons.Account;
+import com.team2a.ProjectPortfolio.Commons.Collaborator;
 import com.team2a.ProjectPortfolio.Commons.Project;
 import com.team2a.ProjectPortfolio.Commons.ProjectsToAccounts;
 import com.team2a.ProjectPortfolio.Commons.Role;
 import com.team2a.ProjectPortfolio.Commons.RoleInProject;
 import com.team2a.ProjectPortfolio.Repositories.AccountRepository;
+import com.team2a.ProjectPortfolio.Repositories.CollaboratorRepository;
 import com.team2a.ProjectPortfolio.Repositories.ProjectRepository;
 import com.team2a.ProjectPortfolio.Repositories.ProjectsToAccountsRepository;
 import com.team2a.ProjectPortfolio.security.SecurityConfigUtils;
@@ -43,6 +45,9 @@ public class AccountControllerIntegrationTest {
   private AccountRepository accountRepository;
 
   @Autowired
+  private CollaboratorRepository collaboratorRepository;
+
+  @Autowired
   private ProjectRepository projectRepository;
 
   @Autowired
@@ -64,9 +69,11 @@ public class AccountControllerIntegrationTest {
     projectRepository.deleteAll();
     projectsToAccountsRepository.deleteAll();
     account = new Account("username1", "name1", "password1", Role.ROLE_USER);
+    collaboratorRepository.deleteAll();
     project = new Project("title", "description", false);
     project = projectRepository.save(project);
     account = accountRepository.saveAndFlush(account);
+    collaboratorRepository.saveAndFlush(new Collaborator(account.getName()));
     securityConfigUtils.setAuthentication();
   }
 
