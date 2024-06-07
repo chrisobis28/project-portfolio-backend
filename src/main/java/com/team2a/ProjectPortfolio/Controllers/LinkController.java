@@ -23,8 +23,9 @@ public class LinkController {
     private final LinkProjectWebSocketHandler linkProjectWebSocketHandler;
 
     /**
-     * The constructor for the LinkController
-     * @param linkService the Link Service
+     * The constructor for the link controller
+     * @param linkService the link service instance
+     * @param linkProjectWebSocketHandler the web socket handler for links to projects
      */
     @Autowired
     public LinkController(LinkService linkService,

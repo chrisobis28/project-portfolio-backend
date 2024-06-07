@@ -27,8 +27,9 @@ public class TagController {
 
     /**
      * Constructor for the tag controller
-     *
      * @param tagService the tag service
+     * @param tagWebSocketHandler the web socket handler for tags
+     * @param tagProjectWebSocketHandler the wen socket handler for the tags attributed to a project
      */
     @Autowired
     public TagController(TagService tagService, TagWebSocketHandler tagWebSocketHandler,

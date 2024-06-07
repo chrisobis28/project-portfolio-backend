@@ -15,16 +15,16 @@ public class MediaProjectWebSocketHandler extends TextWebSocketHandler {
     private final Set<WebSocketSession> sessions = ConcurrentHashMap.newKeySet();
 
     @Override
-    public void afterConnectionEstablished(WebSocketSession session) throws Exception {
+    public void afterConnectionEstablished (WebSocketSession session) throws Exception {
         sessions.add(session);
     }
 
     @Override
-    public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
+    public void afterConnectionClosed (WebSocketSession session, CloseStatus status) throws Exception {
         sessions.remove(session);
     }
 
-    public void broadcast(String message) {
+    public void broadcast (String message) {
         for (WebSocketSession session : sessions) {
             if (session.isOpen()) {
                 try {

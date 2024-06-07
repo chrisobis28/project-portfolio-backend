@@ -26,7 +26,9 @@ public class CollaboratorController {
 
     /**
      * Constructor for the collaborator controller
-     * @param collaboratorService the collaborator service
+     * @param collaboratorService the collaborator service instance
+     * @param collaboratorWebSocketHandler the web socket handler used for collaborators
+     * @param collaboratorProjectWebSocketHandler the web socket handler used for collaborators for projects
      */
     @Autowired
     public CollaboratorController(CollaboratorService collaboratorService,

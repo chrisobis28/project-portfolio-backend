@@ -5,15 +5,12 @@ import com.team2a.ProjectPortfolio.CustomExceptions.MediaNotFoundException;
 import com.team2a.ProjectPortfolio.Routes;
 import com.team2a.ProjectPortfolio.Services.MediaService;
 import com.team2a.ProjectPortfolio.WebSocket.MediaProjectWebSocketHandler;
-import com.team2a.ProjectPortfolio.WebSocket.MediaWebSocketHandler;
 import jakarta.validation.Valid;
 import org.antlr.v4.runtime.misc.Pair;
 import org.antlr.v4.runtime.misc.Triple;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
@@ -29,8 +26,9 @@ public class MediaController {
     private final MediaProjectWebSocketHandler mediaProjectWebSocketHandler;
 
     /**
-     * Constructor for the Media Controller
-     * @param mediaService - the Media Service
+     * Constructor for the media controller
+     * @param mediaService the media service instance
+     * @param mediaProjectWebSocketHandler the web socket handler for media to project
      */
     @Autowired
     public MediaController (MediaService mediaService,

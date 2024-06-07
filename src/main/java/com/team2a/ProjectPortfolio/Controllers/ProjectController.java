@@ -5,7 +5,6 @@ import com.team2a.ProjectPortfolio.Routes;
 import com.team2a.ProjectPortfolio.Services.ProjectService;
 import com.team2a.ProjectPortfolio.WebSocket.ProjectWebSocketHandler;
 import jakarta.persistence.EntityNotFoundException;
-import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,8 +22,9 @@ public class ProjectController {
     private ProjectWebSocketHandler webSocketHandler;
 
     /**
-     * Constructor for the project controller
-     * @param projectService the project service
+     * Constructor for the controller
+     * @param projectService the project service instance
+     * @param webSocketHandler the web socket handler
      */
     @Autowired
     public ProjectController(ProjectService projectService, ProjectWebSocketHandler webSocketHandler) {

@@ -32,7 +32,7 @@ public class WebSocketConfig implements WebSocketConfigurer {
     private LinkProjectWebSocketHandler linkProjectWebSocketHandler;
 
     @Override
-    public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
+    public void registerWebSocketHandlers (WebSocketHandlerRegistry registry) {
         registry.addHandler(projectWebSocketHandler, "/topic/projects")
                 .setAllowedOrigins("*");
         registry.addHandler(collaboratorWebSocketHandler, "/topic/collaborators")
