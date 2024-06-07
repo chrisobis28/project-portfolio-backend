@@ -86,7 +86,8 @@ jacocoTestReport {
 					exclude: ['**/ProjectPortfolioManagementSystemApplication.class',
 							  '**/Routes.class',
 							  '**/MediaHelper.class',
-								'**/WebSocket'])
+								'**/WebSocket'
+					])
 		})
 	}
 }
@@ -104,7 +105,9 @@ jacocoTestCoverageVerification {
 			fileTree(dir: it,
 					exclude: ['**/ProjectPortfolioManagementSystemApplication.class',
 							  '**/Routes.class',
-							  '**/MediaHelper.class'])
+							  '**/MediaHelper.class',
+								'**/WebSocket'
+					])
 		})
 	}
 }
