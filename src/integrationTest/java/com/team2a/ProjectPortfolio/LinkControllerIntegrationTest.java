@@ -39,6 +39,7 @@ public class LinkControllerIntegrationTest {
     private UUID projectId;
     private Link link1;
     private Project project;
+
     @BeforeEach
     public void setup() {
         linkRepository.deleteAll();
@@ -78,6 +79,7 @@ public class LinkControllerIntegrationTest {
     public void editLinkOfProject() throws Exception {
         link1.setUrl("newURl");
         link1.setName("newName");
+        link1.setProject(project);
         mockMvc.perform(put(Routes.LINK+"/")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(link1)))
@@ -139,7 +141,7 @@ public class LinkControllerIntegrationTest {
         mockMvc.perform(delete(Routes.LINK+"/"+link1.getLinkId())
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", is("Deleted link")));
+                .andExpect(jsonPath("$", is(projectId.toString())));
         assertThat(linkRepository.count()).isEqualTo(2);
         assertThat(linkRepository.findAllByLinkId(link1.getLinkId()).size()).isEqualTo(0);
         mockMvc.perform(delete(Routes.LINK+"/"+UUID.randomUUID())
