@@ -124,14 +124,14 @@ public class AccountControllerIntegrationTest {
 
   @Test
   public void getAccountById() throws Exception {
-    mockMvc.perform(get(Routes.ACCOUNT + "/" + account.getUsername())
+    mockMvc.perform(get(Routes.ACCOUNT + "/public/" + account.getUsername())
             .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.username", is("username1")))
         .andExpect(jsonPath("$.name", is("name1")))
         .andExpect(jsonPath("$.password", is("password1")));
 
-    mockMvc.perform(get(Routes.ACCOUNT + "/" + "username2")
+    mockMvc.perform(get(Routes.ACCOUNT + "/public/" + "username2")
             .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isNotFound());
   }

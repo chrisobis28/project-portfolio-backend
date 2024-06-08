@@ -40,7 +40,7 @@ public class TagController {
      * @param projectId the project id
      * @return a list of tags
      */
-    @GetMapping("/{projectId}")
+    @GetMapping("/public/{projectId}")
     public ResponseEntity<List<Tag>> getTagsByProjectId (@PathVariable("projectId") UUID projectId) {
         List<Tag> tagsList = tagService.getTagsByProjectId(projectId);
         return ResponseEntity.ok(tagsList);
@@ -121,7 +121,7 @@ public class TagController {
      * Get all tags from the database.
      * @return a list of all tags
      */
-    @GetMapping("/")
+    @GetMapping("/public/")
     public ResponseEntity<List<Tag>> getAllTags () {
 
         List<Tag> tags = tagService.getAllTags();

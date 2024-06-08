@@ -13,6 +13,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -52,14 +53,12 @@ class JwtRequestFilterTest {
     @BeforeEach
     public void setUp() {
         ReflectionTestUtils.setField(jwtRequestFilter, "publicEndpoints", publicEndpoints);
-        when(request.getMethod()).thenReturn("POST");
-
     }
 
 
     @Test
     public void testDoFilterInternal_PublicEndpoint() throws ServletException, IOException {
-        when(request.getMethod()).thenReturn("GET");
+        when(request.getRequestURI()).thenReturn("/public");
         jwtRequestFilter.doFilterInternal(request, response, filterChain);
         verify(filterChain).doFilter(request, response);
     }
@@ -105,4 +104,26 @@ class JwtRequestFilterTest {
 
         verify(response).setStatus(HttpServletResponse.SC_UNAUTHORIZED);
     }
+
+    @Test
+    public void testDoFilterInternal_NoSuchElementException() throws ServletException, IOException {
+        when(request.getCookies()).thenReturn(new Cookie[]{new Cookie("auth-cookie", "validToken")});
+        when(jwtTokenUtil.getUsernameFromToken("validToken")).thenReturn("username");
+        when(accountRepository.findById("username")).thenThrow(NoSuchElementException.class);
+
+        jwtRequestFilter.doFilterInternal(request, response, filterChain);
+
+        verify(response).setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+    }
+
+    @Test
+    public void testDoFilterInternal_NullToken() throws ServletException, IOException {
+        when(request.getCookies()).thenReturn(null);
+
+        jwtRequestFilter.doFilterInternal(request, response, filterChain);
+
+        verify(response).setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+    }
+
+
 }

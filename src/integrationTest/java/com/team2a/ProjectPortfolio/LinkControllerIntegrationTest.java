@@ -68,7 +68,7 @@ public class LinkControllerIntegrationTest {
 
     @Test
     public void getLinksByProjectId() throws Exception {
-        mockMvc.perform(get(Routes.LINK + "/" + projectId)
+        mockMvc.perform(get(Routes.LINK + "/public/" + projectId)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(3)))

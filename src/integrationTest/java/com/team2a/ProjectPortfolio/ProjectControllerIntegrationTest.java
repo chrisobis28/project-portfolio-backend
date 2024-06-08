@@ -81,7 +81,7 @@ public class ProjectControllerIntegrationTest {
     public void getProjects() throws Exception {
         assertEquals(3, projectRepository.count());
 
-        mockMvc.perform(get(Routes.PROJECT + "/")
+        mockMvc.perform(get(Routes.PROJECT + "/public/")
                     .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(3)))
@@ -98,7 +98,7 @@ public class ProjectControllerIntegrationTest {
         projectRepository.deleteAll();
         assertEquals(0, projectRepository.count());
 
-        mockMvc.perform(get(Routes.PROJECT + "/")
+        mockMvc.perform(get(Routes.PROJECT + "/public/")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(0)));
@@ -121,7 +121,7 @@ public class ProjectControllerIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
 
-        mockMvc.perform(get(Routes.PROJECT + "/")
+        mockMvc.perform(get(Routes.PROJECT + "/public/")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)))
@@ -162,7 +162,7 @@ public class ProjectControllerIntegrationTest {
     public void getProjectById() throws Exception {
         assertEquals(3, projectRepository.count());
 
-        mockMvc.perform(get(Routes.PROJECT + "/" + project3.getProjectId())
+        mockMvc.perform(get(Routes.PROJECT + "/public/" + project3.getProjectId())
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.title", is("title3")))
@@ -173,7 +173,7 @@ public class ProjectControllerIntegrationTest {
         project4 = projectRepository.saveAndFlush(project4);
         UUID projectId = project4.getProjectId();
 
-        mockMvc.perform(get(Routes.PROJECT + "/" + projectId)
+        mockMvc.perform(get(Routes.PROJECT + "/public/" + projectId)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.title", is("title4")))
@@ -182,7 +182,7 @@ public class ProjectControllerIntegrationTest {
 
         projectRepository.deleteById(projectId);
 
-        mockMvc.perform(get(Routes.PROJECT + "/" + projectId)
+        mockMvc.perform(get(Routes.PROJECT + "/public/" + projectId)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
     }

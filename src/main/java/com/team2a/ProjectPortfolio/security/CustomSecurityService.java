@@ -1,7 +1,9 @@
 package com.team2a.ProjectPortfolio.security;
 import com.team2a.ProjectPortfolio.Commons.Account;
+import com.team2a.ProjectPortfolio.Commons.Request;
 import com.team2a.ProjectPortfolio.Commons.RoleInProject;
 import com.team2a.ProjectPortfolio.Services.ProjectService;
+import com.team2a.ProjectPortfolio.Services.RequestService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
@@ -16,13 +18,16 @@ public class CustomSecurityService {
     @Autowired
     private ProjectService projectService;
 
+    @Autowired
+    private RequestService requestService;
+
     /**
      * Checks if the user belongs to the project
      * @param authentication the authentication object
      * @param projectId the id of the project
      * @return the role of the user in the project
      */
-    private RoleInProject belongsToProject (Authentication authentication, UUID projectId) {
+    public RoleInProject belongsToProject (Authentication authentication, UUID projectId) {
 
         Account account = (Account) authentication.getPrincipal();
 
@@ -72,5 +77,21 @@ public class CustomSecurityService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You do not have the required permissions");
         }
         return true;
+    }
+
+    /**
+     * Checks if the user is the creator of the request or a PM in the project
+     * @param authentication the authentication object
+     * @param requestId the id of the request
+     * @param projectId the id of the project
+     * @return true if the user is the creator of the request or a PM in the project
+     */
+    public boolean isCreatorOrPmInProject (Authentication authentication, UUID requestId, UUID projectId) {
+        Account account = (Account) authentication.getPrincipal();
+        Request request = requestService.getRequestById(requestId);
+        if (request.getAccount().getUsername().equals(account.getUsername())) {
+            return true;
+        }
+        return pmInProject(authentication, projectId);
     }
 }

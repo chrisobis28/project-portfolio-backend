@@ -69,7 +69,7 @@ public class    LinkController {
      * @param projectId the id of the project
      * @return the links associated with a project given the id of the project
      */
-    @GetMapping("/{projectId}")
+    @GetMapping("/public/{projectId}")
     public ResponseEntity<List<Link>> getLinksByProjectId (@PathVariable("projectId") UUID projectId) {
         try {
             List<Link> links = linkService.getLinksByProjectId(projectId);

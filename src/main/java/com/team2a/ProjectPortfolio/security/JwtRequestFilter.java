@@ -49,7 +49,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         final String requestURI = request.getRequestURI();
 
         boolean isPublicEndpoint =
-            request.getMethod().equals("GET") || publicEndpoints.stream()
+            publicEndpoints.stream()
                 .anyMatch(endpoint -> new AntPathMatcher().match(endpoint, requestURI));
 
         if (!isPublicEndpoint) {

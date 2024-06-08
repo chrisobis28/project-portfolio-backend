@@ -41,7 +41,7 @@ public class MediaController {
      * @param projectId the id of the Project whose Media to be retrieved
      * @return the List of all Medias corresponding to the project
      */
-    @GetMapping("/images/{projectId}")
+    @GetMapping("/public/images/{projectId}")
     public ResponseEntity<List<Triple<String,String,String>>> getImagesContentByProjectId (@PathVariable("projectId")
                                                                                                UUID projectId) {
         return ResponseEntity.ok(mediaService.getImagesContentByProjectId(projectId));
@@ -52,7 +52,7 @@ public class MediaController {
      * @param mediaId the mediaId of the document we need to retrieve
      * @return the media content
      */
-    @GetMapping("/file/content/{mediaId}")
+    @GetMapping("/public/file/content/{mediaId}")
     public ResponseEntity<Pair<String,String>> getDocumentContentByMediaId (@PathVariable("mediaId") UUID mediaId) {
         return ResponseEntity.ok(mediaService.getDocumentByMediaId(mediaId));
     }
@@ -62,7 +62,7 @@ public class MediaController {
      * @param projectId the projectID
      * @return the list of medias
      */
-    @GetMapping("/file/{projectId}")
+    @GetMapping("/public/file/{projectId}")
     public ResponseEntity<List<Media>> getDocumentsByProjectId (@PathVariable("projectId") UUID projectId) {
         return ResponseEntity.ok(mediaService.getDocumentsByProjectId(projectId));
     }

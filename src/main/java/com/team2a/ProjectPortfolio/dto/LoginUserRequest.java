@@ -6,7 +6,7 @@ import lombok.Getter;
 public class LoginUserRequest {
 
     @Getter
-    @NotNull (message = "Username must be specififed")
+    @NotNull (message = "Username must be specified")
     private String username;
 
     @Getter

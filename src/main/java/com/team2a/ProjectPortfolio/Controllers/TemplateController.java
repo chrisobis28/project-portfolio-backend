@@ -61,6 +61,7 @@ public class TemplateController {
      * @return - the Template searched
      */
     @GetMapping("/{templateName}")
+    @PreAuthorize(PM_ONLY)
     public ResponseEntity<Template> getTemplateByName (@PathVariable("templateName") String templateName) {
         return ResponseEntity.status(HttpStatus.OK).body(templateService.getTemplateByName(templateName));
     }
@@ -70,6 +71,7 @@ public class TemplateController {
      * @return - the list of Templates
      */
     @GetMapping("")
+    @PreAuthorize(PM_ONLY)
     public ResponseEntity<List<Template>> getAllTemplates () {
         return ResponseEntity.status(HttpStatus.OK).body(templateService.getAllTemplates());
     }
@@ -88,6 +90,7 @@ public class TemplateController {
     }
 
     @GetMapping("/additions/{templateName}")
+    @PreAuthorize(PM_ONLY)
     public ResponseEntity<List<TemplateAddition>> getAllTemplateAdditions (
         @PathVariable("templateName") String templateName) {
         return ResponseEntity.status(HttpStatus.OK).body(templateService.getAllTemplateAdditions(templateName));
