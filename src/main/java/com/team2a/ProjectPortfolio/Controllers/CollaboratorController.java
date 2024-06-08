@@ -36,7 +36,7 @@ public class CollaboratorController {
      * @param projectId the project id
      * @return a response entity that contains the list of collaborators entities
      */
-    @GetMapping("/{projectId}")
+    @GetMapping("/public/{projectId}")
     public ResponseEntity<List<Collaborator>> getCollaboratorsByProjectId (@PathVariable("projectId") UUID projectId){
         try {
             List<Collaborator> collaboratorsList = collaboratorService.getCollaboratorsByProjectId(projectId);
@@ -137,7 +137,7 @@ public class CollaboratorController {
      * endpoint for retrieving all collaborators
      * @return a list of collaborators
      */
-    @GetMapping("/")
+    @GetMapping("/public/")
     public ResponseEntity<List<Collaborator>> getAllCollaborators () {
         List<Collaborator> collaborators = collaboratorService.getAllCollaborators();
         return new ResponseEntity<>(collaborators, HttpStatus.OK);

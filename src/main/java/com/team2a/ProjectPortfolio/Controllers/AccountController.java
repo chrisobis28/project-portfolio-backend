@@ -1,5 +1,6 @@
 package com.team2a.ProjectPortfolio.Controllers;
 
+import static com.team2a.ProjectPortfolio.security.Permissions.ADMIN_ONLY;
 import static com.team2a.ProjectPortfolio.security.Permissions.PM_IN_PROJECT;
 import static com.team2a.ProjectPortfolio.security.Permissions.USER_SPECIFIC;
 
@@ -41,7 +42,7 @@ public class AccountController {
      * @return - the Account with the necessary modifications
      */
     @PutMapping("")
-    @PreAuthorize(USER_SPECIFIC)
+    @PreAuthorize(ADMIN_ONLY)
     public ResponseEntity<Account> editAccount (@Valid @RequestBody Account account) {
         try {
             return ResponseEntity.ok(accountService.editAccount(account));
@@ -56,7 +57,7 @@ public class AccountController {
      * @param username - the id of the Account to be searched
      * @return - the Account with the given id, provided it exists
      */
-    @GetMapping("/{username}")
+    @GetMapping("/public/{username}")
     public ResponseEntity<Account> getAccountById (@PathVariable("username") String username) {
         try {
             return ResponseEntity.ok(accountService.getAccountById(username));
@@ -147,7 +148,7 @@ public class AccountController {
      * @param projectId - the id of the Project
      * @return - the role of the Account in the Project
      */
-    @GetMapping("/role/{username}/{projectId}")
+    @GetMapping("/public/role/{username}/{projectId}")
     public ResponseEntity<String> getRole (@PathVariable("username") String username,
                                                  @PathVariable("projectId") UUID projectId) {
         return ResponseEntity.ok(accountService.getRole(username, projectId));

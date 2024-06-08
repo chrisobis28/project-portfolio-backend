@@ -71,7 +71,7 @@ public class CollaboratorControllerIntegrationTest {
 
     @Test
     public void getCollaboratorsByProjectId() throws Exception {
-        mockMvc.perform(get(Routes.COLLABORATOR + "/" + projectId)
+        mockMvc.perform(get(Routes.COLLABORATOR + "/public/" + projectId)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)))
@@ -125,7 +125,7 @@ public class CollaboratorControllerIntegrationTest {
 
     @Test
     public void getCollaboratorsByProjectIdNotFound() throws Exception {
-        mockMvc.perform(get(Routes.COLLABORATOR + "/" + UUID.randomUUID())
+        mockMvc.perform(get(Routes.COLLABORATOR + "/public/" + UUID.randomUUID())
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
     }

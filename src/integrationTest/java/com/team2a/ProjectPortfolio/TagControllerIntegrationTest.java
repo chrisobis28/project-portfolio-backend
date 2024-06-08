@@ -88,7 +88,7 @@ public class TagControllerIntegrationTest {
 
     @Test
     public void testGetTagsByProjectId() throws Exception {
-        mockMvc.perform(get("/tag/" + projectId)
+        mockMvc.perform(get("/tag/public/" + projectId)
                 .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$", hasSize(3)))
@@ -143,7 +143,7 @@ public class TagControllerIntegrationTest {
                 .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk());
 
-        mockMvc.perform(get("/tag/" + projectId)
+        mockMvc.perform(get("/tag/public/" + projectId)
                 .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$", hasSize(4)))
@@ -196,7 +196,7 @@ public class TagControllerIntegrationTest {
 
         assertEquals(2, tagRepository.findAll().size());
 
-        mockMvc.perform(get("/tag/" + projectId)
+        mockMvc.perform(get("/tag/public/" + projectId)
                 .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$", hasSize(2)))
@@ -222,7 +222,7 @@ public class TagControllerIntegrationTest {
                 .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk());
 
-        mockMvc.perform(get("/tag/" + projectId)
+        mockMvc.perform(get("/tag/public/" + projectId)
                 .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$", hasSize(2)))

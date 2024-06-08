@@ -36,7 +36,7 @@ public class ProjectController {
      * Returns a list of all Projects in a response entity
      * @return a response entity that contains the list of all projects
      */
-    @GetMapping("/")
+    @GetMapping("/public/")
     public ResponseEntity<List<Project>> getProjects () {
         List<Project> projects = projectService.getProjects();
         return ResponseEntity.ok(projects);
@@ -73,7 +73,7 @@ public class ProjectController {
      * @param projectId the id of the project
      * @return a response entity that contains the project with the specified id
      */
-    @GetMapping("/{projectId}")
+    @GetMapping("/public/{projectId}")
     public ResponseEntity<Project> getProjectById (@PathVariable("projectId") UUID projectId) {
         Project project = projectService.getProjectById(projectId);
         return ResponseEntity.ok(project);

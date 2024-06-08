@@ -112,7 +112,7 @@ public class RequestControllerIntegrationTest {
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(new Request("Title2", "Description2", false, account, project))));
         assertEquals(1,accountRepository.findById(accountId).get().getRequests().size());
-        mockMvc.perform(get("/request/user/" + accountId)
+        mockMvc.perform(get("/request/public/user/" + accountId)
                     .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))
