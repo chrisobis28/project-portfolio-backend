@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -54,8 +55,10 @@ public class LinkService {
      * @return the new link entity
      */
     public Link editLinkOfProject (Link link) {
-        if(linkRepository.findById(link.getLinkId()).isPresent()) {
-            linkRepository.save (link);
+        Optional<Link> linkFound = linkRepository.findById(link.getLinkId());
+        if(linkFound.isPresent()) {
+            link.setProject(linkFound.get().getProject());
+            linkRepository.save(link);
         }
         else
             throw new EntityNotFoundException();
@@ -78,9 +81,9 @@ public class LinkService {
      * @return a string if the link is deleted
      */
     public String deleteLinkById (UUID linkId){
-        linkRepository.findById(linkId).orElseThrow(EntityNotFoundException::new);
+        Link l = linkRepository.findById(linkId).orElseThrow(EntityNotFoundException::new);
         linkRepository.deleteById(linkId);
-        return "Deleted link";
+        return l.getProject().getProjectId().toString();
     }
 
 

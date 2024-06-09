@@ -2,9 +2,12 @@ package com.team2a.ProjectPortfolio.Controllers;
 
 import com.team2a.ProjectPortfolio.Commons.Project;
 import com.team2a.ProjectPortfolio.Services.ProjectService;
+import com.team2a.ProjectPortfolio.WebSocket.ProjectWebSocketHandler;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -14,19 +17,20 @@ import java.util.UUID;
 import org.springframework.web.server.ResponseStatusException;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 class ProjectControllerTest {
 
     private ProjectService projectService;
     private ProjectController projectController;
+    @Mock
+    private ProjectWebSocketHandler webSocketHandler;
 
     @BeforeEach
     void setUp() {
         projectService = mock(ProjectService.class);
-        projectController = new ProjectController(projectService);
+        webSocketHandler = Mockito.mock(ProjectWebSocketHandler.class);
+        projectController = new ProjectController(projectService, webSocketHandler);
     }
 
     @Test
@@ -66,6 +70,7 @@ class ProjectControllerTest {
         Project project = new Project("title1", "desc1", false);
         when(projectService.createProject(project)).thenReturn(project);
         ResponseEntity<Project> response = projectController.createProject(project);
+        verify(webSocketHandler).broadcast(any());
         assertEquals(project, response.getBody());
     }
 
@@ -83,6 +88,8 @@ class ProjectControllerTest {
     void deleteProjectSuccessful() {
         UUID projectId = UUID.randomUUID();
         doNothing().when(projectService).deleteProject(projectId);
-        assertEquals(HttpStatus.OK, projectController.deleteProject(projectId).getStatusCode());
+        ResponseEntity<String> response = projectController.deleteProject(projectId);
+        verify(webSocketHandler).broadcast(any());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
     }
 }

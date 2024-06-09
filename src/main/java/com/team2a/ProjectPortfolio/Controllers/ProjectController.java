@@ -7,6 +7,7 @@ import static com.team2a.ProjectPortfolio.security.Permissions.PM_ONLY;
 import com.team2a.ProjectPortfolio.Commons.Project;
 import com.team2a.ProjectPortfolio.Routes;
 import com.team2a.ProjectPortfolio.Services.ProjectService;
+import com.team2a.ProjectPortfolio.WebSocket.ProjectWebSocketHandler;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -23,13 +24,17 @@ public class ProjectController {
 
     private final ProjectService projectService;
 
+    private ProjectWebSocketHandler webSocketHandler;
+
     /**
-     * Constructor for the project controller
-     * @param projectService the project service
+     * Constructor for the controller
+     * @param projectService the project service instance
+     * @param webSocketHandler the web socket handler
      */
     @Autowired
-    public ProjectController(ProjectService projectService) {
+    public ProjectController(ProjectService projectService, ProjectWebSocketHandler webSocketHandler) {
         this.projectService = projectService;
+        this.webSocketHandler = webSocketHandler;
     }
 
     /**
@@ -49,9 +54,10 @@ public class ProjectController {
      */
     @DeleteMapping("/{projectId}")
     @PreAuthorize(PM_IN_PROJECT)
-    public ResponseEntity<Void> deleteProject (@PathVariable("projectId") UUID projectId){
+    public ResponseEntity<String> deleteProject (@PathVariable("projectId") UUID projectId){
         projectService.deleteProject(projectId);
-        return ResponseEntity.ok().build();
+        webSocketHandler.broadcast("deleted " + projectId.toString());
+        return ResponseEntity.ok(projectId.toString());
     }
 
     /**
@@ -65,6 +71,7 @@ public class ProjectController {
     public ResponseEntity<Project> updateProject (@PathVariable("projectId") UUID projectId,
                                                   @Valid @RequestBody Project project) {
         Project result = projectService.updateProject(projectId, project);
+        webSocketHandler.broadcast("edited " + result.getProjectId());
         return ResponseEntity.ok(result);
     }
 
@@ -88,6 +95,7 @@ public class ProjectController {
     @PreAuthorize(PM_ONLY)
     public ResponseEntity<Project> createProject (@Valid @RequestBody Project project) {
         Project response = projectService.createProject(project);
+        webSocketHandler.broadcast("added " + response.getProjectId());
         return ResponseEntity.ok(response);
     }
 
