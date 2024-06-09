@@ -1,12 +1,18 @@
 package com.team2a.ProjectPortfolio.Controllers;
 
+import static com.team2a.ProjectPortfolio.security.Permissions.EDITOR_IN_PROJECT;
+import static com.team2a.ProjectPortfolio.security.Permissions.PM_IN_PROJECT;
+import static com.team2a.ProjectPortfolio.security.Permissions.PM_ONLY;
+
 import com.team2a.ProjectPortfolio.Commons.Project;
 import com.team2a.ProjectPortfolio.Routes;
 import com.team2a.ProjectPortfolio.Services.ProjectService;
 import com.team2a.ProjectPortfolio.WebSocket.ProjectWebSocketHandler;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -36,7 +42,7 @@ public class ProjectController {
      * Returns a list of all Projects in a response entity
      * @return a response entity that contains the list of all projects
      */
-    @GetMapping("/")
+    @GetMapping("/public/")
     public ResponseEntity<List<Project>> getProjects () {
         List<Project> projects = projectService.getProjects();
         return ResponseEntity.ok(projects);
@@ -48,16 +54,11 @@ public class ProjectController {
      * @return a response entity containing a string
      */
     @DeleteMapping("/{projectId}")
+    @PreAuthorize(PM_IN_PROJECT)
     public ResponseEntity<String> deleteProject (@PathVariable("projectId") UUID projectId){
-        try {
-            String response = projectService.deleteProject(projectId);
-            webSocketHandler.broadcast("deleted " + projectId.toString());
-            return ResponseEntity.ok(response);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().build();
-        } catch (EntityNotFoundException e) {
-            return ResponseEntity.notFound().build();
-        }
+        String response = projectService.deleteProject(projectId);
+        webSocketHandler.broadcast("deleted " + projectId.toString());
+        return ResponseEntity.ok(response);
     }
 
     /**
@@ -67,17 +68,12 @@ public class ProjectController {
      * @return the changed project with the specified ID
      */
     @PutMapping("/{projectId}")
+    @PreAuthorize(EDITOR_IN_PROJECT)
     public ResponseEntity<Project> updateProject (@PathVariable("projectId") UUID projectId,
-                                                  @RequestBody Project project) {
-        try {
-            Project result = projectService.updateProject(projectId, project);
-            webSocketHandler.broadcast("edited " + result.getProjectId());
-            return ResponseEntity.ok(result);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().build();
-        } catch (EntityNotFoundException e) {
-            return ResponseEntity.notFound().build();
-        }
+                                                  @Valid @RequestBody Project project) {
+        Project result = projectService.updateProject(projectId, project);
+        webSocketHandler.broadcast("edited " + result.getProjectId());
+        return ResponseEntity.ok(result);
     }
 
     /**
@@ -85,16 +81,10 @@ public class ProjectController {
      * @param projectId the id of the project
      * @return a response entity that contains the project with the specified id
      */
-    @GetMapping("/{projectId}")
+    @GetMapping("/public/{projectId}")
     public ResponseEntity<Project> getProjectById (@PathVariable("projectId") UUID projectId) {
-        try {
-            Project project = projectService.getProjectById(projectId);
-            return ResponseEntity.ok(project);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().build();
-        } catch (EntityNotFoundException e) {
-            return ResponseEntity.notFound().build();
-        }
+        Project project = projectService.getProjectById(projectId);
+        return ResponseEntity.ok(project);
     }
 
     /**
@@ -103,14 +93,11 @@ public class ProjectController {
      * @return a response entity that contains the added project
      */
     @PostMapping("/")
-    public ResponseEntity<Project> createProject (@RequestBody Project project) {
-        try {
-            Project response = projectService.createProject(project);
-            webSocketHandler.broadcast("added " + response.getProjectId());
-            return ResponseEntity.ok(response);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().build();
-        }
+    @PreAuthorize(PM_ONLY)
+    public ResponseEntity<Project> createProject (@Valid @RequestBody Project project) {
+        Project response = projectService.createProject(project);
+        webSocketHandler.broadcast("added " + response.getProjectId());
+        return ResponseEntity.ok(response);
     }
 
 }

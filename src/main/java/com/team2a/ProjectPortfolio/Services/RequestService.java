@@ -29,6 +29,19 @@ public class RequestService {
     private ProjectRepository projectRepository;
 
     /**
+     * Method for getting a request by its id
+     * @param requestId the id of the request to be queried
+     * @return the request or exception if not found
+     * @throws ResponseStatusException(404) if the request is not found
+     */
+    public Request getRequestById (UUID requestId) {
+        Optional<Request> request = requestRepository.findById(requestId);
+        if(request.isEmpty())
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Request not found.");
+        return request.get();
+    }
+
+    /**
      * Retrieves all requests made by a specific user
      * @param username the username to be queried
      * @return the list of requests corresponding to the username

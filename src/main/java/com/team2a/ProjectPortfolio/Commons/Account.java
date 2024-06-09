@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.UUID;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,11 +13,14 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 import java.util.List;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 @Entity
 @Table(name="ACCOUNT")
 @NoArgsConstructor
-public class Account {
+public class Account implements UserDetails {
 
     @Id
     @Column(name="USERNAME")
@@ -37,23 +41,17 @@ public class Account {
     @NotNull(message = "password can't be null")
     private String password;
 
-    @Column(name= "IS_ADMINISTRATOR")
+    @Enumerated(EnumType.STRING)
+    @Column(name="ROLE")
     @Getter
     @Setter
-    @NotNull(message = "isAdministrator can't be null")
-    private Boolean isAdministrator;
-
-    @Column(name= "IS_PM")
-    @Getter
-    @Setter
-    @NotNull(message = "isPM can't be null")
-    private Boolean isPM;
+    private Role role;
 
     @Getter
     @Setter
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @OnDelete(action= OnDeleteAction.CASCADE)
-    @JoinColumn(name="ACCOUNT_USERNAME")
+    @JoinColumn(name="ACCOUNT_USERNAME", updatable = false, insertable = false)
     private List<ProjectsToAccounts> projectsToAccounts = new ArrayList<>();
 
     @Getter
@@ -70,16 +68,13 @@ public class Account {
      * @param username the username of the account
      * @param name the name of the account
      * @param password the password of the account
-     * @param isAdministrator whether the account is an administrator
-     * @param isPM whether the account is a project manager
+     * @param role the role of the account
      */
-    public Account (String username, String name, String password, Boolean isAdministrator,
-                   Boolean isPM) {
+    public Account (String username, String name, String password, Role role) {
         this.username = username;
         this.name = name;
         this.password = password;
-        this.isAdministrator = isAdministrator;
-        this.isPM = isPM;
+        this.role = role;
     }
 
     /**
@@ -89,5 +84,35 @@ public class Account {
      */
     public boolean hasRequestForProject (UUID projectID) {
         return requests.stream().anyMatch(request -> request.getProject().getProjectId().equals(projectID));
+    }
+
+    /**
+     * Gets authorities for the account
+     * @return the authorities for the account
+     */
+    @Override
+    @JsonIgnore
+    public Collection<? extends GrantedAuthority> getAuthorities () {
+        return List.of(new SimpleGrantedAuthority(role.toString()));
+    }
+
+    @Override
+    public boolean isAccountNonExpired () {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked () {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired () {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled () {
+        return true;
     }
 }

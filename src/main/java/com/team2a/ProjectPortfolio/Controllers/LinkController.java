@@ -1,6 +1,8 @@
 package com.team2a.ProjectPortfolio.Controllers;
 
 
+import static com.team2a.ProjectPortfolio.security.Permissions.EDITOR_IN_PROJECT;
+
 import com.team2a.ProjectPortfolio.Commons.Link;
 import com.team2a.ProjectPortfolio.Routes;
 import com.team2a.ProjectPortfolio.Services.LinkService;
@@ -8,6 +10,7 @@ import com.team2a.ProjectPortfolio.WebSocket.LinkProjectWebSocketHandler;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -41,6 +44,7 @@ public class LinkController {
      * @return the new link entity
      */
     @PostMapping("/{projectId}")
+    @PreAuthorize(EDITOR_IN_PROJECT)
     public ResponseEntity<Link> addLinkToProject (@RequestBody Link link,@PathVariable("projectId") UUID projectId) {
         try {
             Link newLink = linkService.addLinkToProject(link,projectId);
@@ -57,6 +61,7 @@ public class LinkController {
      * @return the new link entity
      */
     @PutMapping("/")
+    @PreAuthorize(EDITOR_IN_PROJECT)
     public ResponseEntity<Link> editLinkOfProject (@RequestBody Link link) {
         try {
             Link updatedLink = linkService.editLinkOfProject(link);
@@ -72,7 +77,7 @@ public class LinkController {
      * @param projectId the id of the project
      * @return the links associated with a project given the id of the project
      */
-    @GetMapping("/{projectId}")
+    @GetMapping("/public/{projectId}")
     public ResponseEntity<List<Link>> getLinksByProjectId (@PathVariable("projectId") UUID projectId) {
         try {
             List<Link> links = linkService.getLinksByProjectId(projectId);
@@ -88,6 +93,7 @@ public class LinkController {
      * @return a string containing a message if the link was deleted
      */
     @DeleteMapping("/{linkId}")
+    @PreAuthorize(EDITOR_IN_PROJECT)
     public ResponseEntity<String> deleteLinkById (@PathVariable("linkId") UUID linkId) {
         try {
             String returnedMessage = linkService.deleteLinkById(linkId);

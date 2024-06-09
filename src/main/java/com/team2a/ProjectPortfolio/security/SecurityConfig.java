@@ -5,8 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -16,20 +16,27 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 public class SecurityConfig {
-
-
+    @Value("#{'${public.endpoints}'.split(',')}")
+    private List<String> publicEndpoints;
     @Autowired
     private JwtRequestFilter jwtRequestFilter;
 
-    @Autowired
-    private CustomUserDetailsService userDetailsService;
-
-    @Value("#{'${public.endpoints}'.split(',')}")
-    private List<String> publicEndpoints;
+    /**
+     * Custom security service
+     *
+     * @return the custom security service
+     */
+    @Bean
+    public CustomSecurityService customSecurityService () {
+        return new CustomSecurityService();
+    }
 
     /**
      * Password encoder
@@ -65,7 +72,6 @@ public class SecurityConfig {
             )
             .authorizeHttpRequests(auth -> {
                 publicEndpoints.forEach(endpoint -> auth.requestMatchers(endpoint).permitAll());
-                auth.requestMatchers(HttpMethod.GET).permitAll();
                 auth.anyRequest().authenticated();
             })
             .sessionManagement(sessionManagement ->
@@ -74,6 +80,20 @@ public class SecurityConfig {
             .headers(headers -> headers.frameOptions().sameOrigin())
             .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class)
             .build();
+    }
+
+    @Bean
+    public WebMvcConfigurer corsConfigurer () {
+        return new WebMvcConfigurer() {
+            @Override
+            public void addCorsMappings (CorsRegistry registry) {
+                registry.addMapping("/**")
+                    .allowedOrigins("http://localhost:4200")
+                    .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                    .allowedHeaders("*")
+                    .allowCredentials(true);
+            }
+        };
     }
 
 }

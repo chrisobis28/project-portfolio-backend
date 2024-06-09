@@ -1,5 +1,7 @@
 package com.team2a.ProjectPortfolio.Controllers;
 
+import static com.team2a.ProjectPortfolio.security.Permissions.EDITOR_IN_PROJECT;
+
 import com.team2a.ProjectPortfolio.Commons.Media;
 import com.team2a.ProjectPortfolio.CustomExceptions.MediaNotFoundException;
 import com.team2a.ProjectPortfolio.Routes;
@@ -11,6 +13,7 @@ import org.antlr.v4.runtime.misc.Triple;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
@@ -42,7 +45,7 @@ public class MediaController {
      * @param projectId the id of the Project whose Media to be retrieved
      * @return the List of all Medias corresponding to the project
      */
-    @GetMapping("/images/{projectId}")
+    @GetMapping("/public/images/{projectId}")
     public ResponseEntity<List<Triple<String,String,String>>> getImagesContentByProjectId (@PathVariable("projectId")
                                                                                                UUID projectId) {
         return ResponseEntity.ok(mediaService.getImagesContentByProjectId(projectId));
@@ -53,7 +56,7 @@ public class MediaController {
      * @param mediaId the mediaId of the document we need to retrieve
      * @return the media content
      */
-    @GetMapping("/file/content/{mediaId}")
+    @GetMapping("/public/file/content/{mediaId}")
     public ResponseEntity<Pair<String,String>> getDocumentContentByMediaId (@PathVariable("mediaId") UUID mediaId) {
         return ResponseEntity.ok(mediaService.getDocumentByMediaId(mediaId));
     }
@@ -63,7 +66,7 @@ public class MediaController {
      * @param projectId the projectID
      * @return the list of medias
      */
-    @GetMapping("/file/{projectId}")
+    @GetMapping("/public/file/{projectId}")
     public ResponseEntity<List<Media>> getDocumentsByProjectId (@PathVariable("projectId") UUID projectId) {
         return ResponseEntity.ok(mediaService.getDocumentsByProjectId(projectId));
     }
@@ -76,6 +79,7 @@ public class MediaController {
      * @return the Media instance generated and saved
      */
     @PostMapping("/{projectId}")
+    @PreAuthorize(EDITOR_IN_PROJECT)
     public ResponseEntity<Media> addMediaToProject (@PathVariable("projectId") UUID projectId,
                                                     @RequestParam("file") MultipartFile file, @RequestParam String name) {
         Media body = mediaService.addMediaToProject(projectId, file,name);
@@ -86,10 +90,13 @@ public class MediaController {
     /**
      * Deletes a media from the database
      * @param mediaId the id of the Media under deletion
+     * @param projectId the id of the Project that the Media belongs to
      * @return the status of the operation
      */
-    @DeleteMapping("/{mediaId}")
-    public ResponseEntity<String> deleteMedia (@PathVariable("mediaId") UUID mediaId) {
+    @DeleteMapping("/{projectId}/{mediaId}")
+    @PreAuthorize(EDITOR_IN_PROJECT)
+    public ResponseEntity<String> deleteMedia (@PathVariable("projectId") UUID projectId,
+                                               @PathVariable("mediaId") UUID mediaId) {
         try {
             Media m = mediaService.deleteMedia(mediaId);
             mediaProjectWebSocketHandler.broadcast(m.getProject().getProjectId().toString());

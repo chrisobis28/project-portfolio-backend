@@ -1,5 +1,8 @@
 package com.team2a.ProjectPortfolio.Controllers;
 
+import static com.team2a.ProjectPortfolio.security.Permissions.EDITOR_IN_PROJECT;
+import static com.team2a.ProjectPortfolio.security.Permissions.PM_ONLY;
+
 import com.team2a.ProjectPortfolio.Commons.Tag;
 import com.team2a.ProjectPortfolio.Routes;
 import com.team2a.ProjectPortfolio.Services.TagService;
@@ -12,6 +15,7 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -46,7 +50,7 @@ public class TagController {
      * @param projectId the project id
      * @return a list of tags
      */
-    @GetMapping("/{projectId}")
+    @GetMapping("/public/{projectId}")
     public ResponseEntity<List<Tag>> getTagsByProjectId (@PathVariable("projectId") UUID projectId) {
         List<Tag> tagsList = tagService.getTagsByProjectId(projectId);
         return ResponseEntity.ok(tagsList);
@@ -60,6 +64,7 @@ public class TagController {
      * @return the tag
      */
     @PostMapping("/create")
+    @PreAuthorize(PM_ONLY)
     public ResponseEntity<Tag> createTag (@Valid @RequestBody Tag tag) {
         Tag newTag = tagService.createTag(tag);
         tagWebSocketHandler.broadcast("tag added");
@@ -74,6 +79,7 @@ public class TagController {
      * @return the response entity
      */
     @PostMapping("/{projectId}/{tagId}")
+    @PreAuthorize(EDITOR_IN_PROJECT)
     public ResponseEntity<String> addTagToProject
     (@PathVariable("projectId") UUID projectId, @PathVariable("tagId") UUID tagId) {
         tagService.addTagToProject(projectId, tagId);
@@ -88,6 +94,7 @@ public class TagController {
      * @return the tag
      */
     @PutMapping("/edit")
+    @PreAuthorize(PM_ONLY)
     public ResponseEntity<Tag> editTag (@Valid @RequestBody Tag tag) {
         Tag newTag = tagService.editTag(tag);
         tagWebSocketHandler.broadcast("tagChanged");
@@ -102,6 +109,7 @@ public class TagController {
      * @return the response entity
      */
     @DeleteMapping("/{tagId}")
+    @PreAuthorize(PM_ONLY)
     public ResponseEntity<Void> deleteTag (@PathVariable("tagId") UUID tagId) {
         tagService.deleteTag(tagId);
         tagWebSocketHandler.broadcast("deleted " + tagId);
@@ -117,6 +125,7 @@ public class TagController {
      * @return the response entity
      */
     @DeleteMapping("/{projectId}/{tagId}")
+    @PreAuthorize(EDITOR_IN_PROJECT)
     public ResponseEntity<Void> removeTagFromProject
     (@PathVariable("projectId") UUID projectId, @PathVariable("tagId") UUID tagId) {
         tagService.removeTagFromProject(projectId, tagId);
@@ -129,7 +138,7 @@ public class TagController {
      * Get all tags from the database.
      * @return a list of all tags
      */
-    @GetMapping("/")
+    @GetMapping("/public/")
     public ResponseEntity<List<Tag>> getAllTags () {
 
         List<Tag> tags = tagService.getAllTags();

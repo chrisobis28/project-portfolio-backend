@@ -8,7 +8,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.team2a.ProjectPortfolio.Commons.Account;
+import com.team2a.ProjectPortfolio.Commons.Role;
 import com.team2a.ProjectPortfolio.Repositories.AccountRepository;
+import com.team2a.ProjectPortfolio.Repositories.CollaboratorRepository;
 import com.team2a.ProjectPortfolio.dto.LoginUserRequest;
 import com.team2a.ProjectPortfolio.dto.RegisterUserRequest;
 import org.junit.jupiter.api.BeforeEach;
@@ -36,6 +38,9 @@ public class AuthenticationControllerIntegrationTest {
     private AccountRepository accountRepository;
 
     @Autowired
+    private CollaboratorRepository collaboratorRepository;
+
+    @Autowired
     private ObjectMapper objectMapper;
 
     @Autowired
@@ -48,6 +53,7 @@ public class AuthenticationControllerIntegrationTest {
     @BeforeEach
     public void setUp() {
         accountRepository.deleteAll();
+        collaboratorRepository.deleteAll();
         registerUserRequest = new RegisterUserRequest("username","Password!1","user");
         loginUserRequest = new LoginUserRequest("username","Password!1");
     }
@@ -59,13 +65,14 @@ public class AuthenticationControllerIntegrationTest {
                 .content(objectMapper.writeValueAsString(registerUserRequest)))
                 .andExpect(status().isCreated());
         assertEquals(1, accountRepository.count());
+        assertEquals(1, collaboratorRepository.count());
         Account account = accountRepository.findById("username")
             .orElseThrow(() -> new AssertionError("Account not found"));
         assertEquals("username", account.getUsername());
         assertTrue(passwordEncoder.matches("Password!1", account.getPassword()));
         assertEquals("user", account.getName());
-        assertFalse(account.getIsPM());
-        assertFalse(account.getIsAdministrator());
+        assertEquals(Role.ROLE_USER, account.getRole());
+        assertEquals(account.getName(), collaboratorRepository.findByName(account.getName()).get().getName());
     }
 
     @Test

@@ -1,7 +1,12 @@
 package com.team2a.ProjectPortfolio.Services;
 
+import com.team2a.ProjectPortfolio.Commons.Account;
 import com.team2a.ProjectPortfolio.Commons.Project;
+import com.team2a.ProjectPortfolio.Commons.ProjectsToAccounts;
+import com.team2a.ProjectPortfolio.Commons.RoleInProject;
 import com.team2a.ProjectPortfolio.Repositories.ProjectRepository;
+import com.team2a.ProjectPortfolio.Repositories.ProjectsToAccountsRepository;
+import com.team2a.ProjectPortfolio.security.SecurityUtils;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -10,19 +15,32 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.server.ResponseStatusException;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 class ProjectServiceTest {
-
     private ProjectRepository projectRepository;
+
+    private ProjectsToAccountsRepository projectsToAccountsRepository;
+    private SecurityUtils securityUtils;
     private ProjectService projectService;
+
+    private CollaboratorService collaboratorService;
 
     @BeforeEach
     void setUp() {
         projectRepository = mock(ProjectRepository.class);
-        projectService = new ProjectService(projectRepository);
+        projectsToAccountsRepository = mock(ProjectsToAccountsRepository.class);
+        collaboratorService = mock(CollaboratorService.class);
+        securityUtils = mock(SecurityUtils.class);
+        projectService = new ProjectService(projectRepository, securityUtils, projectsToAccountsRepository, collaboratorService);
     }
 
     @Test
@@ -49,23 +67,10 @@ class ProjectServiceTest {
     @Test
     void deleteProjectSuccessful() {
         UUID projectId = UUID.randomUUID();
-        String expected = "Deleted project with specified ID";
         Project project1 = new Project("Title1", "Description1", false);
         when(projectRepository.findById(projectId)).thenReturn(Optional.of(project1));
-        String response = projectService.deleteProject(projectId);
-        assertEquals(expected, response);
+        projectService.deleteProject(projectId);
         verify(projectRepository,times(1)).delete(project1);
-    }
-
-    @Test
-    void deleteProjectNullId () {
-        assertThrows(IllegalArgumentException.class, () -> projectService.deleteProject(null));
-    }
-
-    @Test
-    void deleteProjectNotFound () {
-        UUID projectId = UUID.randomUUID();
-        assertThrows(EntityNotFoundException.class, () -> projectService.deleteProject(projectId));
     }
     @Test
     void updateProjectSuccess() {
@@ -77,36 +82,21 @@ class ProjectServiceTest {
         Project response = projectService.updateProject(projectId, project2);
         assertEquals(project2, response);
     }
-
-    @Test
-    void updateProjectNullId() {
-        Project project1 = new Project("Title1", "Description1",  false);
-        assertThrows(IllegalArgumentException.class, () -> projectService.updateProject(null, project1));
-    }
-
-    @Test
-    void updateProjectNotFound() {
-        UUID projectId = UUID.randomUUID();
-        Project project1 = new Project("Title1", "Description1", false);
-        assertThrows(EntityNotFoundException.class, () -> projectService.updateProject(projectId, project1));
-    }
     @Test
     void createProjectSuccess() {
         String title = "title1";
         String desc = "desc1";
-        String bibtex = "bibtex1";
         Project project = new Project(title, desc, false);
+
         when(projectRepository.findFirstByTitleAndDescription(title, desc))
-                .thenReturn(Optional.empty());
+            .thenReturn(Optional.empty());
         when(projectRepository.save(any())).thenReturn(new Project(title, desc, false));
+        when(projectsToAccountsRepository.save(any())).thenReturn(null);
+        when(securityUtils.getCurrentUser()).thenReturn(new Account());
+
         Project response = projectService.createProject(project);
         assertEquals(project.getTitle(), response.getTitle());
         assertEquals(project.getDescription(), response.getDescription());
-    }
-
-    @Test
-    void createProjectNull() {
-        assertThrows(IllegalArgumentException.class, () -> projectService.createProject(null));
     }
 
     @Test
@@ -117,9 +107,7 @@ class ProjectServiceTest {
         Project project = new Project(title, desc, false);
         when(projectRepository.findFirstByTitleAndDescription(title, desc))
                 .thenReturn(Optional.of(new Project(title, desc, false)));
-        Project response = projectService.createProject(project);
-        assertEquals(project.getTitle(), response.getTitle());
-        assertEquals(project.getDescription(), response.getDescription());
+        assertThrows(ResponseStatusException.class, () -> projectService.createProject(project));
     }
 
     @Test
@@ -132,14 +120,37 @@ class ProjectServiceTest {
     }
 
     @Test
-    void getProjectByIdNull() {
-        assertThrows(IllegalArgumentException.class, () -> projectService.getProjectById(null));
+    void getProjectByIdNotFound() {
+        UUID projectId = UUID.randomUUID();
+        assertThrows(ResponseStatusException.class, () -> projectService.getProjectById(projectId));
     }
 
     @Test
-    void getProjectByIdNotFound() {
+    void testUserBelongsToProjectProjectNotFound() {
         UUID projectId = UUID.randomUUID();
-        assertThrows(EntityNotFoundException.class, () -> projectService.getProjectById(projectId));
+        when(projectRepository.findById(projectId)).thenReturn(Optional.empty());
+        assertThrows(ResponseStatusException.class, () -> projectService.userBelongsToProject("username",projectId));
+    }
+
+    @Test
+    void testUserBelongsToProjectUserNotInProject() {
+        UUID projectId = UUID.randomUUID();
+        Project project = new Project("Title1", "Description1", false);
+        project.setProjectsToAccounts(new ArrayList<>());
+        when(projectRepository.findById(projectId)).thenReturn(Optional.of(project));
+        assertThrows(ResponseStatusException.class, () -> projectService.userBelongsToProject("username",projectId));
+    }
+
+    @Test
+    void testUserBelongsToProjectUserInProject() {
+        UUID projectId = UUID.randomUUID();
+        Project project = new Project("Title1", "Description1", false);
+        Account account = new Account();
+        account.setUsername("username");
+        project.setProjectsToAccounts(List.of(new ProjectsToAccounts(RoleInProject.PM, account, project)));
+        when(projectRepository.findById(projectId)).thenReturn(Optional.of(project));
+        RoleInProject response = projectService.userBelongsToProject("username",projectId);
+        assertEquals(RoleInProject.PM, response);
     }
 
 }

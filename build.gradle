@@ -86,7 +86,9 @@ jacocoTestReport {
 					exclude: ['**/ProjectPortfolioManagementSystemApplication.class',
 							  '**/Routes.class',
 							  '**/MediaHelper.class',
-								'**/WebSocket'
+							  '**/security/SecurityConfig.class',
+							  '**/security/Permissions.class',
+							  '**/WebSocket'
 					])
 		})
 	}
@@ -106,7 +108,9 @@ jacocoTestCoverageVerification {
 					exclude: ['**/ProjectPortfolioManagementSystemApplication.class',
 							  '**/Routes.class',
 							  '**/MediaHelper.class',
-								'**/WebSocket'
+							  '**/security/SecurityConfig.class',
+							  '**/security/Permissions.class',
+							  '**/WebSocket'
 					])
 		})
 	}

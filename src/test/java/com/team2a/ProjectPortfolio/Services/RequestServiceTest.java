@@ -3,6 +3,7 @@ package com.team2a.ProjectPortfolio.Services;
 import com.team2a.ProjectPortfolio.Commons.Account;
 import com.team2a.ProjectPortfolio.Commons.Project;
 import com.team2a.ProjectPortfolio.Commons.Request;
+import com.team2a.ProjectPortfolio.Commons.Role;
 import com.team2a.ProjectPortfolio.Repositories.AccountRepository;
 import com.team2a.ProjectPortfolio.Repositories.ProjectRepository;
 import com.team2a.ProjectPortfolio.Repositories.RequestRepository;
@@ -55,7 +56,7 @@ class RequestServiceTest {
 
     @Test
     void testGetRequestForUserOk() {
-        Account a = new Account("uname", "Name", "pw", true, false);
+        Account a = new Account("uname", "Name", "pw", Role.ROLE_USER);
         Request r = new Request("title", "desc", true, a, new Project());
         a.setRequests(List.of(r));
         when(accountRepository.findById("uname")).thenReturn(Optional.of(a));
@@ -72,7 +73,7 @@ class RequestServiceTest {
     @Test
     void testAddRequestOk() {
         Project p = new Project("title", "desc", false);
-        Account a = new Account("uname", "Name", "pw", true, false);
+        Account a = new Account("uname", "Name", "pw", Role.ROLE_USER);
         Request r = new Request("title", "description", false, a , p);
         when(projectRepository.findById(p.getProjectId())).thenReturn(Optional.of(p));
         when(accountRepository.findById(a.getUsername())).thenReturn(Optional.of(a));
@@ -91,7 +92,7 @@ class RequestServiceTest {
     @Test
     void testAddRequestAccountNotFound() {
         Project p = new Project("title", "desc", false);
-        Account a = new Account("uname", "Name", "pw", true, false);
+        Account a = new Account("uname", "Name", "pw", Role.ROLE_USER);
         Request r = new Request("title", "description", false, a , p);
         when(projectRepository.findById(p.getProjectId())).thenReturn(Optional.of(p));
         when(accountRepository.findById(a.getUsername())).thenReturn(Optional.empty());
@@ -101,7 +102,7 @@ class RequestServiceTest {
     @Test
     void testAddRequestConflict() {
         Project p = new Project("title", "desc", false);
-        Account a = new Account("uname", "Name", "pw", true, false) {
+        Account a = new Account("uname", "Name", "pw", Role.ROLE_USER) {
             @Override
             public boolean hasRequestForProject(UUID projectId) {
                 return true;

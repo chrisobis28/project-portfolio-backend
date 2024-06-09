@@ -7,7 +7,7 @@ import com.team2a.ProjectPortfolio.Commons.TagsToProject;
 import com.team2a.ProjectPortfolio.Repositories.ProjectRepository;
 import com.team2a.ProjectPortfolio.Repositories.TagRepository;
 import com.team2a.ProjectPortfolio.Repositories.TagToProjectRepository;
-import org.junit.jupiter.api.AfterEach;
+import com.team2a.ProjectPortfolio.security.SecurityConfigUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +20,6 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.UUID;
 
-import static org.hamcrest.Matchers.containsString;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -52,6 +51,9 @@ public class TagControllerIntegrationTest {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @Autowired
+    private SecurityConfigUtils securityConfigUtils;
+
     private UUID projectId;
 
     private Tag tag1;
@@ -81,12 +83,12 @@ public class TagControllerIntegrationTest {
         tagToProjectRepository.saveAndFlush(new TagsToProject(tag1, project));
         tagToProjectRepository.saveAndFlush(new TagsToProject(tag2, project));
         tagToProjectRepository.saveAndFlush(new TagsToProject(tag3, project));
-
+        securityConfigUtils.setAuthentication();
     }
 
     @Test
     public void testGetTagsByProjectId() throws Exception {
-        mockMvc.perform(get("/tag/" + projectId)
+        mockMvc.perform(get("/tag/public/" + projectId)
                 .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$", hasSize(3)))
@@ -141,7 +143,7 @@ public class TagControllerIntegrationTest {
                 .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk());
 
-        mockMvc.perform(get("/tag/" + projectId)
+        mockMvc.perform(get("/tag/public/" + projectId)
                 .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$", hasSize(4)))
@@ -194,7 +196,7 @@ public class TagControllerIntegrationTest {
 
         assertEquals(2, tagRepository.findAll().size());
 
-        mockMvc.perform(get("/tag/" + projectId)
+        mockMvc.perform(get("/tag/public/" + projectId)
                 .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$", hasSize(2)))
@@ -220,7 +222,7 @@ public class TagControllerIntegrationTest {
                 .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk());
 
-        mockMvc.perform(get("/tag/" + projectId)
+        mockMvc.perform(get("/tag/public/" + projectId)
                 .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$", hasSize(2)))

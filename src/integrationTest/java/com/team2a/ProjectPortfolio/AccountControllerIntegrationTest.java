@@ -11,18 +11,22 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.team2a.ProjectPortfolio.Commons.Account;
+import com.team2a.ProjectPortfolio.Commons.Collaborator;
 import com.team2a.ProjectPortfolio.Commons.Project;
 import com.team2a.ProjectPortfolio.Commons.ProjectsToAccounts;
+import com.team2a.ProjectPortfolio.Commons.Role;
+import com.team2a.ProjectPortfolio.Commons.RoleInProject;
 import com.team2a.ProjectPortfolio.Repositories.AccountRepository;
+import com.team2a.ProjectPortfolio.Repositories.CollaboratorRepository;
 import com.team2a.ProjectPortfolio.Repositories.ProjectRepository;
 import com.team2a.ProjectPortfolio.Repositories.ProjectsToAccountsRepository;
+import com.team2a.ProjectPortfolio.security.SecurityConfigUtils;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
@@ -41,6 +45,9 @@ public class AccountControllerIntegrationTest {
   private AccountRepository accountRepository;
 
   @Autowired
+  private CollaboratorRepository collaboratorRepository;
+
+  @Autowired
   private ProjectRepository projectRepository;
 
   @Autowired
@@ -48,6 +55,9 @@ public class AccountControllerIntegrationTest {
 
   @Autowired
   private ObjectMapper objectMapper;
+
+  @Autowired
+  private SecurityConfigUtils securityConfigUtils;
 
   private Account account;
 
@@ -58,10 +68,13 @@ public class AccountControllerIntegrationTest {
     accountRepository.deleteAll();
     projectRepository.deleteAll();
     projectsToAccountsRepository.deleteAll();
-    account = new Account("username1", "name1", "password1", false, false);
+    account = new Account("username1", "name1", "password1", Role.ROLE_USER);
+    collaboratorRepository.deleteAll();
     project = new Project("title", "description", false);
     project = projectRepository.save(project);
     account = accountRepository.saveAndFlush(account);
+    collaboratorRepository.saveAndFlush(new Collaborator(account.getName()));
+    securityConfigUtils.setAuthentication();
   }
 
   @Test
@@ -92,37 +105,33 @@ public class AccountControllerIntegrationTest {
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.username", is("username1")))
         .andExpect(jsonPath("$.name", is("name2")))
-        .andExpect(jsonPath("$.password", is("password1")))
-        .andExpect(jsonPath("$.isAdministrator", is(false)))
-        .andExpect(jsonPath("$.isPM", is(false)));
+        .andExpect(jsonPath("$.password", is("password1")));
 
     assertEquals(1, accountRepository.count());
 
     mockMvc.perform(put(Routes.ACCOUNT)
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(
-                new Account("username2", "name", "password", false, false))))
+                new Account("username2", "name", "password", Role.ROLE_USER))))
         .andExpect(status().isNotFound());
 
     mockMvc.perform(put(Routes.ACCOUNT)
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(
-                new Account("username1", null, "password", false, false))))
+                new Account("username1", null, "password", Role.ROLE_USER))))
         .andExpect(status().isBadRequest());
   }
 
   @Test
   public void getAccountById() throws Exception {
-    mockMvc.perform(get(Routes.ACCOUNT + "/" + account.getUsername())
+    mockMvc.perform(get(Routes.ACCOUNT + "/public/" + account.getUsername())
             .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.username", is("username1")))
         .andExpect(jsonPath("$.name", is("name1")))
-        .andExpect(jsonPath("$.password", is("password1")))
-        .andExpect(jsonPath("$.isAdministrator", is(false)))
-        .andExpect(jsonPath("$.isPM", is(false)));
+        .andExpect(jsonPath("$.password", is("password1")));
 
-    mockMvc.perform(get(Routes.ACCOUNT + "/" + "username2")
+    mockMvc.perform(get(Routes.ACCOUNT + "/public/" + "username2")
             .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isNotFound());
   }
@@ -142,31 +151,31 @@ public class AccountControllerIntegrationTest {
 
     mockMvc.perform(post(Routes.ACCOUNT + "/" + account.getUsername() + "/" + project.getProjectId())
             .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString("proxyRole")))
+            .content(objectMapper.writeValueAsString("CONTENT_CREATOR")))
         .andExpect(status().isOk());
 
     assertEquals(1, projectsToAccountsRepository.count());
 
     mockMvc.perform(post(Routes.ACCOUNT + "/" + "username2" + "/" + project.getProjectId())
             .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString("proxyRole")))
+            .content(objectMapper.writeValueAsString("CONTENT_CREATOR")))
         .andExpect(status().isNotFound());
 
     mockMvc.perform(post(Routes.ACCOUNT + "/" + account.getUsername() + "/" + id)
             .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString("proxyRole")))
+            .content(objectMapper.writeValueAsString("CONTENT_CREATOR")))
         .andExpect(status().isNotFound());
 
     mockMvc.perform(post(Routes.ACCOUNT + "/" + account.getUsername() + "/" + project.getProjectId())
             .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString("proxyRole")))
+            .content(objectMapper.writeValueAsString("CONTENT_CREATOR")))
         .andExpect(status().isForbidden());
   }
 
   @Test
   void deleteRole() throws Exception {
     assertEquals(0, projectsToAccountsRepository.count());
-    ProjectsToAccounts pta = new ProjectsToAccounts("role", account, project);
+    ProjectsToAccounts pta = new ProjectsToAccounts(RoleInProject.CONTENT_CREATOR, account, project);
     projectsToAccountsRepository.saveAndFlush(pta);
     assertEquals(1, projectsToAccountsRepository.count());
 

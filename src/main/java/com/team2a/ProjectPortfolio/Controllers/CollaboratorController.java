@@ -1,5 +1,8 @@
 package com.team2a.ProjectPortfolio.Controllers;
 
+import static com.team2a.ProjectPortfolio.security.Permissions.PM_IN_PROJECT;
+import static com.team2a.ProjectPortfolio.security.Permissions.PM_ONLY;
+
 import com.team2a.ProjectPortfolio.Commons.Collaborator;
 import com.team2a.ProjectPortfolio.Routes;
 import com.team2a.ProjectPortfolio.Services.CollaboratorService;
@@ -9,6 +12,7 @@ import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -44,7 +48,7 @@ public class CollaboratorController {
      * @param projectId the project id
      * @return a response entity that contains the list of collaborators entities
      */
-    @GetMapping("/{projectId}")
+    @GetMapping("/public/{projectId}")
     public ResponseEntity<List<Collaborator>> getCollaboratorsByProjectId (@PathVariable("projectId") UUID projectId){
         try {
             List<Collaborator> collaboratorsList = collaboratorService.getCollaboratorsByProjectId(projectId);
@@ -61,6 +65,7 @@ public class CollaboratorController {
      * @return the collaborator with the specified name
      */
     @PutMapping("/")
+    @PreAuthorize(PM_ONLY)
     public ResponseEntity<Collaborator> addCollaborator
     (@RequestBody String name) {
         Collaborator c = collaboratorService.addCollaborator(name);
@@ -77,6 +82,7 @@ public class CollaboratorController {
      * @return a responseEntity containing a collaborator entity
      */
     @PostMapping("/{projectId}/{collaboratorId}")
+    @PreAuthorize(PM_IN_PROJECT)
     public ResponseEntity<Collaborator> addCollaboratorToProject (@PathVariable("projectId") UUID projectId,
                                                                   @PathVariable("collaboratorId") UUID collaboratorId,
                                                                   @RequestBody String role){
@@ -96,6 +102,7 @@ public class CollaboratorController {
      * @return a responseEntity containing a collaborator entity
      */
     @PutMapping("/{collaboratorId}")
+    @PreAuthorize(PM_ONLY)
     public ResponseEntity<Collaborator> editCollaboratorOfProject (@PathVariable("collaboratorId") UUID collaboratorId,
                                                                   @RequestBody String collaboratorName){
         try {
@@ -114,6 +121,7 @@ public class CollaboratorController {
      * @return a responseEntity containing an error or a string
      */
     @DeleteMapping("/{collaboratorId}")
+    @PreAuthorize(PM_ONLY)
     public ResponseEntity<String> deleteCollaborator (@PathVariable("collaboratorId") UUID collaboratorId){
         try {
             String response = collaboratorService.deleteCollaborator(collaboratorId);
@@ -132,6 +140,7 @@ public class CollaboratorController {
      * @return a responseEntity containing an error or a string
      */
     @DeleteMapping("/{projectId}/{collaboratorId}")
+    @PreAuthorize(PM_IN_PROJECT)
     public ResponseEntity<String> deleteCollaboratorFromProject (@PathVariable("projectId") UUID projectId,
                                                                  @PathVariable("collaboratorId") UUID collaboratorId){
         try {
@@ -147,7 +156,7 @@ public class CollaboratorController {
      * endpoint for retrieving all collaborators
      * @return a list of collaborators
      */
-    @GetMapping("/")
+    @GetMapping("/public/")
     public ResponseEntity<List<Collaborator>> getAllCollaborators () {
         List<Collaborator> collaborators = collaboratorService.getAllCollaborators();
         return new ResponseEntity<>(collaborators, HttpStatus.OK);

@@ -4,6 +4,7 @@ import com.team2a.ProjectPortfolio.Commons.Link;
 import com.team2a.ProjectPortfolio.Commons.Project;
 import com.team2a.ProjectPortfolio.Repositories.LinkRepository;
 import com.team2a.ProjectPortfolio.Repositories.ProjectRepository;
+import com.team2a.ProjectPortfolio.security.SecurityConfigUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +37,9 @@ public class LinkControllerIntegrationTest {
 
     @Autowired
     private ProjectRepository projectRepository;
+
+    @Autowired
+    private SecurityConfigUtils securityConfigUtils;
     private UUID projectId;
     private Link link1;
     private Project project;
@@ -60,11 +64,12 @@ public class LinkControllerIntegrationTest {
         link1 = linkRepository.saveAndFlush(link1);
         linkRepository.saveAndFlush(link2);
         linkRepository.saveAndFlush(link3);
+        securityConfigUtils.setAuthentication();
     }
 
     @Test
     public void getLinksByProjectId() throws Exception {
-        mockMvc.perform(get(Routes.LINK + "/" + projectId)
+        mockMvc.perform(get(Routes.LINK + "/public/" + projectId)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(3)))

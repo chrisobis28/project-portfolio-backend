@@ -8,6 +8,8 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
 import com.team2a.ProjectPortfolio.Commons.Account;
+import com.team2a.ProjectPortfolio.Commons.Role;
+import com.team2a.ProjectPortfolio.Commons.RoleInProject;
 import com.team2a.ProjectPortfolio.CustomExceptions.AccountNotFoundException;
 import com.team2a.ProjectPortfolio.CustomExceptions.DuplicatedUsernameException;
 import com.team2a.ProjectPortfolio.CustomExceptions.NotFoundException;
@@ -41,7 +43,7 @@ public class AccountControllerTest {
   @Test
   void testEditAccountNotFoundException() {
     when(accountService.editAccount(any(Account.class))).thenThrow(new AccountNotFoundException(""));
-    Account account = new Account("username", "name", "password", false, false);
+    Account account = new Account("username", "name", "password", Role.ROLE_USER);
     ResponseEntity<Account> re = accountController.editAccount(account);
     assertEquals(HttpStatus.NOT_FOUND, re.getStatusCode());
     assertNull(re.getBody());
@@ -49,7 +51,7 @@ public class AccountControllerTest {
 
   @Test
   void testEditAccountSuccess() {
-    Account account = new Account("username", "name", "password", false, false);
+    Account account = new Account("username", "name", "password", Role.ROLE_USER);
     when(accountService.editAccount(any(Account.class))).thenReturn(account);
     ResponseEntity<Account> re = accountController.editAccount(account);
     assertEquals(HttpStatus.OK, re.getStatusCode());
@@ -66,7 +68,7 @@ public class AccountControllerTest {
 
   @Test
   void testGetAccountByIdSuccess() {
-    Account account = new Account("username", "name", "password", false, false);
+    Account account = new Account("username", "name", "password", Role.ROLE_USER);
     when(accountService.getAccountById("username")).thenReturn(account);
     ResponseEntity<Account> re = accountController.getAccountById("username");
     assertEquals(HttpStatus.OK, re.getStatusCode());
@@ -92,8 +94,8 @@ public class AccountControllerTest {
   @Test
   void addRoleAccountNotFound() {
     UUID id = UUID.randomUUID();
-    doThrow(AccountNotFoundException.class).when(accountService).addRole("username", id, "role");
-    ResponseEntity<Void> responseEntity = accountController.addRole("username", id, "role");
+    doThrow(AccountNotFoundException.class).when(accountService).addRole("username", id, RoleInProject.CONTENT_CREATOR);
+    ResponseEntity<Void> responseEntity = accountController.addRole("username", id, RoleInProject.CONTENT_CREATOR);
     assertEquals(HttpStatus.NOT_FOUND, responseEntity.getStatusCode());
     assertNull(responseEntity.getBody());
   }
@@ -101,8 +103,8 @@ public class AccountControllerTest {
   @Test
   void addRoleProjectNotFound() {
     UUID id = UUID.randomUUID();
-    doThrow(ProjectNotFoundException.class).when(accountService).addRole("username", id, "role");
-    ResponseEntity<Void> responseEntity = accountController.addRole("username", id, "role");
+    doThrow(ProjectNotFoundException.class).when(accountService).addRole("username", id, RoleInProject.CONTENT_CREATOR);
+    ResponseEntity<Void> responseEntity = accountController.addRole("username", id, RoleInProject.CONTENT_CREATOR);
     assertEquals(HttpStatus.NOT_FOUND, responseEntity.getStatusCode());
     assertNull(responseEntity.getBody());
   }
@@ -110,8 +112,8 @@ public class AccountControllerTest {
   @Test
   void addRoleAlreadyHasRole() {
     UUID id = UUID.randomUUID();
-    doThrow(DuplicatedUsernameException.class).when(accountService).addRole("username", id, "role");
-    ResponseEntity<Void> responseEntity = accountController.addRole("username", id, "role");
+    doThrow(DuplicatedUsernameException.class).when(accountService).addRole("username", id, RoleInProject.CONTENT_CREATOR);
+    ResponseEntity<Void> responseEntity = accountController.addRole("username", id, RoleInProject.CONTENT_CREATOR);
     assertEquals(HttpStatus.FORBIDDEN, responseEntity.getStatusCode());
     assertNull(responseEntity.getBody());
   }
@@ -119,8 +121,8 @@ public class AccountControllerTest {
   @Test
   void addRoleSuccessful() {
     UUID id = UUID.randomUUID();
-    doNothing().when(accountService).addRole("username", id, "role");
-    ResponseEntity<Void> responseEntity = accountController.addRole("username", id, "role");
+    doNothing().when(accountService).addRole("username", id, RoleInProject.CONTENT_CREATOR);
+    ResponseEntity<Void> responseEntity = accountController.addRole("username", id, RoleInProject.CONTENT_CREATOR);
     assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
     assertNull(responseEntity.getBody());
   }
