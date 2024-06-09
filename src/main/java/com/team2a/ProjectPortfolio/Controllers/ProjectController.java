@@ -56,9 +56,9 @@ public class ProjectController {
     @DeleteMapping("/{projectId}")
     @PreAuthorize(PM_IN_PROJECT)
     public ResponseEntity<String> deleteProject (@PathVariable("projectId") UUID projectId){
-        String response = projectService.deleteProject(projectId);
+        projectService.deleteProject(projectId);
         webSocketHandler.broadcast("deleted " + projectId.toString());
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(projectId.toString());
     }
 
     /**

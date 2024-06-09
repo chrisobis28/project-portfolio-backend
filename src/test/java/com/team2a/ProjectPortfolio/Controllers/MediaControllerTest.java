@@ -104,7 +104,7 @@ public class MediaControllerTest {
     UUID i1 = UUID.randomUUID();
     doThrow(new MediaNotFoundException("No media with the id " + i1 + " could be found."))
         .when(mediaService).deleteMedia(i1);
-    ResponseEntity<String> entity = mediaController.deleteMedia(i1);
+    ResponseEntity<String> entity = mediaController.deleteMedia(UUID.randomUUID(), i1);
     assertEquals(HttpStatus.NOT_FOUND, entity.getStatusCode());
     assertEquals("No media with the id " + i1 + " could be found.", entity.getBody());
   }
@@ -116,7 +116,7 @@ public class MediaControllerTest {
     p.setProjectId(UUID.randomUUID());
     m.setProject(p);
     when(mediaService.deleteMedia(any())).thenReturn(m);
-    ResponseEntity<String> entity = mediaController.deleteMedia(UUID.randomUUID());
+    ResponseEntity<String> entity = mediaController.deleteMedia(UUID.randomUUID(), UUID.randomUUID());
     verify(mediaProjectWebSocketHandler).broadcast(any());
     assertEquals(HttpStatus.OK, entity.getStatusCode());
     assertEquals("Media deleted successfully.", entity.getBody());
