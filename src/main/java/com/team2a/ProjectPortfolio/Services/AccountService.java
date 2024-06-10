@@ -16,7 +16,6 @@ import java.util.Optional;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -27,24 +26,19 @@ public class AccountService {
     private final ProjectRepository projectRepository;
     private final ProjectsToAccountsRepository projectsToAccountsRepository;
 
-    private final CollaboratorService collaboratorService;
-
     /**
      * Constructor for the AccountService class
      * @param accountRepository - the repository for the Account class
      * @param projectRepository - the repository for the Project class
      * @param projectsToAccountsRepository - the repository for the ProjectsToAccounts class
-     * @param collaboratorService - the service for the Collaborator class
      */
     @Autowired
     public AccountService (AccountRepository accountRepository,
                            ProjectRepository projectRepository,
-                           ProjectsToAccountsRepository projectsToAccountsRepository,
-                           CollaboratorService collaboratorService) {
+                           ProjectsToAccountsRepository projectsToAccountsRepository) {
         this.accountRepository = accountRepository;
         this.projectRepository = projectRepository;
         this.projectsToAccountsRepository = projectsToAccountsRepository;
-        this.collaboratorService = collaboratorService;
     }
 
     /**
@@ -125,8 +119,6 @@ public class AccountService {
         }
         ProjectsToAccounts pta = new ProjectsToAccounts(role, optionalAccount, optionalProject);
         projectsToAccountsRepository.save(pta);
-        collaboratorService.addCollaboratorToProject(projectId,
-            collaboratorService.findCollaboratorIdByName(optionalAccount.getName()), "CONTENT_CREATOR");
     }
 
     /**
@@ -142,8 +134,6 @@ public class AccountService {
             throw new NotFoundException();
         }
         projectsToAccountsRepository.deleteById(list.get(0).getPtaId());
-        collaboratorService.deleteCollaboratorFromProject(projectId,
-            collaboratorService.findCollaboratorIdByName(checkAccountExistence(username).getName()));
     }
 
     /**
@@ -194,7 +184,16 @@ public class AccountService {
      * Retrieves all Accounts on the platform
      * @return - the list of Accounts
      */
-    public List<Account> getAccounts() {
+    public List<Account> getAccounts () {
         return accountRepository.findAll();
+    }
+
+    /**
+     * Retrieves all accounts username on the platform with a given name
+     * @param name - the name of the Accounts to be searched
+     * @return - the list of all account usernames with the given name
+     */
+    public List<String> getAccountsByName (String name) {
+        return accountRepository.findAll().stream().filter(x -> x.getName().equals(name)).map(Account::getUsername).toList();
     }
 }

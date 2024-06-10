@@ -1,8 +1,10 @@
 package com.team2a.ProjectPortfolio.security;
 
 import com.team2a.ProjectPortfolio.Commons.Account;
+import com.team2a.ProjectPortfolio.Commons.Request;
 import com.team2a.ProjectPortfolio.Commons.RoleInProject;
 import com.team2a.ProjectPortfolio.Services.ProjectService;
+import com.team2a.ProjectPortfolio.Services.RequestService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -23,10 +25,16 @@ class CustomSecurityServiceTest {
     private ProjectService projectService;
 
     @Mock
+    private RequestService requestService;
+
+    @Mock
     private Authentication authentication;
 
     @Mock
     private Account account;
+
+    @Mock
+    private Request request;
 
     @InjectMocks
     private CustomSecurityService customSecurityService;
@@ -101,6 +109,54 @@ class CustomSecurityServiceTest {
 
         assertEquals(HttpStatus.FORBIDDEN, exception.getStatusCode());
         assertEquals("You do not have the required permissions", exception.getReason());
+    }
+
+    @Test
+    void testIsCreatorOrPmInProject_WhenUserIsCreator() {
+        UUID requestId = UUID.randomUUID();
+        UUID projectId = UUID.randomUUID();
+
+        when(requestService.getRequestById(requestId)).thenReturn(request);
+        when(request.getAccount()).thenReturn(account);
+        when(account.getUsername()).thenReturn("testUser");
+
+        boolean result = customSecurityService.isCreatorOrPmInProject(authentication, requestId, projectId);
+
+        assertTrue(result);
+    }
+
+    @Test
+    void testIsCreatorOrPmInProject_WhenUserIsPmInProject() {
+        UUID requestId = UUID.randomUUID();
+        UUID projectId = UUID.randomUUID();
+        Account creatorAccount = mock(Account.class);
+
+        when(requestService.getRequestById(requestId)).thenReturn(request);
+        when(request.getAccount()).thenReturn(creatorAccount);
+        when(creatorAccount.getUsername()).thenReturn("otherUser");
+        when(projectService.userBelongsToProject("testUser", projectId)).thenReturn(RoleInProject.PM);
+
+        boolean result = customSecurityService.isCreatorOrPmInProject(authentication, requestId, projectId);
+
+        assertTrue(result);
+    }
+
+    @Test
+    void testIsCreatorOrPmInProject_WhenUserIsNotCreatorOrPmInProject() {
+        UUID requestId = UUID.randomUUID();
+        UUID projectId = UUID.randomUUID();
+        Account creatorAccount = mock(Account.class);
+
+        when(requestService.getRequestById(requestId)).thenReturn(request);
+        when(request.getAccount()).thenReturn(creatorAccount);
+        when(creatorAccount.getUsername()).thenReturn("otherUser");
+        when(projectService.userBelongsToProject("testUser", projectId)).thenReturn(RoleInProject.CONTENT_CREATOR);
+
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () ->
+            customSecurityService.isCreatorOrPmInProject(authentication, requestId, projectId));
+
+        assertEquals(HttpStatus.FORBIDDEN, exception.getStatusCode());
+        assertEquals("403 FORBIDDEN \"You do not have the required permissions\"", exception.getMessage());
     }
 
 }

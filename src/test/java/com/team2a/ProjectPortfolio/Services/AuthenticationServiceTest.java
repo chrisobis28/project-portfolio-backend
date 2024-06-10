@@ -28,9 +28,6 @@ public class AuthenticationServiceTest {
     private AccountRepository accountRepository;
 
     @Mock
-    private CollaboratorRepository collaboratorRepository;
-
-    @Mock
     private PasswordEncoder passwordEncoder;
 
     @Mock
@@ -49,7 +46,6 @@ public class AuthenticationServiceTest {
     @Test
     void testRegisterUserSuccess() {
         when(accountRepository.existsById("username")).thenReturn(false);
-        when(collaboratorRepository.findByName("username")).thenReturn(Optional.empty());
         RegisterUserRequest request = new RegisterUserRequest("username", "name", "password");
         assertDoesNotThrow(() -> authenticationService.registerUser(request));
     }

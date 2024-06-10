@@ -161,7 +161,7 @@ public class AccountController {
      */
     @GetMapping("")
     @PreAuthorize(ADMIN_ONLY)
-    public ResponseEntity<List<Account>> getAccounts() {
+    public ResponseEntity<List<Account>> getAccounts () {
         return ResponseEntity.ok(accountService.getAccounts());
     }
 
@@ -174,5 +174,15 @@ public class AccountController {
     @PreAuthorize(ADMIN_ONLY)
     public ResponseEntity<List<UUID>> getProjects (@PathVariable("username") String username) {
         return ResponseEntity.ok(accountService.getProjects(username));
+    }
+
+    /**
+     * Gets the accounts username with the given name
+     * @param name - the name of the account to be searched
+     * @return - the list of all account usernames with the given name
+     */
+    @GetMapping("/public/name/{name}")
+    public ResponseEntity<List<String>> getAccountByName (@PathVariable("name") String name) {
+        return ResponseEntity.ok(accountService.getAccountsByName(name));
     }
 }
