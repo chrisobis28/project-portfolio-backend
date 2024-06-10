@@ -13,6 +13,7 @@ import com.team2a.ProjectPortfolio.CustomExceptions.ProjectNotFoundException;
 import com.team2a.ProjectPortfolio.Routes;
 import com.team2a.ProjectPortfolio.Services.AccountService;
 import jakarta.validation.Valid;
+import java.util.List;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -152,5 +153,26 @@ public class AccountController {
     public ResponseEntity<String> getRole (@PathVariable("username") String username,
                                                  @PathVariable("projectId") UUID projectId) {
         return ResponseEntity.ok(accountService.getRole(username, projectId));
+    }
+
+    /**
+     * Retrieve all Accounts on the platform for admin purposes
+     * @return - the list of Accounts
+     */
+    @GetMapping("")
+    @PreAuthorize(ADMIN_ONLY)
+    public ResponseEntity<List<Account>> getAccounts() {
+        return ResponseEntity.ok(accountService.getAccounts());
+    }
+
+    /**
+     * Gets the projects an account has a permission on
+     * @param username - the username of the account to be searched
+     * @return - the list of all project ids
+     */
+    @GetMapping("/role/{username}")
+    @PreAuthorize(ADMIN_ONLY)
+    public ResponseEntity<List<UUID>> getProjects (@PathVariable("username") String username) {
+        return ResponseEntity.ok(accountService.getProjects(username));
     }
 }

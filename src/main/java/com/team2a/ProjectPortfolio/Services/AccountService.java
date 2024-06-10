@@ -16,6 +16,7 @@ import java.util.Optional;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -177,5 +178,23 @@ public class AccountService {
             return "VISITOR";
         }
         return list.get(0).getRole().toString();
+    }
+
+    /**
+     * Retrieves all projects a user has a role on
+     * @param username - the username of the user for search
+     * @return - the list of ids of all projects
+     */
+    public List<UUID> getProjects (String username) {
+        return projectsToAccountsRepository.findAll().stream().filter(x -> x.getAccount().getUsername().equals(username))
+            .map(x -> x.getProject().getProjectId()).toList();
+    }
+
+    /**
+     * Retrieves all Accounts on the platform
+     * @return - the list of Accounts
+     */
+    public List<Account> getAccounts() {
+        return accountRepository.findAll();
     }
 }
