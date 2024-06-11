@@ -28,15 +28,23 @@ public class RequestLinkProject {
     @Setter
     @ManyToOne
     @JoinColumn(name = "LINK_ID")
-    @JsonIgnore
     private Link link;
+
+    @ManyToOne
+    @JoinColumn(name = "REQUEST_ID")
+    @Getter
+    @Setter
+    private Request request;
+
 
     public RequestLinkProject(UUID requestLinkProjectId, boolean isRemove) {
         this.requestLinkProjectId = requestLinkProjectId;
         this.isRemove = isRemove;
     }
 
-    public RequestLinkProject(Link link) {
+    public RequestLinkProject(Request request, Link link, Boolean isRemove) {
+        this.request = request;
         this.link = link;
+        this.isRemove = isRemove;
     }
 }

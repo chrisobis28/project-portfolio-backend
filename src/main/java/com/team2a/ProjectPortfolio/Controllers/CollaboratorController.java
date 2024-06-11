@@ -4,6 +4,7 @@ import static com.team2a.ProjectPortfolio.security.Permissions.PM_IN_PROJECT;
 import static com.team2a.ProjectPortfolio.security.Permissions.PM_ONLY;
 
 import com.team2a.ProjectPortfolio.Commons.Collaborator;
+import com.team2a.ProjectPortfolio.Commons.RequestCollaboratorsProjects;
 import com.team2a.ProjectPortfolio.Routes;
 import com.team2a.ProjectPortfolio.Services.CollaboratorService;
 import com.team2a.ProjectPortfolio.WebSocket.CollaboratorProjectWebSocketHandler;
@@ -160,5 +161,27 @@ public class CollaboratorController {
     public ResponseEntity<List<Collaborator>> getAllCollaborators () {
         List<Collaborator> collaborators = collaboratorService.getAllCollaborators();
         return new ResponseEntity<>(collaborators, HttpStatus.OK);
+    }
+
+    @GetMapping("/request/{requestId}")
+    public ResponseEntity<List<RequestCollaboratorsProjects>> getCollaboratorsForRequest (@PathVariable("requestId") UUID requestId) {
+        try {
+            List<RequestCollaboratorsProjects> body = collaboratorService.getCollaboratorsForRequest(requestId);
+            return new ResponseEntity<>(body, HttpStatus.OK);
+        } catch (EntityNotFoundException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @PostMapping("/request/{requestId}/{collaboratorId}")
+    public ResponseEntity<Collaborator> addCollaboratorToRequest (@PathVariable UUID requestId,
+                                                                  @PathVariable UUID collaboratorId,
+                                                                  @RequestBody Boolean isRemove) {
+        try{
+            Collaborator body = collaboratorService.addCollaboratorToRequest(requestId, collaboratorId, isRemove);
+            return new ResponseEntity<>(body, HttpStatus.OK);
+        } catch (EntityNotFoundException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 }

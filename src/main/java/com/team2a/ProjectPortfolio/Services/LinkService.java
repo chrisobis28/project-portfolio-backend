@@ -2,8 +2,12 @@ package com.team2a.ProjectPortfolio.Services;
 
 import com.team2a.ProjectPortfolio.Commons.Link;
 import com.team2a.ProjectPortfolio.Commons.Project;
+import com.team2a.ProjectPortfolio.Commons.Request;
+import com.team2a.ProjectPortfolio.Commons.RequestLinkProject;
 import com.team2a.ProjectPortfolio.Repositories.LinkRepository;
 import com.team2a.ProjectPortfolio.Repositories.ProjectRepository;
+import com.team2a.ProjectPortfolio.Repositories.RequestLinkProjectRepository;
+import com.team2a.ProjectPortfolio.Repositories.RequestRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -19,6 +23,8 @@ public class LinkService {
 
     private final ProjectRepository projectRepository;
     private final LinkRepository linkRepository;
+    private final RequestLinkProjectRepository requestLinkProjectRepository;
+    private final RequestRepository requestRepository;
 
     /**
      * Constructor for the link repository
@@ -26,9 +32,12 @@ public class LinkService {
      * @param projectRepository the Project repository
      */
     @Autowired
-    public LinkService(LinkRepository linkRepository, ProjectRepository projectRepository) {
+    public LinkService(LinkRepository linkRepository, ProjectRepository projectRepository,
+                       RequestLinkProjectRepository requestLinkProjectRepository, RequestRepository requestRepository) {
         this.linkRepository = linkRepository;
         this.projectRepository = projectRepository;
+        this.requestLinkProjectRepository = requestLinkProjectRepository;
+        this.requestRepository = requestRepository;
     }
 
     /**
@@ -84,6 +93,20 @@ public class LinkService {
         Link l = linkRepository.findById(linkId).orElseThrow(EntityNotFoundException::new);
         linkRepository.deleteById(linkId);
         return l.getProject().getProjectId().toString();
+    }
+
+    public Link addLinkToRequest (UUID requestId, UUID linkId, Boolean isRemove) {
+        Link link = linkRepository.findById(linkId).orElseThrow(EntityNotFoundException::new);
+        Request request = requestRepository.findById(requestId).orElseThrow(EntityNotFoundException::new);
+
+        RequestLinkProject body = new RequestLinkProject(request, link, isRemove);
+        requestLinkProjectRepository.save(body);
+        return link;
+    }
+
+    public List<RequestLinkProject> getLinksForRequest (UUID requestId) {
+        Request req = requestRepository.findById(requestId).orElseThrow(EntityNotFoundException::new);
+        return req.getRequestLinkProjects();
     }
 
 

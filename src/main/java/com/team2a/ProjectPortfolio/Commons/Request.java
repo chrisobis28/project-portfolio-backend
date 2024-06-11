@@ -103,37 +103,37 @@ public class Request {
         this.project = project;
     }
 
-    /**
-     * Setter for the LinksChanged field, given a list of Link elements
-     * @param linksChanged the Links changed in the request
-     */
-    public void setLinksChanged (List<Link> linksChanged) {
-        this.requestLinkProjects = linksChanged.stream().map(RequestLinkProject::new).toList();
-    }
-
-    /**
-     * Setter for the collaboratorsChanged field, given a list of Collaborator elements
-     * @param collaboratorsChanged the list of collaborators changed
-     */
-    public void setCollaboratorsChanged (List<Collaborator> collaboratorsChanged) {
-        this.requestCollaboratorsProjects = collaboratorsChanged.stream().map(RequestCollaboratorsProjects::new).toList();
-    }
-
-    /**
-     * Setter for the tagsChanged field, given a list of Tag elements
-     * @param tagsChanged the tags changed in the request
-     */
-    public void setTagsChanged (List<Tag> tagsChanged) {
-        this.requestTagProjects = tagsChanged.stream().map(RequestTagProject::new).toList();
-    }
-
-    /**
-     * Setter for the mediaChanged field, given a list of Media elements
-     * @param mediaChanged the Media elements changed
-     */
-    public void setMediaChanged (List<Media> mediaChanged) {
-        this.requestMediaProjects = mediaChanged.stream().map(RequestMediaProject::new).toList();
-    }
+//    /**
+//     * Setter for the LinksChanged field, given a list of Link elements
+//     * @param linksChanged the Links changed in the request
+//     */
+//    public void setLinksChanged (List<Link> linksChanged) {
+//        this.requestLinkProjects = linksChanged.stream().map(RequestLinkProject::new).toList();
+//    }
+//
+//    /**
+//     * Setter for the collaboratorsChanged field, given a list of Collaborator elements
+//     * @param collaboratorsChanged the list of collaborators changed
+//     */
+//    public void setCollaboratorsChanged (List<Collaborator> collaboratorsChanged) {
+//        this.requestCollaboratorsProjects = collaboratorsChanged.stream().map(RequestCollaboratorsProjects::new).toList();
+//    }
+//
+//    /**
+//     * Setter for the tagsChanged field, given a list of Tag elements
+//     * @param tagsChanged the tags changed in the request
+//     */
+//    public void setTagsChanged (List<Tag> tagsChanged) {
+//        this.requestTagProjects = tagsChanged.stream().map(RequestTagProject::new).toList();
+//    }
+//
+//    /**
+//     * Setter for the mediaChanged field, given a list of Media elements
+//     * @param mediaChanged the Media elements changed
+//     */
+//    public void setMediaChanged (List<Media> mediaChanged) {
+//        this.requestMediaProjects = mediaChanged.stream().map(RequestMediaProject::new).toList();
+//    }
 
 
     /**

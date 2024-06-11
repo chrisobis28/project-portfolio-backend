@@ -4,11 +4,14 @@ package com.team2a.ProjectPortfolio.Controllers;
 import static com.team2a.ProjectPortfolio.security.Permissions.EDITOR_IN_PROJECT;
 
 import com.team2a.ProjectPortfolio.Commons.Link;
+import com.team2a.ProjectPortfolio.Commons.RequestLinkProject;
+import com.team2a.ProjectPortfolio.CustomExceptions.NotFoundException;
 import com.team2a.ProjectPortfolio.Routes;
 import com.team2a.ProjectPortfolio.Services.LinkService;
 import com.team2a.ProjectPortfolio.WebSocket.LinkProjectWebSocketHandler;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -103,5 +106,28 @@ public class LinkController {
             return ResponseEntity.notFound().build();
         }
     }
+
+    @GetMapping("/request/{requestId}")
+    public ResponseEntity<List<RequestLinkProject>> getLinksForRequest (@PathVariable UUID requestId) {
+        try {
+            List<RequestLinkProject> body = linkService.getLinksForRequest(requestId);
+            return new ResponseEntity<>(body, HttpStatus.OK);
+        } catch (EntityNotFoundException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @PutMapping("/request/{requestId}/{linkId}")
+    public ResponseEntity<Link> addLinkToRequest (@PathVariable UUID requestId,
+                                                  @PathVariable UUID linkId,
+                                                  @RequestBody Boolean isRemove) {
+        try {
+            Link body = linkService.addLinkToRequest(requestId, linkId, isRemove);
+            return new ResponseEntity<>(body, HttpStatus.OK);
+        } catch (NotFoundException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
 
 }
