@@ -6,15 +6,13 @@ import com.team2a.ProjectPortfolio.CustomExceptions.MediaNotFoundException;
 import com.team2a.ProjectPortfolio.CustomExceptions.ProjectNotFoundException;
 import com.team2a.ProjectPortfolio.Repositories.MediaRepository;
 import com.team2a.ProjectPortfolio.Repositories.ProjectRepository;
-
+import com.team2a.ProjectPortfolio.dto.MediaFileContent;
 import java.io.File;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import lombok.Setter;
-import org.antlr.v4.runtime.misc.Pair;
-import org.antlr.v4.runtime.misc.Triple;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -47,7 +45,7 @@ public class MediaService {
      * @return a List of Tuples that contain the media, the media name and the media description
      * @throws RuntimeException- Project doesn't exist or the id is null
      */
-    public List<Triple<String,String,String>> getImagesContentByProjectId (UUID projectId){
+    public List<MediaFileContent> getImagesContentByProjectId (UUID projectId){
         //https://www.geeksforgeeks.org/spring-boot-file-handling/
         checkProjectExistence(projectId);
         List<String> filenames = java.util.Arrays.stream(mediaHelper.getFiles()).toList();
@@ -56,11 +54,11 @@ public class MediaService {
         Map<String, Media> filenameToMediaMap = mediaToGetObject.stream()
                 .collect(Collectors.toMap(Media::getPath, Function.identity()));
 
-        List<Triple<String, String, String>> mediaFiles = new ArrayList<>();
+        List<MediaFileContent> mediaFiles = new ArrayList<>();
         for (String filename : filenames) {
             Media media = filenameToMediaMap.get(filename);
             if (media != null) {
-                mediaFiles.add(new Triple<>(filename, mediaHelper.getFileContents(filename),  media.getName()));
+                mediaFiles.add(new MediaFileContent(media.getName(), media.getPath(), mediaHelper.getFileContents(filename)));
             }
         }
         return mediaFiles;
@@ -85,7 +83,7 @@ public class MediaService {
      * @param mediaId the mediaId of the document
      * @return a Pair containing the file contents and it's filename
      */
-    public Pair<String,String> getDocumentByMediaId (UUID mediaId){
+    public MediaFileContent getDocumentByMediaId (UUID mediaId){
         //https://www.geeksforgeeks.org/spring-boot-file-handling/
         try {
             checkMediaExistence(mediaId);
@@ -94,7 +92,7 @@ public class MediaService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
         }
         Media mediaToGetObject = mediaRepository.findMediaByMediaId(mediaId);
-        return new Pair<>(mediaToGetObject.getPath(), mediaHelper.getFileContents(mediaToGetObject.getPath()));
+        return new MediaFileContent(mediaToGetObject.getName(),mediaToGetObject.getPath(), mediaHelper.getFileContents(mediaToGetObject.getPath()));
     }
     /**
      * Adds a Media to a specific Project
