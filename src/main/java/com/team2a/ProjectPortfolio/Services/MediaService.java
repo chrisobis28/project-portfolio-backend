@@ -48,18 +48,17 @@ public class MediaService {
     public List<MediaFileContent> getImagesContentByProjectId (UUID projectId){
         //https://www.geeksforgeeks.org/spring-boot-file-handling/
         checkProjectExistence(projectId);
-        List<String> filenames = java.util.Arrays.stream(mediaHelper.getFiles()).toList();
+        //List<String> filenames = java.util.Arrays.stream(mediaHelper.getFiles()).toList();
         List<Media> mediaToGetObject = mediaRepository.findAllByProjectProjectId(projectId);
 
-        Map<String, Media> filenameToMediaMap = mediaToGetObject.stream()
-                .collect(Collectors.toMap(Media::getPath, Function.identity()));
+       // Map<String, Media> filenameToMediaMap = mediaToGetObject.stream()
+         //       .collect(Collectors.toMap(Media::getPath, Function.identity()));
 
         List<MediaFileContent> mediaFiles = new ArrayList<>();
-        for (String filename : filenames) {
-            Media media = filenameToMediaMap.get(filename);
+        for (Media media : mediaToGetObject) {
             if (media != null) {
                 mediaFiles.add(new MediaFileContent(media.getName(), media.getPath(),
-                        mediaHelper.getFileContents(filename)));
+                        mediaHelper.getFileContents(media.getPath()+projectId)));
             }
         }
         return mediaFiles;
@@ -112,8 +111,8 @@ public class MediaService {
         catch (ProjectNotFoundException e){
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
         }
-        checkPathUniqueness(file.getOriginalFilename());
-        String filePath = System.getProperty("user.dir") + "/assets" + File.separator + file.getOriginalFilename();
+        checkPathUniqueness(file.getOriginalFilename(),projectId);
+        String filePath = System.getProperty("user.dir") + "/assets" + File.separator + file.getOriginalFilename()+projectId;
         Media media = new Media(name,file.getOriginalFilename());
         media.setProject(p);
         //https://www.geeksforgeeks.org/spring-boot-file-handling/
@@ -169,9 +168,9 @@ public class MediaService {
      * @param path - the path to be added to the database
      * @throws RuntimeException - the path is already in use
      */
-    public void checkPathUniqueness (String path) throws RuntimeException {
+    public void checkPathUniqueness (String path,UUID projectId) throws RuntimeException {
         if(!mediaRepository.findAll().stream()
-                .filter(x -> x.getPath().equals(path)).toList().isEmpty()) {
+                .filter(x -> (x.getPath()+projectId).equals(path)).toList().isEmpty()) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
     }
@@ -185,9 +184,6 @@ public class MediaService {
         Optional<Media> o = mediaRepository.findById(media.getMediaId());
         if(o.isEmpty())
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-        else if(!media.getPath().equals(o.get().getPath())){
-            checkPathUniqueness(media.getPath());
-        }
         return mediaRepository.save(media);
     }
 }
