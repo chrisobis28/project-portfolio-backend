@@ -111,7 +111,7 @@ public class MediaController {
      * @param media - the Media with the new fields
      * @return - the edited Media
      */
-    @PutMapping("")
+    @PutMapping("/")
     public ResponseEntity<Media> editMedia (@Valid @RequestBody Media media) {
         Media body = mediaService.editMedia(media);
         mediaProjectWebSocketHandler.broadcast(media.getProject().getProjectId().toString());
