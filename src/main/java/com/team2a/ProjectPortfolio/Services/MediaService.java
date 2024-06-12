@@ -58,7 +58,8 @@ public class MediaService {
         for (String filename : filenames) {
             Media media = filenameToMediaMap.get(filename);
             if (media != null) {
-                mediaFiles.add(new MediaFileContent(media.getName(), media.getPath(), mediaHelper.getFileContents(filename)));
+                mediaFiles.add(new MediaFileContent(media.getName(), media.getPath(),
+                        mediaHelper.getFileContents(filename)));
             }
         }
         return mediaFiles;
@@ -92,7 +93,8 @@ public class MediaService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
         }
         Media mediaToGetObject = mediaRepository.findMediaByMediaId(mediaId);
-        return new MediaFileContent(mediaToGetObject.getName(),mediaToGetObject.getPath(), mediaHelper.getFileContents(mediaToGetObject.getPath()));
+        return new MediaFileContent(mediaToGetObject.getName(),mediaToGetObject.getPath(),
+                mediaHelper.getFileContents(mediaToGetObject.getPath()));
     }
     /**
      * Adds a Media to a specific Project
