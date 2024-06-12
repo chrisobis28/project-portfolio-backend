@@ -17,6 +17,7 @@ import com.team2a.ProjectPortfolio.Repositories.ProjectRepository;
 import java.io.IOException;
 import java.util.*;
 
+import com.team2a.ProjectPortfolio.dto.MediaFileContent;
 import org.antlr.v4.runtime.misc.Pair;
 import org.antlr.v4.runtime.misc.Triple;
 import org.junit.jupiter.api.BeforeEach;
@@ -74,12 +75,12 @@ public class MediaServiceTest {
     when(mediaRepository.findAllByProjectProjectId(x)).thenReturn(List.of(m1, m2, m3));
     String[] returnExample = {"path1","path2","path3"};
     when(mediaHelper.getFiles()).thenReturn(returnExample);
-    List<Triple<String, String, String>> expectedList = List.of(
-            new Triple<>("path1", "null", "name1"),
-            new Triple<>("path2", "null", "name2"),
-            new Triple<>("path3", "null", "name3")
+    List<MediaFileContent> expectedList = List.of(
+            new MediaFileContent("name1", "path1", "null"),
+            new MediaFileContent("name2", "path2", "null"),
+            new MediaFileContent("name3", "path3", "null")
     );
-    List<Triple<String, String, String>> actualList = mediaService.getImagesContentByProjectId(x).stream().toList();
+    List<MediaFileContent> actualList = mediaService.getImagesContentByProjectId(x).stream().toList();
     assertThat(actualList.toString()).isEqualTo(expectedList.toString());
   }
   @Test
@@ -115,8 +116,8 @@ public class MediaServiceTest {
     when(mediaRepository.findById(x)).thenReturn(Optional.of(m1));
     when(mediaRepository.findMediaByMediaId(x)).thenReturn(m1);
     when(mediaHelper.getFileContents(m1.getPath())).thenReturn("content1");
-    Pair<String, String> expectedList =new Pair<>("path1","content1");
-    Pair<String, String> actualPair = mediaService.getDocumentByMediaId(x);
+    MediaFileContent expectedList =new MediaFileContent("name1","path1","content1");
+    MediaFileContent actualPair = mediaService.getDocumentByMediaId(x);
     assertThat(actualPair.toString()).isEqualTo(expectedList.toString());
   }
   @Test

@@ -28,4 +28,13 @@ public class MediaFileContent {
         this.fileContent = fileContent;
         this.filePath = filePath;
     }
+
+    @Override
+    public String toString() {
+        return "MediaFileContent{" +
+                "fileName='" + fileName + '\'' +
+                ", fileContent='" + fileContent + '\'' +
+                ", filePath='" + filePath + '\'' +
+                '}';
+    }
 }
