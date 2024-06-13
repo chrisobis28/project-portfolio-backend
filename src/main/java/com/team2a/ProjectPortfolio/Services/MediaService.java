@@ -123,7 +123,8 @@ public class MediaService {
      */
     public Media deleteMedia (UUID mediaId) throws RuntimeException {
         Media m = checkMediaExistence(mediaId);
-        mediaHelper.deleteFile(System.getProperty("user.dir") + "/assets" + File.separator +m.getPath()+m.getProject().getProjectId());
+        mediaHelper.deleteFile(System.getProperty("user.dir") + "/assets" + File.separator +
+                m.getPath()+m.getProject().getProjectId());
         mediaRepository.deleteById(mediaId);
         return m;
     }

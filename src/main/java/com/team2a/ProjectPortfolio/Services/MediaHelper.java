@@ -31,12 +31,12 @@ public class MediaHelper {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
         }
     }
-    public void deleteFile(String path) {
+    public void deleteFile (String path) {
         try {
             Path filePath = Paths.get(path);
             Files.deleteIfExists(filePath);
         } catch (IOException e) {
-        throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
-    }
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
     }
 }
