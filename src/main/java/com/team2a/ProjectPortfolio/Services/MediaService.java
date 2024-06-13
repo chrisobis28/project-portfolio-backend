@@ -77,15 +77,16 @@ public class MediaService {
      */
     public MediaFileContent getDocumentByMediaId (UUID mediaId){
         //https://www.geeksforgeeks.org/spring-boot-file-handling/
+        Media media;
         try {
-            checkMediaExistence(mediaId);
+            media = checkMediaExistence(mediaId);
         }
         catch (MediaNotFoundException e){
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
         }
         Media mediaToGetObject = mediaRepository.findMediaByMediaId(mediaId);
         return new MediaFileContent(mediaToGetObject.getName(),mediaToGetObject.getPath(),
-                mediaHelper.getFileContents(mediaToGetObject.getPath()));
+                mediaHelper.getFileContents(mediaToGetObject.getPath()+media.getProject().getProjectId()));
     }
     /**
      * Adds a Media to a specific Project
