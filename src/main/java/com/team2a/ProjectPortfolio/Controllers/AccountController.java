@@ -177,4 +177,14 @@ public class AccountController {
     public ResponseEntity<List<ProjectTransfer>> getProjects (@PathVariable("username") String username) {
         return ResponseEntity.ok(accountService.getProjects(username));
     }
+
+    /**
+     * Gets the accounts username with the given name
+     * @param name - the name of the account to be searched
+     * @return - the list of all account usernames with the given name
+     */
+    @GetMapping("/public/name/{name}")
+    public ResponseEntity<List<String>> getAccountByName (@PathVariable("name") String name) {
+        return ResponseEntity.ok(accountService.getAccountsByName(name));
+    }
 }

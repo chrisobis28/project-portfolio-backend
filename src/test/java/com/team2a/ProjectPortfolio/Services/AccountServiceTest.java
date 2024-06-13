@@ -47,8 +47,6 @@ public class AccountServiceTest {
   @Mock
   private ProjectsToAccountsRepository projectsToAccountsRepository;
 
-  private CollaboratorService collaboratorService;
-
   private AccountService accountService;
 
   private ProjectsToAccounts pta;
@@ -62,13 +60,12 @@ public class AccountServiceTest {
     accountRepository = Mockito.mock(AccountRepository.class);
     projectRepository = Mockito.mock(ProjectRepository.class);
     projectsToAccountsRepository = Mockito.mock(ProjectsToAccountsRepository.class);
-    accountService = new AccountService(accountRepository, projectRepository, projectsToAccountsRepository, collaboratorService);
+    accountService = new AccountService(accountRepository, projectRepository, projectsToAccountsRepository);
     a = new Account("username", "name", "password", Role.ROLE_USER);
     Project project = new Project();
     project.setProjectId(projectId);
     pta = new ProjectsToAccounts(RoleInProject.CONTENT_CREATOR, a, project);
-    collaboratorService = Mockito.mock(CollaboratorService.class);
-    accountService = new AccountService(accountRepository, projectRepository, projectsToAccountsRepository, collaboratorService);
+    accountService = new AccountService(accountRepository, projectRepository, projectsToAccountsRepository);
   }
   @Test
   void testEditAccountAccountNotFoundException() {
@@ -192,8 +189,6 @@ public class AccountServiceTest {
     p.setProjectId(id);
     Account a = new Account();
     a.setUsername("username");
-    when(accountRepository.findById("username")).thenReturn(Optional.of(a));
-    when(collaboratorService.deleteCollaboratorFromProject(any(), any())).thenReturn("Deleted collaborator");
     ProjectsToAccounts pta = new ProjectsToAccounts(RoleInProject.CONTENT_CREATOR, a, p);
     when(projectsToAccountsRepository.findAll()).thenReturn(List.of(pta));
     accountService.deleteRole("username", id);
@@ -239,4 +234,29 @@ public class AccountServiceTest {
 
     assertEquals("VISITOR", role);
   }
+
+    @Test
+    void testGetProjects() {
+        when(projectsToAccountsRepository.findAll()).thenReturn(List.of(pta));
+        List<UUID> projectIds = accountService.getProjects("username");
+        assertEquals(1, projectIds.size());
+        assertEquals(projectId, projectIds.get(0));
+    }
+
+    @Test
+    void testGetAccounts() {
+        when(accountRepository.findAll()).thenReturn(List.of(a));
+        List<Account> accounts = accountService.getAccounts();
+        assertEquals(1, accounts.size());
+        assertEquals(a, accounts.get(0));
+    }
+
+    @Test
+    void testGetAccountsByName() {
+        when(accountRepository.findAll()).thenReturn(List.of(a));
+        List<String> usernames = accountService.getAccountsByName("name");
+        assertEquals(1, usernames.size());
+        assertEquals("username", usernames.get(0));
+    }
+
 }
