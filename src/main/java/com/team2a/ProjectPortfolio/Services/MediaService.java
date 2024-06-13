@@ -9,9 +9,6 @@ import com.team2a.ProjectPortfolio.Repositories.ProjectRepository;
 import com.team2a.ProjectPortfolio.dto.MediaFileContent;
 import java.io.File;
 import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -48,12 +45,7 @@ public class MediaService {
     public List<MediaFileContent> getImagesContentByProjectId (UUID projectId){
         //https://www.geeksforgeeks.org/spring-boot-file-handling/
         checkProjectExistence(projectId);
-        //List<String> filenames = java.util.Arrays.stream(mediaHelper.getFiles()).toList();
         List<Media> mediaToGetObject = mediaRepository.findAllByProjectProjectId(projectId);
-
-       // Map<String, Media> filenameToMediaMap = mediaToGetObject.stream()
-         //       .collect(Collectors.toMap(Media::getPath, Function.identity()));
-
         List<MediaFileContent> mediaFiles = new ArrayList<>();
         for (Media media : mediaToGetObject) {
             if (media != null) {
@@ -111,7 +103,7 @@ public class MediaService {
         catch (ProjectNotFoundException e){
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
         }
-        checkPathUniqueness(file.getOriginalFilename(),projectId);
+        checkPathUniqueness(file.getOriginalFilename()+projectId);
         String filePath = System.getProperty("user.dir") + "/assets" + File.separator + file.getOriginalFilename()+projectId;
         Media media = new Media(name,file.getOriginalFilename());
         media.setProject(p);
@@ -168,9 +160,9 @@ public class MediaService {
      * @param path - the path to be added to the database
      * @throws RuntimeException - the path is already in use
      */
-    public void checkPathUniqueness (String path,UUID projectId) throws RuntimeException {
+    public void checkPathUniqueness (String path) throws RuntimeException {
         if(!mediaRepository.findAll().stream()
-                .filter(x -> (x.getPath()+projectId).equals(path)).toList().isEmpty()) {
+                .filter(x -> (x.getPath()).equals(path)).toList().isEmpty()) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
     }

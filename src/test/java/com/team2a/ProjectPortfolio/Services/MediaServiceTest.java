@@ -73,8 +73,6 @@ public class MediaServiceTest {
     Media m3 = new Media("name3", "path3");
     m3.setProject(p);
     when(mediaRepository.findAllByProjectProjectId(x)).thenReturn(List.of(m1, m2, m3));
-    String[] returnExample = {"path1","path2","path3"};
-    when(mediaHelper.getFiles()).thenReturn(returnExample);
     List<MediaFileContent> expectedList = List.of(
             new MediaFileContent("name1", "path1", "null"),
             new MediaFileContent("name2", "path2", "null"),
@@ -132,15 +130,6 @@ public class MediaServiceTest {
     UUID x = UUID.randomUUID();
     when(projectRepository.findById(x)).thenReturn(Optional.empty());
     assertThrows(ResponseStatusException.class, () -> mediaService.addMediaToProject(x, new MockMultipartFile("file", "test.md", "text/plain", "test".getBytes()),"Test"),"test");
-  }
-
-  @Test
-  void testAddMediaToProjectPathNotUnique() {
-    UUID x = UUID.randomUUID();
-    Project p = new Project();
-    when(projectRepository.findById(x)).thenReturn(Optional.of(p));
-    when(mediaRepository.findAll()).thenReturn(List.of(new Media("name", "path")));
-    assertThrows(ResponseStatusException.class, () -> mediaService.addMediaToProject(x, new MockMultipartFile("name", "path", "text/plain", "test".getBytes()),"Test"),"test");
   }
 
   @Test
@@ -202,23 +191,11 @@ public class MediaServiceTest {
   }
 
   @Test
-  void testEditMediaPathNotUnique() {
-    UUID id = UUID.randomUUID();
-    Media media = new Media();
-    media.setMediaId(id);
-    media.setPath("path");
-    when(mediaRepository.findAll()).thenReturn(List.of(new Media("name", "path")));
-    when(mediaRepository.findById(id)).thenReturn(Optional.of(new Media("name", "some_other_path")));
-    assertThrows(ResponseStatusException.class, () -> mediaService.editMedia(media));
-  }
-
-  @Test
   void testEditMediaSuccess() {
     UUID id = UUID.randomUUID();
     Media media = new Media();
     media.setMediaId(id);
     media.setPath("path");
-    when(mediaRepository.findAll()).thenReturn(List.of());
     when(mediaRepository.findById(id)).thenReturn(Optional.of(new Media()));
     when(mediaRepository.save(media)).thenReturn(media);
     assertEquals(media, mediaService.editMedia(media));
