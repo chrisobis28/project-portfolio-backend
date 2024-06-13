@@ -2,29 +2,35 @@ package com.team2a.ProjectPortfolio.Controllers;
 
 import com.team2a.ProjectPortfolio.Commons.Project;
 import com.team2a.ProjectPortfolio.Services.ProjectService;
+import com.team2a.ProjectPortfolio.WebSocket.ProjectWebSocketHandler;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import org.springframework.web.server.ResponseStatusException;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 class ProjectControllerTest {
 
     private ProjectService projectService;
     private ProjectController projectController;
+    @Mock
+    private ProjectWebSocketHandler webSocketHandler;
 
     @BeforeEach
     void setUp() {
         projectService = mock(ProjectService.class);
-        projectController = new ProjectController(projectService);
+        webSocketHandler = Mockito.mock(ProjectWebSocketHandler.class);
+        projectController = new ProjectController(projectService, webSocketHandler);
     }
 
     @Test
@@ -59,38 +65,12 @@ class ProjectControllerTest {
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(project1, response.getBody());
     }
-
-    @Test
-    void updateProjectNullId() {
-        Project project1 = new Project("Title1", "Description1",  false);
-        when(projectService.updateProject(null, project1)).thenThrow(IllegalArgumentException.class);
-        ResponseEntity<Project> response = projectController.updateProject(null, project1);
-        assertNull(response.getBody());
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-    }
-
-    @Test
-    void updateProjectNotFound() {
-        UUID projectId = UUID.randomUUID();
-        Project project1 = new Project("Title1", "Description1",  false);
-        when(projectService.updateProject(projectId, project1)).thenThrow(EntityNotFoundException.class);
-        ResponseEntity<Project> response = projectController.updateProject(projectId, project1);
-        assertNull(response.getBody());
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-    }
-
-    @Test
-    void createProjectNull() {
-        when(projectService.createProject(null)).thenThrow(IllegalArgumentException.class);
-        ResponseEntity<Project> response = projectController.createProject(null);
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-    }
-
     @Test
     void createProjectSuccess() {
         Project project = new Project("title1", "desc1", false);
         when(projectService.createProject(project)).thenReturn(project);
         ResponseEntity<Project> response = projectController.createProject(project);
+        verify(webSocketHandler).broadcast(any());
         assertEquals(project, response.getBody());
     }
 
@@ -105,44 +85,11 @@ class ProjectControllerTest {
     }
 
     @Test
-    void getProjectByIdNull() {
-        when(projectService.getProjectById(null)).thenThrow(IllegalArgumentException.class);
-        ResponseEntity<Project> response = projectController.getProjectById(null);
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-    }
-
-    @Test
-    void getProjectByIdNotFound() {
-        UUID projectId = UUID.randomUUID();
-        when(projectService.getProjectById(projectId)).thenThrow(EntityNotFoundException.class);
-        ResponseEntity<Project> response = projectController.getProjectById(projectId);
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-    }
-
-    @Test
     void deleteProjectSuccessful() {
         UUID projectId = UUID.randomUUID();
-        String expected = "Deleted project with specified ID";
-        when(projectService.deleteProject(projectId)).thenReturn(expected);
+        doNothing().when(projectService).deleteProject(projectId);
         ResponseEntity<String> response = projectController.deleteProject(projectId);
+        verify(webSocketHandler).broadcast(any());
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(expected, response.getBody());
-    }
-
-    @Test
-    void deleteProjectNullId() {
-        when(projectService.deleteProject(null)).thenThrow(IllegalArgumentException.class);
-        ResponseEntity<String> response = projectController.deleteProject(null);
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        assertNull(response.getBody());
-    }
-
-    @Test
-    void deleteProjectNotFound() {
-        UUID projectId = UUID.randomUUID();
-        when(projectService.deleteProject(projectId)).thenThrow(EntityNotFoundException.class);
-        ResponseEntity<String> response = projectController.deleteProject(projectId);
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        assertNull(response.getBody());
     }
 }

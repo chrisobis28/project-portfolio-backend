@@ -12,6 +12,7 @@ import com.team2a.ProjectPortfolio.Commons.Template;
 import com.team2a.ProjectPortfolio.Commons.TemplateAddition;
 import com.team2a.ProjectPortfolio.Repositories.TemplateAdditionRepository;
 import com.team2a.ProjectPortfolio.Repositories.TemplateRepository;
+import com.team2a.ProjectPortfolio.security.SecurityConfigUtils;
 import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,7 +26,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
 @SpringBootTest
-@AutoConfigureMockMvc
+@AutoConfigureMockMvc(addFilters=false)
 @ActiveProfiles("test")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 public class TemplateControllerIntegrationTest {
@@ -41,6 +42,9 @@ public class TemplateControllerIntegrationTest {
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    @Autowired
+    private SecurityConfigUtils securityConfigUtils;
 
     private Template template;
 
@@ -66,6 +70,7 @@ public class TemplateControllerIntegrationTest {
         ta3.setTemplate(template);
 
         templateAdditionRepository.saveAll(List.of(ta1, ta2, ta3));
+        securityConfigUtils.setAuthentication();
     }
 
     @Test

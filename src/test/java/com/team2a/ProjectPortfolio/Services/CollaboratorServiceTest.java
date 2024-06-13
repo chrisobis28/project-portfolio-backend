@@ -159,4 +159,11 @@ public class CollaboratorServiceTest {
         assertEquals(cs.addCollaborator("coll1"), c1);
     }
 
+    @Test
+    void getAllCollaborators () {
+        Collaborator c1 = new Collaborator("coll1");
+        when(cr.findAll()).thenReturn(List.of(c1));
+        assertEquals(cs.getAllCollaborators(), List.of(c1));
+    }
+
 }

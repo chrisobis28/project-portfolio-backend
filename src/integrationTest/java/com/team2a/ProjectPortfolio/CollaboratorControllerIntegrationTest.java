@@ -2,6 +2,7 @@ package com.team2a.ProjectPortfolio;
 
 import com.team2a.ProjectPortfolio.Commons.*;
 import com.team2a.ProjectPortfolio.Repositories.*;
+import com.team2a.ProjectPortfolio.security.SecurityConfigUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +21,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
-@AutoConfigureMockMvc
+@AutoConfigureMockMvc(addFilters=false)
 @ActiveProfiles("test")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 public class CollaboratorControllerIntegrationTest {
@@ -36,6 +37,9 @@ public class CollaboratorControllerIntegrationTest {
 
     @Autowired
     private ProjectsToCollaboratorsRepository projectsToCollaboratorsRepository;
+
+    @Autowired
+    private SecurityConfigUtils securityConfigUtils;
 
     private UUID projectId;
     private Collaborator collaborator1;
@@ -61,12 +65,13 @@ public class CollaboratorControllerIntegrationTest {
         String role = "Role";
         projectsToCollaboratorsRepository.saveAndFlush(new ProjectsToCollaborators(project, collaborator2,role));
         projectsToCollaboratorsRepository.saveAndFlush(new ProjectsToCollaborators(project, collaborator3,role));
+        securityConfigUtils.setAuthentication();
 
     }
 
     @Test
     public void getCollaboratorsByProjectId() throws Exception {
-        mockMvc.perform(get(Routes.COLLABORATOR + "/" + projectId)
+        mockMvc.perform(get(Routes.COLLABORATOR + "/public/" + projectId)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)))
@@ -120,7 +125,7 @@ public class CollaboratorControllerIntegrationTest {
 
     @Test
     public void getCollaboratorsByProjectIdNotFound() throws Exception {
-        mockMvc.perform(get(Routes.COLLABORATOR + "/" + UUID.randomUUID())
+        mockMvc.perform(get(Routes.COLLABORATOR + "/public/" + UUID.randomUUID())
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
     }

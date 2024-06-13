@@ -2,11 +2,14 @@ package com.team2a.ProjectPortfolio.Controllers;
 
 import com.team2a.ProjectPortfolio.Commons.Tag;
 import com.team2a.ProjectPortfolio.Services.TagService;
+import com.team2a.ProjectPortfolio.WebSocket.TagProjectWebSocketHandler;
+import com.team2a.ProjectPortfolio.WebSocket.TagWebSocketHandler;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,9 +22,7 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class TagControllerTest {
@@ -29,7 +30,12 @@ class TagControllerTest {
     @Mock
     private TagService tagService;
 
-    @InjectMocks
+    @Mock
+    private TagWebSocketHandler tagWebSocketHandler;
+
+    @Mock
+    private TagProjectWebSocketHandler tagProjectWebSocketHandler;
+
     private TagController tagController;
 
     private Tag tag;
@@ -41,6 +47,12 @@ class TagControllerTest {
         tag = new Tag("Test Tag", "Red");
         projectId = UUID.randomUUID();
         tagId = UUID.randomUUID();
+        tagService = Mockito.mock(TagService.class);
+        tagWebSocketHandler = Mockito.mock(TagWebSocketHandler.class);
+        tagProjectWebSocketHandler = Mockito.mock(TagProjectWebSocketHandler.class);
+
+        tagController = new TagController(tagService, tagWebSocketHandler,
+                tagProjectWebSocketHandler);
     }
 
     @Test
@@ -72,6 +84,7 @@ class TagControllerTest {
         when(tagService.createTag(any(Tag.class))).thenReturn(tag);
 
         ResponseEntity<Tag> response = tagController.createTag(tag);
+        verify(tagWebSocketHandler).broadcast(any());
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(tag, response.getBody());
     }
@@ -92,6 +105,7 @@ class TagControllerTest {
         doNothing().when(tagService).addTagToProject(projectId, tagId);
 
         ResponseEntity<String> response = tagController.addTagToProject(projectId, tagId);
+        verify(tagProjectWebSocketHandler).broadcast(any());
         assertEquals(HttpStatus.OK, response.getStatusCode());
     }
 
@@ -112,6 +126,8 @@ class TagControllerTest {
         when(tagService.editTag(any(Tag.class))).thenReturn(tag);
 
         ResponseEntity<Tag> response = tagController.editTag(tag);
+        verify(tagWebSocketHandler).broadcast(any());
+        verify(tagProjectWebSocketHandler).broadcast(any());
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(tag, response.getBody());
     }
@@ -132,6 +148,8 @@ class TagControllerTest {
         doNothing().when(tagService).deleteTag(tagId);
 
         ResponseEntity<Void> response = tagController.deleteTag(tagId);
+        verify(tagWebSocketHandler).broadcast(any());
+        verify(tagProjectWebSocketHandler).broadcast(any());
         assertEquals(HttpStatus.OK, response.getStatusCode());
     }
 
@@ -151,6 +169,7 @@ class TagControllerTest {
         doNothing().when(tagService).removeTagFromProject(projectId, tagId);
 
         ResponseEntity<Void> response = tagController.removeTagFromProject(projectId, tagId);
+        verify(tagProjectWebSocketHandler).broadcast(any());
         assertEquals(HttpStatus.OK, response.getStatusCode());
     }
 

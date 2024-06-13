@@ -1,26 +1,45 @@
 package com.team2a.ProjectPortfolio.Services;
 
 import com.team2a.ProjectPortfolio.Commons.Project;
+import com.team2a.ProjectPortfolio.Commons.ProjectsToAccounts;
+import com.team2a.ProjectPortfolio.Commons.RoleInProject;
 import com.team2a.ProjectPortfolio.Repositories.ProjectRepository;
-import jakarta.persistence.EntityNotFoundException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
+import com.team2a.ProjectPortfolio.Repositories.ProjectsToAccountsRepository;
+import com.team2a.ProjectPortfolio.security.SecurityUtils;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class ProjectService {
     private final ProjectRepository projectRepository;
 
+    private final ProjectsToAccountsRepository projectsToAccountsRepository;
+
+    private final SecurityUtils securityUtils;
+
+    private final CollaboratorService collaboratorService;
+
     /**
-     * The constructor for the Project Service
-     * @param projectRepository the repository of projects
+     * Constructor for the Project Service
+     * @param projectRepository - the Project Repository
+     * @param securityUtils - the Security Utils
+     * @param projectsToAccountsRepository - the Projects to Accounts Repository
+     * @param collaboratorService - the Collaborator Service
      */
     @Autowired
-    public ProjectService(ProjectRepository projectRepository) {
+    public ProjectService(ProjectRepository projectRepository,
+                          SecurityUtils securityUtils,
+                          ProjectsToAccountsRepository projectsToAccountsRepository,
+                          CollaboratorService collaboratorService) {
         this.projectRepository = projectRepository;
+        this.securityUtils = securityUtils;
+        this.projectsToAccountsRepository = projectsToAccountsRepository;
+        this.collaboratorService = collaboratorService;
     }
 
     /**
@@ -34,15 +53,11 @@ public class ProjectService {
     /**
      * Deletes a project based on its ID
      * @param projectId the id of the project to be deleted
-     * @return a string stating that the deletion was successful
      */
-    public String deleteProject (UUID projectId) {
-        if(projectId == null) {
-            throw new IllegalArgumentException();
-        }
-        Project project = projectRepository.findById(projectId).orElseThrow(EntityNotFoundException::new);
-        projectRepository.delete(project);
-        return "Deleted project with specified ID";
+    public void deleteProject (UUID projectId) {
+        projectRepository.delete(projectRepository.findById(projectId).orElseThrow(
+            () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Project not found"))
+        );
     }
 
     /**
@@ -52,10 +67,8 @@ public class ProjectService {
      * @return the changed project with the specified ID
      */
     public Project updateProject (UUID projectId, Project project) {
-        if (projectId == null) {
-            throw new IllegalArgumentException();
-        }
-        Project existingProject = projectRepository.findById(projectId).orElseThrow(EntityNotFoundException::new);
+        Project existingProject = projectRepository.findById(projectId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Project not found"));
         existingProject.setTitle(project.getTitle());
         existingProject.setDescription(project.getDescription());
         existingProject.setArchived(project.getArchived());
@@ -64,21 +77,28 @@ public class ProjectService {
     }
 
     /**
-     * Instantiates a new project and returns it
-     * @param project A json deserialized object with the attributes for the project
-     * @return the project added
+     * Creates a new project
+     * @param project the project to be created
+     * @return the created project
+     * @throws ResponseStatusException(409) if a project with the same name and description already exists
      */
     public Project createProject (Project project) {
-        if (project == null) {
-            throw new IllegalArgumentException();
-        }
         Optional<Project> existing = projectRepository.findFirstByTitleAndDescription(project.getTitle(),
                 project.getDescription());
         if (existing.isPresent()) {
-            return existing.get();
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Project with same name and description already exists");
         }
-        Project result = new Project(project.getTitle(), project.getDescription(), project.getArchived());
+        Project result;
+        if(project.getTemplate()==null){
+            result = new Project(project.getTitle(), project.getDescription(), project.getArchived());
+        } else{
+            result = new Project(project.getTitle(), project.getDescription(), project.getArchived(), project.getTemplate());
+        }
+        ProjectsToAccounts pta = new ProjectsToAccounts(RoleInProject.PM, securityUtils.getCurrentUser(), result);
         result = projectRepository.save(result);
+        projectsToAccountsRepository.save(pta);
+        collaboratorService.addCollaboratorToProject(result.getProjectId(),
+            collaboratorService.findCollaboratorIdByName(securityUtils.getCurrentUser().getName()), "PROJECT_MANAGER");
         return result;
     }
 
@@ -88,9 +108,27 @@ public class ProjectService {
      * @return a project queried by its id
      */
     public Project getProjectById (UUID projectId) {
-        if (projectId == null) {
-            throw new IllegalArgumentException();
-        }
-        return projectRepository.findById(projectId).orElseThrow(EntityNotFoundException::new);
+        return projectRepository.findById(projectId).
+            orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Project not found"));
+    }
+
+    /**
+     * Checks if a user belongs to a project
+     * @param username the username of the user
+     * @param projectId the id of the project
+     * @return the user's role in the project,
+     * @throws ResponseStatusException(403) if the user does not belong to the project
+     * @throws ResponseStatusException(404) if the project does not exist
+     */
+    public RoleInProject userBelongsToProject (String username, UUID projectId) {
+        List<ProjectsToAccounts> ptaList = projectRepository.findById(projectId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Project not found"))
+            .getProjectsToAccounts();
+
+        return ptaList.stream()
+            .filter(pta -> pta.getAccount().getUsername().equals(username))
+            .map(ProjectsToAccounts::getRole)
+            .findFirst()
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN, "You do not belong to this project"));
     }
 }

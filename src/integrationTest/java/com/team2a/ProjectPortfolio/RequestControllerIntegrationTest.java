@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.team2a.ProjectPortfolio.Commons.Project;
 import com.team2a.ProjectPortfolio.Commons.Account;
 import com.team2a.ProjectPortfolio.Commons.Request;
+import com.team2a.ProjectPortfolio.Commons.Role;
 import com.team2a.ProjectPortfolio.Repositories.AccountRepository;
 import com.team2a.ProjectPortfolio.Repositories.ProjectRepository;
 import com.team2a.ProjectPortfolio.Repositories.RequestRepository;
@@ -29,7 +30,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 
 @SpringBootTest
-@AutoConfigureMockMvc
+@AutoConfigureMockMvc(addFilters=false)
 @ActiveProfiles("test")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 @Transactional
@@ -68,7 +69,7 @@ public class RequestControllerIntegrationTest {
         project = projectRepository.saveAndFlush(project);
         projectId = project.getProjectId();
 
-        account = new Account("username", "name", "password", false, false);
+        account = new Account("username", "name", "password", Role.ROLE_USER);
         account = accountRepository.saveAndFlush(account);
         accountId = account.getUsername();
 
@@ -80,7 +81,7 @@ public class RequestControllerIntegrationTest {
     public void addRequest() throws Exception {
         Project project2 = new Project("Test Project2", "Description2", false);
         project2 = projectRepository.saveAndFlush(project2);
-        Account account2 = new Account("username2", "name2", "password2", false, false);
+        Account account2 = new Account("username2", "name2", "password2", Role.ROLE_USER);
         account2 = accountRepository.saveAndFlush(account2);
         Request request = new Request("Title2", "Description2", false, account2, project2);
         mockMvc.perform(put("/request/")
@@ -97,8 +98,7 @@ public class RequestControllerIntegrationTest {
         mockMvc.perform(put("/request/")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(requestForSameProject)))
-                .andExpect(status().isConflict())
-                .andExpect(status().reason(is("Account already has a request for this project")));
+                .andExpect(status().isConflict());
         Request invalidRequest = new Request("Title3", "Description3", false, account2, null);
         mockMvc.perform(put("/request/")
                     .contentType(MediaType.APPLICATION_JSON)
@@ -112,7 +112,7 @@ public class RequestControllerIntegrationTest {
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(new Request("Title2", "Description2", false, account, project))));
         assertEquals(1,accountRepository.findById(accountId).get().getRequests().size());
-        mockMvc.perform(get("/request/user/" + accountId)
+        mockMvc.perform(get("/request/public/user/" + accountId)
                     .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))

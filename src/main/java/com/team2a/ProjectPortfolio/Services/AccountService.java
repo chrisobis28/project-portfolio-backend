@@ -3,6 +3,7 @@ package com.team2a.ProjectPortfolio.Services;
 import com.team2a.ProjectPortfolio.Commons.Account;
 import com.team2a.ProjectPortfolio.Commons.Project;
 import com.team2a.ProjectPortfolio.Commons.ProjectsToAccounts;
+import com.team2a.ProjectPortfolio.Commons.RoleInProject;
 import com.team2a.ProjectPortfolio.CustomExceptions.AccountNotFoundException;
 import com.team2a.ProjectPortfolio.CustomExceptions.DuplicatedUsernameException;
 import com.team2a.ProjectPortfolio.CustomExceptions.NotFoundException;
@@ -14,7 +15,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class AccountService {
@@ -23,34 +26,24 @@ public class AccountService {
     private final ProjectRepository projectRepository;
     private final ProjectsToAccountsRepository projectsToAccountsRepository;
 
+    private final CollaboratorService collaboratorService;
+
     /**
-     * Constructor for the Account Service
-     * @param accountRepository - the Account Repository
-     * @param projectRepository - the Project Repository
-     * @param projectsToAccountsRepository - the Projects to Accounts Repository
+     * Constructor for the AccountService class
+     * @param accountRepository - the repository for the Account class
+     * @param projectRepository - the repository for the Project class
+     * @param projectsToAccountsRepository - the repository for the ProjectsToAccounts class
+     * @param collaboratorService - the service for the Collaborator class
      */
     @Autowired
     public AccountService (AccountRepository accountRepository,
                            ProjectRepository projectRepository,
-                           ProjectsToAccountsRepository projectsToAccountsRepository) {
+                           ProjectsToAccountsRepository projectsToAccountsRepository,
+                           CollaboratorService collaboratorService) {
         this.accountRepository = accountRepository;
         this.projectRepository = projectRepository;
         this.projectsToAccountsRepository = projectsToAccountsRepository;
-    }
-
-    /**
-     * Creates an Account in the database
-     * @param account - the Account to create
-     * @return - the Account that was created
-     * @throws RuntimeException - Duplicated username or the id is null
-     */
-    public Account createAccount (Account account) throws RuntimeException {
-        Optional<Account> o = accountRepository.findById(account.getUsername());
-        if(o.isPresent()) {
-            throw new DuplicatedUsernameException("An account with the username "
-                + account.getUsername() + " already exists.");
-        }
-        return accountRepository.save(account);
+        this.collaboratorService = collaboratorService;
     }
 
     /**
@@ -121,7 +114,7 @@ public class AccountService {
      * @param projectId - the id of the Project
      * @param role - the role given
      */
-    public void addRole (String username, UUID projectId, String role) {
+    public void addRole (String username, UUID projectId, RoleInProject role) {
         Account optionalAccount = checkAccountExistence(username);
         Project optionalProject = checkProjectExistence(projectId);
         if(projectsToAccountsRepository.findAll().stream()
@@ -131,6 +124,8 @@ public class AccountService {
         }
         ProjectsToAccounts pta = new ProjectsToAccounts(role, optionalAccount, optionalProject);
         projectsToAccountsRepository.save(pta);
+        collaboratorService.addCollaboratorToProject(projectId,
+            collaboratorService.findCollaboratorIdByName(optionalAccount.getName()), "CONTENT_CREATOR");
     }
 
     /**
@@ -146,5 +141,41 @@ public class AccountService {
             throw new NotFoundException();
         }
         projectsToAccountsRepository.deleteById(list.get(0).getPtaId());
+        collaboratorService.deleteCollaboratorFromProject(projectId,
+            collaboratorService.findCollaboratorIdByName(checkAccountExistence(username).getName()));
+    }
+
+    /**
+     * Updates the role of an Account in a Project
+     * @param username - the username of the Account
+     * @param projectId - the id of the Project
+     * @param role - the new role to be set
+     */
+    public void updateRole (String username, UUID projectId, RoleInProject role) {
+        List<ProjectsToAccounts>
+            list = projectsToAccountsRepository.findAll().stream().filter(x -> x.getAccount().getUsername().equals(username))
+            .filter(x -> x.getProject().getProjectId().equals(projectId)).toList();
+        if(list.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Project or account not found.");
+        }
+        ProjectsToAccounts pta = list.get(0);
+        pta.setRole(role);
+        projectsToAccountsRepository.save(pta);
+    }
+
+    /**
+     * Gets the role of an Account in a Project
+     * @param username - the username of the Account
+     * @param projectId - the id of the Project
+     * @return - the role of the Account in the Project
+     */
+    public String getRole (String username, UUID projectId) {
+        List<ProjectsToAccounts>
+            list = projectsToAccountsRepository.findAll().stream().filter(x -> x.getAccount().getUsername().equals(username))
+            .filter(x -> x.getProject().getProjectId().equals(projectId)).toList();
+        if(list.isEmpty()) {
+            return "VISITOR";
+        }
+        return list.get(0).getRole().toString();
     }
 }

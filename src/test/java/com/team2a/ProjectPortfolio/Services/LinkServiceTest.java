@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.security.core.parameters.P;
 import org.springframework.web.server.ResponseStatusException;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -93,14 +94,18 @@ public class LinkServiceTest {
     void deleteLinkByIdSuccess(){
 
         Link link = new Link("Test","Test");
+        UUID id1 = UUID.randomUUID();
+        Project p = new Project();
+        p.setProjectId(id1);
+        link.setProject(p);
         link.setLinkId(UUID.randomUUID());
         when(lr.findById(any(UUID.class))).thenReturn(Optional.of(link));
         String response = ls.deleteLinkById(link.getLinkId());
-        assertEquals("Deleted link", response);
+        assertEquals(id1.toString(), response);
         verify(lr, times(1)).findById(any(UUID.class));
     }
     @Test
-    void editLinkNotfound() {
+    void editLinkNotFound() {
         Link link = new Link("Test","Test");
         link.setLinkId(UUID.randomUUID());
         when(lr.findById(any(UUID.class))).thenReturn(Optional.empty());

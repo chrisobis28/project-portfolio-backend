@@ -96,7 +96,7 @@ class RequestControllerTest {
         Request r = new Request("title", "desc",
                 true, new Account(), new Project());
         doNothing().when(requestService).acceptRequest(id1);
-        assertEquals(sut.acceptRequest(id1).getStatusCode(), HttpStatus.NO_CONTENT);;
+        assertEquals(sut.acceptRequest(id1,id1).getStatusCode(), HttpStatus.NO_CONTENT);;
     }
 
 }

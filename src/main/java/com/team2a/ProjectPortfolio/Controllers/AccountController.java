@@ -1,6 +1,11 @@
 package com.team2a.ProjectPortfolio.Controllers;
 
+import static com.team2a.ProjectPortfolio.security.Permissions.ADMIN_ONLY;
+import static com.team2a.ProjectPortfolio.security.Permissions.PM_IN_PROJECT;
+import static com.team2a.ProjectPortfolio.security.Permissions.USER_SPECIFIC;
+
 import com.team2a.ProjectPortfolio.Commons.Account;
+import com.team2a.ProjectPortfolio.Commons.RoleInProject;
 import com.team2a.ProjectPortfolio.CustomExceptions.AccountNotFoundException;
 import com.team2a.ProjectPortfolio.CustomExceptions.DuplicatedUsernameException;
 import com.team2a.ProjectPortfolio.CustomExceptions.NotFoundException;
@@ -12,6 +17,7 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -31,26 +37,12 @@ public class AccountController {
     }
 
     /**
-     * Creates an Account in the database
-     * @param account - the Account to be created
-     * @return - the Account that was created
-     */
-    @PostMapping("")
-    public ResponseEntity<Account> createAccount (@Valid @RequestBody Account account) {
-        try {
-            return ResponseEntity.ok(accountService.createAccount(account));
-        }
-        catch(DuplicatedUsernameException e){
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        }
-    }
-
-    /**
      * Edits an already existing Account
      * @param account - the Account to be modified
      * @return - the Account with the necessary modifications
      */
     @PutMapping("")
+    @PreAuthorize(ADMIN_ONLY)
     public ResponseEntity<Account> editAccount (@Valid @RequestBody Account account) {
         try {
             return ResponseEntity.ok(accountService.editAccount(account));
@@ -65,7 +57,7 @@ public class AccountController {
      * @param username - the id of the Account to be searched
      * @return - the Account with the given id, provided it exists
      */
-    @GetMapping("/{username}")
+    @GetMapping("/public/{username}")
     public ResponseEntity<Account> getAccountById (@PathVariable("username") String username) {
         try {
             return ResponseEntity.ok(accountService.getAccountById(username));
@@ -81,6 +73,7 @@ public class AccountController {
      * @return - the status of the deletion
      */
     @DeleteMapping("/{username}")
+    @PreAuthorize(USER_SPECIFIC)
     public ResponseEntity<String> deleteAccount (@PathVariable("username") String username) {
         try {
             accountService.deleteAccount(username);
@@ -99,8 +92,9 @@ public class AccountController {
      * @return - the status of the addition
      */
     @PostMapping("/{username}/{projectId}")
+    @PreAuthorize(PM_IN_PROJECT)
     public ResponseEntity<Void> addRole (@PathVariable("username") String username,
-                                              @PathVariable("projectId") UUID projectId, @RequestBody String role) {
+                                              @PathVariable("projectId") UUID projectId, @RequestBody RoleInProject role) {
         try {
             accountService.addRole(username, projectId, role);
             return ResponseEntity.status(HttpStatus.OK).build();
@@ -120,6 +114,7 @@ public class AccountController {
      * @return - the status of the deletion
      */
     @DeleteMapping("/{username}/{projectId}")
+    @PreAuthorize(PM_IN_PROJECT)
     public ResponseEntity<Void> deleteRole (@PathVariable("username") String username,
                                             @PathVariable("projectId") UUID projectId) {
         try {
@@ -129,5 +124,33 @@ public class AccountController {
         catch (NotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
+    }
+
+    /**
+     * Updates the role of an Account in a Project
+     * @param username - the username of the Account
+     * @param projectId - the id of the Project
+     * @param role - the new role to be assigned
+     * @return - the status of the update
+     */
+    @PutMapping("/{username}/{projectId}")
+    @PreAuthorize(PM_IN_PROJECT)
+    public ResponseEntity<Void> updateRole (@PathVariable("username") String username,
+                                            @PathVariable("projectId") UUID projectId,
+                                            @RequestBody RoleInProject role) {
+        accountService.updateRole(username, projectId, role);
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+    /**
+     * Gets the role of an Account in a Project
+     * @param username - the username of the Account
+     * @param projectId - the id of the Project
+     * @return - the role of the Account in the Project
+     */
+    @GetMapping("/public/role/{username}/{projectId}")
+    public ResponseEntity<String> getRole (@PathVariable("username") String username,
+                                                 @PathVariable("projectId") UUID projectId) {
+        return ResponseEntity.ok(accountService.getRole(username, projectId));
     }
 }
