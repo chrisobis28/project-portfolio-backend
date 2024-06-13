@@ -24,11 +24,19 @@ public class MediaHelper {
         }
         return Base64.getEncoder().encodeToString(content);
     }
-    public void saveFile (String path, MultipartFile file) throws RuntimeException {
+    public void saveFile (String path, MultipartFile file){
         try (FileOutputStream fileSave = new FileOutputStream(path)) {
             fileSave.write(file.getBytes());
         } catch (IOException e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
         }
+    }
+    public void deleteFile(String path) {
+        try {
+            Path filePath = Paths.get(path);
+            Files.deleteIfExists(filePath);
+        } catch (IOException e) {
+        throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+    }
     }
 }
