@@ -2,7 +2,10 @@ package com.team2a.ProjectPortfolio.Services;
 
 import com.team2a.ProjectPortfolio.Commons.Media;
 import com.team2a.ProjectPortfolio.Commons.Project;
+import com.team2a.ProjectPortfolio.Commons.Request;
+import com.team2a.ProjectPortfolio.Commons.RequestMediaProject;
 import com.team2a.ProjectPortfolio.CustomExceptions.MediaNotFoundException;
+import com.team2a.ProjectPortfolio.CustomExceptions.NotFoundException;
 import com.team2a.ProjectPortfolio.CustomExceptions.ProjectNotFoundException;
 import com.team2a.ProjectPortfolio.Repositories.MediaRepository;
 import com.team2a.ProjectPortfolio.Repositories.ProjectRepository;
@@ -12,12 +15,16 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import com.team2a.ProjectPortfolio.Repositories.RequestMediaProjectRepository;
+import com.team2a.ProjectPortfolio.Repositories.RequestRepository;
 import lombok.Setter;
 import org.antlr.v4.runtime.misc.Pair;
 import org.antlr.v4.runtime.misc.Triple;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -26,6 +33,8 @@ public class MediaService {
 
     private final MediaRepository mediaRepository;
     private final ProjectRepository projectRepository;
+    private final RequestRepository requestRepository;
+    private final RequestMediaProjectRepository requestMediaProjectRepository;
     @Setter
     private MediaHelper mediaHelper;
 
@@ -35,10 +44,13 @@ public class MediaService {
      * @param projectRepository the Project Repository
      */
     @Autowired
-    public MediaService(MediaRepository mediaRepository, ProjectRepository projectRepository) {
+    public MediaService(MediaRepository mediaRepository, ProjectRepository projectRepository,
+                        RequestRepository requestRepository, RequestMediaProjectRepository requestMediaProjectRepository) {
         this.mediaRepository = mediaRepository;
         this.projectRepository = projectRepository;
         mediaHelper = new MediaHelper();
+        this.requestRepository = requestRepository;
+        this.requestMediaProjectRepository = requestMediaProjectRepository;
     }
 
     /**
@@ -189,5 +201,30 @@ public class MediaService {
             checkPathUniqueness(media.getPath());
         }
         return mediaRepository.save(media);
+    }
+
+    public List<RequestMediaProject> getMediaForRequest (UUID requestId) {
+        Request req = requestRepository.findById(requestId).orElseThrow(NotFoundException::new);
+        return req.getRequestMediaProjects();
+    }
+
+    public Media addAddedMediaToRequest (UUID requestId, MultipartFile file,String name) {
+        Request r = requestRepository.findById(requestId).orElseThrow(NotFoundException::new);
+        checkPathUniqueness(file.getOriginalFilename());
+        String filePath = System.getProperty("user.dir") + "/assets" + File.separator + file.getOriginalFilename();
+        Media media = new Media(name,file.getOriginalFilename());
+        mediaHelper.saveFile(filePath, file);
+        RequestMediaProject body = new RequestMediaProject(r, media, false);
+        mediaRepository.save(media);
+        requestMediaProjectRepository.save(body);
+        return media;
+    }
+
+    public Media addRemovedMediaToRequest (UUID requestId, UUID mediaId) {
+        Request r = requestRepository.findById(requestId).orElseThrow(NotFoundException::new);
+        Media m = mediaRepository.findById(mediaId).orElseThrow(NotFoundException::new);
+        RequestMediaProject body = new RequestMediaProject(r, m, true);
+        requestMediaProjectRepository.save(body);
+        return m;
     }
 }

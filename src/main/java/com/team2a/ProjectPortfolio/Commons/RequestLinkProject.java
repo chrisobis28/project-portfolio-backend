@@ -22,7 +22,7 @@ public class RequestLinkProject {
     @Column(name="IS_REMOVE")
     @Getter
     @Setter
-    private boolean isRemove;
+    private Boolean isRemove;
 
     @Getter
     @Setter

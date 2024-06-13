@@ -1,8 +1,6 @@
 package com.team2a.ProjectPortfolio.Controllers;
 
 
-import static com.team2a.ProjectPortfolio.security.Permissions.EDITOR_IN_PROJECT;
-
 import com.team2a.ProjectPortfolio.Commons.Link;
 import com.team2a.ProjectPortfolio.Commons.RequestLinkProject;
 import com.team2a.ProjectPortfolio.CustomExceptions.NotFoundException;
@@ -19,6 +17,8 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.UUID;
+
+import static com.team2a.ProjectPortfolio.security.Permissions.*;
 
 @RestController
 @RequestMapping(Routes.LINK)
@@ -108,7 +108,8 @@ public class LinkController {
     }
 
     @GetMapping("/request/{requestId}")
-    public ResponseEntity<List<RequestLinkProject>> getLinksForRequest (@PathVariable UUID requestId) {
+    @PreAuthorize(PM_IN_PROJECT)
+    public ResponseEntity<List<RequestLinkProject>> getLinksForRequest (@PathVariable("requestId") UUID requestId) {
         try {
             List<RequestLinkProject> body = linkService.getLinksForRequest(requestId);
             return new ResponseEntity<>(body, HttpStatus.OK);
@@ -117,12 +118,24 @@ public class LinkController {
         }
     }
 
-    @PutMapping("/request/{requestId}/{linkId}")
-    public ResponseEntity<Link> addLinkToRequest (@PathVariable UUID requestId,
-                                                  @PathVariable UUID linkId,
-                                                  @RequestBody Boolean isRemove) {
+    @PutMapping("/request/remove/{requestId}/{linkId}")
+    @PreAuthorize(USER_IN_PROJECT)
+    public ResponseEntity<Link> addRemovedLinkToRequest (@PathVariable("requestId") UUID requestId,
+                                                  @PathVariable("linkId") UUID linkId){
         try {
-            Link body = linkService.addLinkToRequest(requestId, linkId, isRemove);
+            Link body = linkService.addRemovedLinkToRequest(requestId, linkId);
+            return new ResponseEntity<>(body, HttpStatus.OK);
+        } catch (NotFoundException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @PutMapping("request/add/{requestId}")
+    @PreAuthorize(USER_IN_PROJECT)
+    public ResponseEntity<Link> addAddedLinkToRequest (@PathVariable("requestId") UUID requestId,
+                                                       @RequestBody Link link) {
+        try {
+            Link body = linkService.addAddedLinkToRequest(requestId, link);
             return new ResponseEntity<>(body, HttpStatus.OK);
         } catch (NotFoundException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);

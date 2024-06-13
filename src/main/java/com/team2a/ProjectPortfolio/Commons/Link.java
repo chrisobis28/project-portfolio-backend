@@ -51,6 +51,7 @@ public class Link {
     @OneToMany(cascade=CascadeType.ALL, orphanRemoval = true)
     @OnDelete(action= OnDeleteAction.CASCADE)
     @JoinColumn(name="LINK_ID")
+    @JsonIgnore
     private List<RequestLinkProject> requestLinkProjects = new ArrayList<>();
 
     public Link(String name, String url) {

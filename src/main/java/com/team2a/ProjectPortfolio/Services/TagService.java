@@ -1,18 +1,20 @@
 package com.team2a.ProjectPortfolio.Services;
 
-import com.team2a.ProjectPortfolio.Commons.Project;
-import com.team2a.ProjectPortfolio.Commons.Tag;
-import com.team2a.ProjectPortfolio.Commons.TagsToProject;
-import com.team2a.ProjectPortfolio.Repositories.ProjectRepository;
-import com.team2a.ProjectPortfolio.Repositories.TagRepository;
-import com.team2a.ProjectPortfolio.Repositories.TagToProjectRepository;
+import com.team2a.ProjectPortfolio.Commons.*;
+import com.team2a.ProjectPortfolio.Repositories.*;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+
+import static com.team2a.ProjectPortfolio.security.Permissions.PM_IN_PROJECT;
+import static com.team2a.ProjectPortfolio.security.Permissions.USER_IN_PROJECT;
 
 @Service
 public class TagService {
@@ -21,6 +23,10 @@ public class TagService {
     private final TagToProjectRepository tagToProjectRepository;
 
     private final ProjectRepository projectRepository;
+
+    private final RequestTagProjectRepository requestTagProjectRepository;
+
+    private final RequestRepository requestRepository;
 
     /**
      * Constructor for the tag service
@@ -31,10 +37,13 @@ public class TagService {
      */
     @Autowired
     public TagService(TagRepository tagRepository, TagToProjectRepository tagToProjectRepository,
-                      ProjectRepository projectRepository) {
+                      ProjectRepository projectRepository, RequestTagProjectRepository requestTagProjectRepository,
+                      RequestRepository requestRepository) {
         this.tagRepository = tagRepository;
         this.tagToProjectRepository = tagToProjectRepository;
         this.projectRepository = projectRepository;
+        this.requestTagProjectRepository = requestTagProjectRepository;
+        this.requestRepository = requestRepository;
     }
 
     /**
@@ -131,5 +140,19 @@ public class TagService {
      */
     public List<Tag> getAllTags () {
         return tagRepository.findAll();
+    }
+
+
+    public List<RequestTagProject> getTagsForRequest (UUID requestId) {
+        Request req = requestRepository.findById(requestId).orElseThrow(EntityNotFoundException::new);
+        return req.getRequestTagProjects();
+    }
+
+    public Tag addTagToRequest (UUID requestId, UUID tagId, Boolean isRemove) {
+        Request req = requestRepository.findById(requestId).orElseThrow(EntityNotFoundException::new);
+        Tag tag = tagRepository.findById(tagId).orElseThrow(EntityNotFoundException::new);
+        RequestTagProject body = new RequestTagProject(req, tag, isRemove);
+        requestTagProjectRepository.save(body);
+        return tag;
     }
 }

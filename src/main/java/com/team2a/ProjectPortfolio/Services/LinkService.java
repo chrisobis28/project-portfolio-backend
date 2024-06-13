@@ -4,6 +4,7 @@ import com.team2a.ProjectPortfolio.Commons.Link;
 import com.team2a.ProjectPortfolio.Commons.Project;
 import com.team2a.ProjectPortfolio.Commons.Request;
 import com.team2a.ProjectPortfolio.Commons.RequestLinkProject;
+import com.team2a.ProjectPortfolio.CustomExceptions.NotFoundException;
 import com.team2a.ProjectPortfolio.Repositories.LinkRepository;
 import com.team2a.ProjectPortfolio.Repositories.ProjectRepository;
 import com.team2a.ProjectPortfolio.Repositories.RequestLinkProjectRepository;
@@ -95,11 +96,20 @@ public class LinkService {
         return l.getProject().getProjectId().toString();
     }
 
-    public Link addLinkToRequest (UUID requestId, UUID linkId, Boolean isRemove) {
+    public Link addRemovedLinkToRequest (UUID requestId, UUID linkId) {
         Link link = linkRepository.findById(linkId).orElseThrow(EntityNotFoundException::new);
         Request request = requestRepository.findById(requestId).orElseThrow(EntityNotFoundException::new);
 
-        RequestLinkProject body = new RequestLinkProject(request, link, isRemove);
+        RequestLinkProject body = new RequestLinkProject(request, link, true);
+
+        requestLinkProjectRepository.save(body);
+        return link;
+    }
+
+    public Link addAddedLinkToRequest (UUID requestId, Link link) {
+        Request req = requestRepository.findById(requestId).orElseThrow(NotFoundException::new);
+        RequestLinkProject body = new RequestLinkProject(req, link, false);
+        linkRepository.save(link);
         requestLinkProjectRepository.save(body);
         return link;
     }

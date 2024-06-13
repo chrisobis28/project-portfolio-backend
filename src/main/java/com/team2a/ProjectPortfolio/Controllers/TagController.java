@@ -1,14 +1,14 @@
 package com.team2a.ProjectPortfolio.Controllers;
 
-import static com.team2a.ProjectPortfolio.security.Permissions.EDITOR_IN_PROJECT;
-import static com.team2a.ProjectPortfolio.security.Permissions.PM_ONLY;
-
+import com.team2a.ProjectPortfolio.Commons.RequestTagProject;
 import com.team2a.ProjectPortfolio.Commons.Tag;
+import com.team2a.ProjectPortfolio.CustomExceptions.NotFoundException;
 import com.team2a.ProjectPortfolio.Routes;
 import com.team2a.ProjectPortfolio.Services.TagService;
 
 import com.team2a.ProjectPortfolio.WebSocket.TagProjectWebSocketHandler;
 import com.team2a.ProjectPortfolio.WebSocket.TagWebSocketHandler;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
@@ -17,6 +17,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import static com.team2a.ProjectPortfolio.security.Permissions.*;
 
 @RestController
 @RequestMapping(Routes.TAGS)
@@ -144,5 +146,29 @@ public class TagController {
         List<Tag> tags = tagService.getAllTags();
         return new ResponseEntity<>(tags, HttpStatus.OK);
 
+    }
+
+    @GetMapping("/request/{requestId}")
+    @PreAuthorize(PM_IN_PROJECT)
+    public ResponseEntity<List<RequestTagProject>> getTagsForRequest (@PathVariable("requestId") UUID requestId) {
+        try {
+            List<RequestTagProject> body = tagService.getTagsForRequest(requestId);
+            return new ResponseEntity<>(body, HttpStatus.OK);
+        } catch (EntityNotFoundException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @PostMapping("/request/{requestId}/{tagId}")
+    @PreAuthorize(USER_IN_PROJECT)
+    public ResponseEntity<Tag> addTagToRequest (@PathVariable("requestId") UUID requestId,
+                                                @PathVariable("tagId") UUID tagId,
+                                                @RequestBody Boolean isRemove) {
+        try{
+            Tag body = tagService.addTagToRequest(requestId, tagId, isRemove);
+            return new ResponseEntity<>(body, HttpStatus.OK);
+        } catch (NotFoundException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 }

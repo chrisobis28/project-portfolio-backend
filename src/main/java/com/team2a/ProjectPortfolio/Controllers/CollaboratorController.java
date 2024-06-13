@@ -1,8 +1,5 @@
 package com.team2a.ProjectPortfolio.Controllers;
 
-import static com.team2a.ProjectPortfolio.security.Permissions.PM_IN_PROJECT;
-import static com.team2a.ProjectPortfolio.security.Permissions.PM_ONLY;
-
 import com.team2a.ProjectPortfolio.Commons.Collaborator;
 import com.team2a.ProjectPortfolio.Commons.RequestCollaboratorsProjects;
 import com.team2a.ProjectPortfolio.Routes;
@@ -18,6 +15,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.UUID;
+
+import static com.team2a.ProjectPortfolio.security.Permissions.*;
 
 @RestController
 @RequestMapping(Routes.COLLABORATOR)
@@ -164,6 +163,7 @@ public class CollaboratorController {
     }
 
     @GetMapping("/request/{requestId}")
+    @PreAuthorize(PM_IN_PROJECT)
     public ResponseEntity<List<RequestCollaboratorsProjects>> getCollaboratorsForRequest (@PathVariable("requestId") UUID requestId) {
         try {
             List<RequestCollaboratorsProjects> body = collaboratorService.getCollaboratorsForRequest(requestId);
@@ -174,8 +174,9 @@ public class CollaboratorController {
     }
 
     @PostMapping("/request/{requestId}/{collaboratorId}")
-    public ResponseEntity<Collaborator> addCollaboratorToRequest (@PathVariable UUID requestId,
-                                                                  @PathVariable UUID collaboratorId,
+    @PreAuthorize(USER_IN_PROJECT)
+    public ResponseEntity<Collaborator> addCollaboratorToRequest (@PathVariable("requestId") UUID requestId,
+                                                                  @PathVariable("collaboratorId") UUID collaboratorId,
                                                                   @RequestBody Boolean isRemove) {
         try{
             Collaborator body = collaboratorService.addCollaboratorToRequest(requestId, collaboratorId, isRemove);

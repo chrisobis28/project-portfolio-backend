@@ -28,6 +28,23 @@ public class RequestService {
     @Setter
     private ProjectRepository projectRepository;
 
+    @Autowired
+    @Setter
+    private TagToProjectRepository tagToProjectRepository;
+
+    @Autowired
+    @Setter
+    private ProjectsToCollaboratorsRepository projectsToCollaboratorsRepository;
+
+    @Autowired
+    @Setter
+    private MediaRepository mediaRepository;
+
+    @Autowired
+    @Setter
+    private LinkRepository linkRepository;
+
+
     /**
      * Method for getting a request by its id
      * @param requestId the id of the request to be queried
@@ -164,9 +181,56 @@ public class RequestService {
         if(r.getNewDescription() != null)
             p.setDescription(r.getNewDescription());
 
-        //Resolve other fields
-
         projectRepository.save(p);
+
+
+        for(RequestTagProject tagRequest : r.getRequestTagProjects()) {
+            if(tagRequest.getIsRemove()) {
+                List<TagsToProject> body = tagToProjectRepository.findAllByProjectProjectIdAndTagTagId
+                        (p.getProjectId(), tagRequest.getTag().getTagId());
+
+                tagToProjectRepository.deleteAll(body);
+            }
+            else {
+                TagsToProject body = new TagsToProject(tagRequest.getTag(), p);
+                tagToProjectRepository.save(body);
+            }
+        }
+
+        for(RequestCollaboratorsProjects collRequest: r.getRequestCollaboratorsProjects()) {
+            if(collRequest.getIsRemove()) {
+                List<ProjectsToCollaborators> body = projectsToCollaboratorsRepository
+                        .findAllByProjectProjectIdAndCollaboratorCollaboratorId
+                        (p.getProjectId(), collRequest.getCollaborator().getCollaboratorId());
+
+                projectsToCollaboratorsRepository.deleteAll(body);
+            } else {
+                ProjectsToCollaborators body = new ProjectsToCollaborators(p, collRequest.getCollaborator(),"");
+                projectsToCollaboratorsRepository.save(body);
+            }
+        }
+
+        for(RequestMediaProject mediaRequest: r.getRequestMediaProjects()) {
+            if(mediaRequest.getIsRemove()) {
+                mediaRepository.delete(mediaRequest.getMedia());
+            } else {
+                Media body = mediaRequest.getMedia();
+                body.setProject(p);
+                mediaRepository.save(body);
+            }
+        }
+
+        for(RequestLinkProject linkRequest: r.getRequestLinkProjects()) {
+            if(linkRequest.getIsRemove()) {
+                linkRepository.delete(linkRequest.getLink());
+            } else {
+                Link body = linkRequest.getLink();
+                body.setProject(p);
+                linkRepository.save(body);
+            }
+        }
+
+
         requestRepository.delete(r);
     }
 }

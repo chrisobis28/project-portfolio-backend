@@ -1,9 +1,9 @@
 package com.team2a.ProjectPortfolio.Controllers;
 
-import static com.team2a.ProjectPortfolio.security.Permissions.EDITOR_IN_PROJECT;
-
 import com.team2a.ProjectPortfolio.Commons.Media;
+import com.team2a.ProjectPortfolio.Commons.RequestMediaProject;
 import com.team2a.ProjectPortfolio.CustomExceptions.MediaNotFoundException;
+import com.team2a.ProjectPortfolio.CustomExceptions.NotFoundException;
 import com.team2a.ProjectPortfolio.Routes;
 import com.team2a.ProjectPortfolio.Services.MediaService;
 import com.team2a.ProjectPortfolio.WebSocket.MediaProjectWebSocketHandler;
@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 import java.util.UUID;
+
+import static com.team2a.ProjectPortfolio.security.Permissions.*;
 
 @RestController
 @RequestMapping(Routes.MEDIA)
@@ -117,5 +119,41 @@ public class MediaController {
         Media body = mediaService.editMedia(media);
         mediaProjectWebSocketHandler.broadcast(media.getProject().getProjectId().toString());
         return ResponseEntity.status(HttpStatus.OK).body(body);
+    }
+
+    @GetMapping("/request/{requestId}")
+    @PreAuthorize(PM_IN_PROJECT)
+    public ResponseEntity<List<RequestMediaProject>> getMediaForRequest (@PathVariable("requestId") UUID requestId) {
+        try {
+            List<RequestMediaProject> body = mediaService.getMediaForRequest(requestId);
+            return new ResponseEntity<>(body, HttpStatus.OK);
+        } catch (NotFoundException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @PostMapping("/request/remove/{requestId}/{mediaID}")
+    @PreAuthorize(USER_IN_PROJECT)
+    public ResponseEntity<Media> addRemovedMediaToRequest (@PathVariable("requestId") UUID requestId,
+                                                           @PathVariable("mediaId") UUID mediaId) {
+        try{
+            Media body = mediaService.addRemovedMediaToRequest(requestId, mediaId);
+            return new ResponseEntity<>(body, HttpStatus.OK);
+        } catch (NotFoundException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @PostMapping("request/add/{requestId}")
+    @PreAuthorize(USER_IN_PROJECT)
+    public ResponseEntity<Media> addAddedMediaToRequest (@PathVariable("requestId") UUID requestId,
+                                                         @RequestParam("file") MultipartFile file,
+                                                         @RequestParam String name) {
+        try {
+            Media body = mediaService.addAddedMediaToRequest(requestId, file, name);
+            return new ResponseEntity<>(body, HttpStatus.OK);
+        } catch (NotFoundException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 }

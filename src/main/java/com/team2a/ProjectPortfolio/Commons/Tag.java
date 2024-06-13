@@ -1,5 +1,6 @@
 package com.team2a.ProjectPortfolio.Commons;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -47,6 +48,7 @@ public class Tag {
     @OneToMany(cascade=CascadeType.ALL, orphanRemoval = true)
     @OnDelete(action=OnDeleteAction.CASCADE)
     @JoinColumn(name="TAG_ID", updatable = false, insertable = false)
+    @JsonIgnore
     private List<RequestTagProject> requestTagProjects = new ArrayList<>();
 
     @Getter
