@@ -11,12 +11,13 @@ import com.team2a.ProjectPortfolio.CustomExceptions.ProjectNotFoundException;
 import com.team2a.ProjectPortfolio.Repositories.AccountRepository;
 import com.team2a.ProjectPortfolio.Repositories.ProjectRepository;
 import com.team2a.ProjectPortfolio.Repositories.ProjectsToAccountsRepository;
+import com.team2a.ProjectPortfolio.dto.AccountTransfer;
+import com.team2a.ProjectPortfolio.dto.ProjectTransfer;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -181,20 +182,20 @@ public class AccountService {
     }
 
     /**
-     * Retrieves all projects a user has a role on
+     * Retrieves all projects a user has a role on (id and name)
      * @param username - the username of the user for search
      * @return - the list of ids of all projects
      */
-    public List<UUID> getProjects (String username) {
+    public List<ProjectTransfer> getProjects (String username) {
         return projectsToAccountsRepository.findAll().stream().filter(x -> x.getAccount().getUsername().equals(username))
-            .map(x -> x.getProject().getProjectId()).toList();
+            .map(x -> new ProjectTransfer(x.getProject().getProjectId(), x.getProject().getTitle(), x.getRole())).toList();
     }
 
     /**
-     * Retrieves all Accounts on the platform
+     * Retrieves all Accounts on the platform (only sends username and role)
      * @return - the list of Accounts
      */
-    public List<Account> getAccounts() {
-        return accountRepository.findAll();
+    public List<AccountTransfer> getAccounts() {
+        return accountRepository.findAll().stream().map(x -> new AccountTransfer(x.getUsername(), x.getRole())).toList();
     }
 }
