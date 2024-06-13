@@ -24,13 +24,6 @@ public class MediaHelper {
         }
         return Base64.getEncoder().encodeToString(content);
     }
-    public String[] getFiles ()
-    {
-        //https://www.geeksforgeeks.org/spring-boot-file-handling/
-        String folderPath = System.getProperty("user.dir") +"/assets";
-        File directory= new File(folderPath);
-        return directory.list();
-    }
     public void saveFile (String path, MultipartFile file) throws RuntimeException {
         try (FileOutputStream fileSave = new FileOutputStream(path)) {
             fileSave.write(file.getBytes());

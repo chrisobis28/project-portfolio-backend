@@ -7,9 +7,8 @@ import com.team2a.ProjectPortfolio.CustomExceptions.MediaNotFoundException;
 import com.team2a.ProjectPortfolio.Routes;
 import com.team2a.ProjectPortfolio.Services.MediaService;
 import com.team2a.ProjectPortfolio.WebSocket.MediaProjectWebSocketHandler;
+import com.team2a.ProjectPortfolio.dto.MediaFileContent;
 import jakarta.validation.Valid;
-import org.antlr.v4.runtime.misc.Pair;
-import org.antlr.v4.runtime.misc.Triple;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -46,7 +45,7 @@ public class MediaController {
      * @return the List of all Medias corresponding to the project
      */
     @GetMapping("/public/images/{projectId}")
-    public ResponseEntity<List<Triple<String,String,String>>> getImagesContentByProjectId (@PathVariable("projectId")
+    public ResponseEntity<List<MediaFileContent>> getImagesContentByProjectId (@PathVariable("projectId")
                                                                                                UUID projectId) {
         return ResponseEntity.ok(mediaService.getImagesContentByProjectId(projectId));
     }
@@ -57,7 +56,7 @@ public class MediaController {
      * @return the media content
      */
     @GetMapping("/public/file/content/{mediaId}")
-    public ResponseEntity<Pair<String,String>> getDocumentContentByMediaId (@PathVariable("mediaId") UUID mediaId) {
+    public ResponseEntity<MediaFileContent> getDocumentContentByMediaId (@PathVariable("mediaId") UUID mediaId) {
         return ResponseEntity.ok(mediaService.getDocumentByMediaId(mediaId));
     }
 
@@ -112,7 +111,7 @@ public class MediaController {
      * @param media - the Media with the new fields
      * @return - the edited Media
      */
-    @PutMapping("")
+    @PutMapping("/")
     public ResponseEntity<Media> editMedia (@Valid @RequestBody Media media) {
         Media body = mediaService.editMedia(media);
         mediaProjectWebSocketHandler.broadcast(media.getProject().getProjectId().toString());
