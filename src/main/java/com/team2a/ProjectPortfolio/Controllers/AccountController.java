@@ -12,6 +12,8 @@ import com.team2a.ProjectPortfolio.CustomExceptions.NotFoundException;
 import com.team2a.ProjectPortfolio.CustomExceptions.ProjectNotFoundException;
 import com.team2a.ProjectPortfolio.Routes;
 import com.team2a.ProjectPortfolio.Services.AccountService;
+import com.team2a.ProjectPortfolio.dto.AccountTransfer;
+import com.team2a.ProjectPortfolio.dto.ProjectTransfer;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
@@ -161,7 +163,7 @@ public class AccountController {
      */
     @GetMapping("")
     @PreAuthorize(ADMIN_ONLY)
-    public ResponseEntity<List<Account>> getAccounts () {
+    public ResponseEntity<List<AccountTransfer>> getAccounts() {
         return ResponseEntity.ok(accountService.getAccounts());
     }
 
@@ -172,7 +174,7 @@ public class AccountController {
      */
     @GetMapping("/role/{username}")
     @PreAuthorize(ADMIN_ONLY)
-    public ResponseEntity<List<UUID>> getProjects (@PathVariable("username") String username) {
+    public ResponseEntity<List<ProjectTransfer>> getProjects (@PathVariable("username") String username) {
         return ResponseEntity.ok(accountService.getProjects(username));
     }
 
