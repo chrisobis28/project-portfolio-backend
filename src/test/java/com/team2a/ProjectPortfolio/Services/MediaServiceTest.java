@@ -113,7 +113,7 @@ public class MediaServiceTest {
     m1.setProject(p);
     when(mediaRepository.findById(x)).thenReturn(Optional.of(m1));
     when(mediaRepository.findMediaByMediaId(x)).thenReturn(m1);
-    when(mediaHelper.getFileContents(m1.getPath())).thenReturn("content1");
+    when(mediaHelper.getFileContents(m1.getPath()+p.getProjectId())).thenReturn("content1");
     MediaFileContent expectedList =new MediaFileContent("name1","path1","content1");
     MediaFileContent actualPair = mediaService.getDocumentByMediaId(x);
     assertThat(actualPair.toString()).isEqualTo(expectedList.toString());
