@@ -6,21 +6,21 @@ import lombok.Getter;
 
 public class AccountTransfer {
 
-  @Getter
-  @NotNull(message = "Username must be specified")
-  private String username;
+    @Getter
+    @NotNull (message = "Username must be specified")
+    private String username;
 
-  @Getter
-  @NotNull (message = "Role required")
-  private Role role;
+    @Getter
+    @NotNull (message = "Role required")
+    private Role role;
 
-  /**
-   * Constructor for the Account Transfer DTO
-   * @param username - the username of the account
-   * @param role - the role of the account
-   */
-  public AccountTransfer(String username, Role role) {
-    this.username = username;
-    this.role = role;
-  }
+    /**
+     * Constructor for the Account Transfer DTO
+     * @param username - the username of the account
+     * @param role - the role of the account
+     */
+    public AccountTransfer (String username, Role role) {
+        this.username = username;
+        this.role = role;
+    }
 }

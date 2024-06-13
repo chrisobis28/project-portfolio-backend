@@ -7,21 +7,21 @@ import lombok.Getter;
 
 public class ProjectTransfer {
 
-  @Getter
-  @NotNull(message = "Project Id requires specification")
-  private UUID projectId;
+    @Getter
+    @NotNull(message = "Project Id requires specification")
+    private UUID projectId;
 
-  @Getter
-  @NotNull(message = "Project Name requires specification")
-  private String name;
+    @Getter
+    @NotNull(message = "Project Name requires specification")
+    private String name;
 
-  @Getter
-  @NotNull(message = "Role in Project requires specification")
-  private RoleInProject roleInProject;
+    @Getter
+    @NotNull(message = "Role in Project requires specification")
+    private RoleInProject roleInProject;
 
-  public ProjectTransfer(UUID projectId, String name, RoleInProject roleInProject) {
-    this.projectId = projectId;
-    this.name = name;
-    this.roleInProject = roleInProject;
-  }
+    public ProjectTransfer(UUID projectId, String name, RoleInProject roleInProject) {
+        this.projectId = projectId;
+        this.name = name;
+        this.roleInProject = roleInProject;
+    }
 }

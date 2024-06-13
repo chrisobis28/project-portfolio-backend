@@ -163,7 +163,7 @@ public class AccountController {
      */
     @GetMapping("")
     @PreAuthorize(ADMIN_ONLY)
-    public ResponseEntity<List<AccountTransfer>> getAccounts() {
+    public ResponseEntity<List<AccountTransfer>> getAccounts () {
         return ResponseEntity.ok(accountService.getAccounts());
     }
 

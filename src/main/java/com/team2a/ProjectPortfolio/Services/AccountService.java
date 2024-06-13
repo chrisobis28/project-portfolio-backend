@@ -186,7 +186,7 @@ public class AccountService {
      * Retrieves all Accounts on the platform (only sends username and role)
      * @return - the list of Accounts
      */
-    public List<AccountTransfer> getAccounts() {
+    public List<AccountTransfer> getAccounts () {
         return accountRepository.findAll().stream().map(x -> new AccountTransfer(x.getUsername(), x.getRole())).toList();
     }
 
