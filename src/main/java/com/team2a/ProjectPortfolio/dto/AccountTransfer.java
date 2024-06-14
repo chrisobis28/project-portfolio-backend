@@ -1,6 +1,5 @@
 package com.team2a.ProjectPortfolio.dto;
 
-import com.team2a.ProjectPortfolio.Commons.Role;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 
@@ -12,7 +11,7 @@ public class AccountTransfer {
 
     @Getter
     @NotNull (message = "isPM required")
-    private boolean PM;
+    private boolean isPM;
 
     @Getter
     @NotNull (message = "isAdmin required")
@@ -26,7 +25,7 @@ public class AccountTransfer {
      */
     public AccountTransfer (String username, boolean isPM, boolean isAdmin) {
         this.username = username;
-        this.PM = isPM;
+        this.isPM = isPM;
         this.isAdmin = isAdmin;
     }
 }

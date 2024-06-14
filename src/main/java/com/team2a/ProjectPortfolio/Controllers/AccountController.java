@@ -14,7 +14,6 @@ import com.team2a.ProjectPortfolio.Routes;
 import com.team2a.ProjectPortfolio.Services.AccountService;
 import com.team2a.ProjectPortfolio.dto.AccountTransfer;
 import com.team2a.ProjectPortfolio.dto.ProjectTransfer;
-import jakarta.validation.ReportAsSingleViolation;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
@@ -158,7 +157,7 @@ public class AccountController {
     @PreAuthorize(PM_IN_PROJECT)
     public ResponseEntity<Void> updateRole (@PathVariable("username") String username,
                                             @PathVariable("projectId") UUID projectId,
-                                            @RequestBody RoleInProject role) {
+                                            @Valid @RequestBody RoleInProject role) {
         accountService.updateRole(username, projectId, role);
         return ResponseEntity.status(HttpStatus.OK).build();
     }

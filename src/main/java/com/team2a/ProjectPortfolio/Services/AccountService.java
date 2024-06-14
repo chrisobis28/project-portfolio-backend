@@ -63,7 +63,8 @@ public class AccountService {
         if(o.isEmpty()) {
             throw new AccountNotFoundException("There is no account with username " + accountTransfer.getUsername() + ".");
         }
-        o.get().setRole(accountTransfer.isAdmin() ? Role.ROLE_ADMIN : accountTransfer.isPM() ? Role.ROLE_PM : Role.ROLE_USER);
+        o.get().setRole(accountTransfer.isAdmin() ? Role.ROLE_ADMIN :
+            accountTransfer.isPM() ? Role.ROLE_PM : Role.ROLE_USER);
         accountRepository.save(o.get());
     }
 
