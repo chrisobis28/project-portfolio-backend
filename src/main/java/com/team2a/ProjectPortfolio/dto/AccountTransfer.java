@@ -11,16 +11,22 @@ public class AccountTransfer {
     private String username;
 
     @Getter
-    @NotNull (message = "Role required")
-    private Role role;
+    @NotNull (message = "isPM required")
+    private boolean PM;
+
+    @Getter
+    @NotNull (message = "isAdmin required")
+    private boolean isAdmin;
 
     /**
      * Constructor for the Account Transfer DTO
-     * @param username - the username of the account
-     * @param role - the role of the account
+     * @param username - the username of the Account
+     * @param isPM - Account is PM
+     * @param isAdmin - Account is Admin
      */
-    public AccountTransfer (String username, Role role) {
+    public AccountTransfer (String username, boolean isPM, boolean isAdmin) {
         this.username = username;
-        this.role = role;
+        this.PM = isPM;
+        this.isAdmin = isAdmin;
     }
 }

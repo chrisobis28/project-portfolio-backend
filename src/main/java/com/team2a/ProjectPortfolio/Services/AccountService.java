@@ -3,6 +3,7 @@ package com.team2a.ProjectPortfolio.Services;
 import com.team2a.ProjectPortfolio.Commons.Account;
 import com.team2a.ProjectPortfolio.Commons.Project;
 import com.team2a.ProjectPortfolio.Commons.ProjectsToAccounts;
+import com.team2a.ProjectPortfolio.Commons.Role;
 import com.team2a.ProjectPortfolio.Commons.RoleInProject;
 import com.team2a.ProjectPortfolio.CustomExceptions.AccountNotFoundException;
 import com.team2a.ProjectPortfolio.CustomExceptions.DuplicatedUsernameException;
@@ -55,6 +56,15 @@ public class AccountService {
             throw new AccountNotFoundException("There is no account with username " + account.getUsername() + ".");
         }
         return accountRepository.save(account);
+    }
+
+    public void editAccount (AccountTransfer accountTransfer) throws RuntimeException {
+        Optional<Account> o = accountRepository.findById(accountTransfer.getUsername());
+        if(o.isEmpty()) {
+            throw new AccountNotFoundException("There is no account with username " + accountTransfer.getUsername() + ".");
+        }
+        o.get().setRole(accountTransfer.isAdmin() ? Role.ROLE_ADMIN : accountTransfer.isPM() ? Role.ROLE_PM : Role.ROLE_USER);
+        accountRepository.save(o.get());
     }
 
     /**
@@ -187,7 +197,10 @@ public class AccountService {
      * @return - the list of Accounts
      */
     public List<AccountTransfer> getAccounts () {
-        return accountRepository.findAll().stream().map(x -> new AccountTransfer(x.getUsername(), x.getRole())).toList();
+        return accountRepository.findAll().stream().map(x -> new AccountTransfer(x.getUsername(),
+            x.getRole().equals(Role.ROLE_PM),
+            x.getRole().equals(Role.ROLE_ADMIN)))
+            .toList();
     }
 
     /**

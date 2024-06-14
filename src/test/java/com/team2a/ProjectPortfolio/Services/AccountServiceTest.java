@@ -1,6 +1,7 @@
 package com.team2a.ProjectPortfolio.Services;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
@@ -253,7 +254,8 @@ public class AccountServiceTest {
         when(accountRepository.findAll()).thenReturn(List.of(a));
         List<AccountTransfer> accounts = accountService.getAccounts();
         assertEquals(1, accounts.size());
-        assertEquals(a.getRole(), accounts.get(0).getRole());
+        assertFalse(accounts.get(0).isAdmin());
+        assertFalse(accounts.get(0).isPM());
         assertEquals(a.getUsername(), accounts.get(0).getUsername());
     }
 

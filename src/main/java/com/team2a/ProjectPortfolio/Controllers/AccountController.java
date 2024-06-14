@@ -14,6 +14,7 @@ import com.team2a.ProjectPortfolio.Routes;
 import com.team2a.ProjectPortfolio.Services.AccountService;
 import com.team2a.ProjectPortfolio.dto.AccountTransfer;
 import com.team2a.ProjectPortfolio.dto.ProjectTransfer;
+import jakarta.validation.ReportAsSingleViolation;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
@@ -25,7 +26,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(Routes.ACCOUNT)
-@CrossOrigin("http://localhost:4200/")
+@CrossOrigin("http://localhost:4200")
 public class AccountController {
 
     private final AccountService accountService;
@@ -49,6 +50,23 @@ public class AccountController {
     public ResponseEntity<Account> editAccount (@Valid @RequestBody Account account) {
         try {
             return ResponseEntity.ok(accountService.editAccount(account));
+        }
+        catch(AccountNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+    }
+
+    /**
+     * Edits only the role of an Account
+     * @param accountTransfer - the DTO
+     * @return - Void because just the status of OK is needed
+     */
+    @PutMapping("editRole")
+    @PreAuthorize(ADMIN_ONLY)
+    public ResponseEntity<Void> editRoleOfAccount (@Valid @RequestBody AccountTransfer accountTransfer) {
+        try {
+            accountService.editAccount(accountTransfer);
+            return ResponseEntity.ok().build();
         }
         catch(AccountNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
