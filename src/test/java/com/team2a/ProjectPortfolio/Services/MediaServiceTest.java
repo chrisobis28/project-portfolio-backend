@@ -174,8 +174,13 @@ public class MediaServiceTest {
   @Test
   void testDeleteMediaFromProjectSuccess(){
     UUID x = UUID.randomUUID();
+    Project project = new Project();
+    UUID projectId = UUID.randomUUID();
+    project.setProjectId(projectId);
     Media m = new Media("name", "path");
+    m.setProject(project);
     when(mediaRepository.findById(x)).thenReturn(Optional.of(m));
+    doNothing().when(mediaHelper).deleteFile(any());
     doNothing().when(mediaRepository).deleteById(x);
     mediaService.deleteMedia(x);
     verify(mediaRepository, times(1)).deleteById(x);

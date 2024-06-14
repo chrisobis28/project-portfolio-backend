@@ -121,8 +121,10 @@ public class MediaService {
      * @throws RuntimeException - Media doesn't exist or the id is null
      * @return returns the media deleted
      */
-    public Media deleteMedia (UUID mediaId) {
+    public Media deleteMedia (UUID mediaId) throws RuntimeException {
         Media m = checkMediaExistence(mediaId);
+        mediaHelper.deleteFile(System.getProperty("user.dir") + "/assets" + File.separator +
+                m.getPath()+m.getProject().getProjectId());
         mediaRepository.deleteById(mediaId);
         return m;
     }
