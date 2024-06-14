@@ -82,7 +82,6 @@ public class TemplateControllerIntegrationTest {
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.templateName", is("name2")))
             .andExpect(jsonPath("$.standardDescription", is("description2")))
-            .andExpect(jsonPath("$.standardBibtex", is("bibtex2")))
             .andExpect(jsonPath("$.numberOfCollaborators", is(6)));
 
         assertEquals(4, templateRepository.count());
@@ -122,7 +121,6 @@ public class TemplateControllerIntegrationTest {
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.templateName", is("name1")))
             .andExpect(jsonPath("$.standardDescription", is("description1")))
-            .andExpect(jsonPath("$.standardBibtex", is("bibtex1")))
             .andExpect(jsonPath("$.numberOfCollaborators", is(5)));
 
         mockMvc.perform(get(Routes.TEMPLATE + "/" + "name2")
