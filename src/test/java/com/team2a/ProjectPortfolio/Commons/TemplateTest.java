@@ -8,10 +8,8 @@ class TemplateTest {
 
     @Test
     public void testTemplate() {
-        Template template = new Template("test","test","test",5);
+        Template template = new Template("test","test",5);
         assertEquals("test",template.getTemplateName());
-        assertEquals("test",template.getStandardBibtex());
-        assertEquals("test",template.getStandardBibtex());
         assertEquals(5,template.getNumberOfCollaborators());
 
     }

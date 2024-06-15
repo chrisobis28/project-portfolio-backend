@@ -9,9 +9,6 @@ import com.team2a.ProjectPortfolio.Repositories.ProjectRepository;
 import com.team2a.ProjectPortfolio.dto.MediaFileContent;
 import java.io.File;
 import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -48,17 +45,12 @@ public class MediaService {
     public List<MediaFileContent> getImagesContentByProjectId (UUID projectId){
         //https://www.geeksforgeeks.org/spring-boot-file-handling/
         checkProjectExistence(projectId);
-        List<String> filenames = java.util.Arrays.stream(mediaHelper.getFiles()).toList();
         List<Media> mediaToGetObject = mediaRepository.findAllByProjectProjectId(projectId);
-
-        Map<String, Media> filenameToMediaMap = mediaToGetObject.stream()
-                .collect(Collectors.toMap(Media::getPath, Function.identity()));
-
         List<MediaFileContent> mediaFiles = new ArrayList<>();
-        for (String filename : filenames) {
-            Media media = filenameToMediaMap.get(filename);
+        for (Media media : mediaToGetObject) {
             if (media != null) {
-                mediaFiles.add(new MediaFileContent(media.getName(), media.getPath(), mediaHelper.getFileContents(filename)));
+                mediaFiles.add(new MediaFileContent(media.getName(), media.getPath(),
+                        mediaHelper.getFileContents(media.getPath()+projectId)));
             }
         }
         return mediaFiles;
@@ -85,14 +77,16 @@ public class MediaService {
      */
     public MediaFileContent getDocumentByMediaId (UUID mediaId){
         //https://www.geeksforgeeks.org/spring-boot-file-handling/
+        Media media;
         try {
-            checkMediaExistence(mediaId);
+            media = checkMediaExistence(mediaId);
         }
         catch (MediaNotFoundException e){
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
         }
         Media mediaToGetObject = mediaRepository.findMediaByMediaId(mediaId);
-        return new MediaFileContent(mediaToGetObject.getName(),mediaToGetObject.getPath(), mediaHelper.getFileContents(mediaToGetObject.getPath()));
+        return new MediaFileContent(mediaToGetObject.getName(),mediaToGetObject.getPath(),
+                mediaHelper.getFileContents(mediaToGetObject.getPath()+media.getProject().getProjectId()));
     }
     /**
      * Adds a Media to a specific Project
@@ -110,8 +104,8 @@ public class MediaService {
         catch (ProjectNotFoundException e){
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
         }
-        checkPathUniqueness(file.getOriginalFilename());
-        String filePath = System.getProperty("user.dir") + "/assets" + File.separator + file.getOriginalFilename();
+        checkPathUniqueness(file.getOriginalFilename()+projectId);
+        String filePath = System.getProperty("user.dir") + "/assets" + File.separator + file.getOriginalFilename()+projectId;
         Media media = new Media(name,file.getOriginalFilename());
         media.setProject(p);
         //https://www.geeksforgeeks.org/spring-boot-file-handling/
@@ -127,8 +121,10 @@ public class MediaService {
      * @throws RuntimeException - Media doesn't exist or the id is null
      * @return returns the media deleted
      */
-    public Media deleteMedia (UUID mediaId) {
+    public Media deleteMedia (UUID mediaId) throws RuntimeException {
         Media m = checkMediaExistence(mediaId);
+        mediaHelper.deleteFile(System.getProperty("user.dir") + "/assets" + File.separator +
+                m.getPath()+m.getProject().getProjectId());
         mediaRepository.deleteById(mediaId);
         return m;
     }
@@ -169,7 +165,7 @@ public class MediaService {
      */
     public void checkPathUniqueness (String path) throws RuntimeException {
         if(!mediaRepository.findAll().stream()
-                .filter(x -> x.getPath().equals(path)).toList().isEmpty()) {
+                .filter(x -> (x.getPath()).equals(path)).toList().isEmpty()) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
     }
@@ -183,9 +179,6 @@ public class MediaService {
         Optional<Media> o = mediaRepository.findById(media.getMediaId());
         if(o.isEmpty())
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-        else if(!media.getPath().equals(o.get().getPath())){
-            checkPathUniqueness(media.getPath());
-        }
         return mediaRepository.save(media);
     }
 }

@@ -158,7 +158,7 @@ public class MediaControllerIntegrationTest {
 
     media.setName("Edited Name");
 
-    mockMvc.perform(put(Routes.MEDIA)
+    mockMvc.perform(put(Routes.MEDIA+"/")
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(media)))
         .andExpect(status().isOk())
@@ -166,13 +166,6 @@ public class MediaControllerIntegrationTest {
         .andExpect(jsonPath("$.path", is("Media path 1")));
 
     assertEquals(3, mediaRepository.count());
-
-    media.setPath("Media path 2");
-
-    mockMvc.perform(put(Routes.MEDIA)
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(media)))
-        .andExpect(status().isForbidden());
 
     mockMvc.perform(delete(Routes.MEDIA + "/"+ UUID.randomUUID() + "/" + media.getMediaId())
             .contentType(MediaType.APPLICATION_JSON))

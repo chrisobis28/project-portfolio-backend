@@ -23,9 +23,18 @@ public class MediaFileContent {
      * @param fileContent the file content
      * @param filePath the file path
      */
-    public MediaFileContent(String fileName, String filePath, String fileContent) {
+    public MediaFileContent (String fileName, String filePath, String fileContent) {
         this.fileName = fileName;
         this.fileContent = fileContent;
         this.filePath = filePath;
+    }
+
+    @Override
+    public String toString () {
+        return "MediaFileContent{" +
+                "fileName='" + fileName + '\'' +
+                ", fileContent='" + fileContent + '\'' +
+                ", filePath='" + filePath + '\'' +
+                '}';
     }
 }
