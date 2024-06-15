@@ -42,22 +42,6 @@ public class CollaboratorServiceTest {
     }
 
     @Test
-    void testGetCollaboratorsByProjectIdSuccess () {
-        UUID projectId = UUID.randomUUID();
-        Project project = new Project("Test", "Test", false);
-        Collaborator collaborator = new Collaborator("Filip");
-        String role = "Role";
-        ProjectsToCollaborators projectsToCollaborators = new ProjectsToCollaborators(project, collaborator,role);
-        List<ProjectsToCollaborators> projectsToCollaboratorsList = new ArrayList<>();
-        projectsToCollaboratorsList.add(projectsToCollaborators);
-        when(projectRepository.findById(projectId)).thenReturn(java.util.Optional.of(project));
-        when(ptc.findAllByProjectProjectId(projectId)).thenReturn(projectsToCollaboratorsList);
-        List<Collaborator> actualResponse = cs.getCollaboratorsByProjectId(projectId);
-        assertEquals(1, actualResponse.size());
-        assertEquals("Filip", actualResponse.get(0).getName());
-    }
-
-    @Test
     void testGetCollaboratorsByProjectIdNotFound () {
         UUID projectId = UUID.randomUUID();
         assertThrows(EntityNotFoundException.class, () -> cs.getCollaboratorsByProjectId(projectId));

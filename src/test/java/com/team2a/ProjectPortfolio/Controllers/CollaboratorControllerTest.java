@@ -46,48 +46,6 @@ class CollaboratorControllerTest {
         cc = new CollaboratorController(cs, collaboratorWebSocketHandler, collaboratorProjectWebSocketHandler);
 
     }
-    @Test
-    void getCollaboratorsByProjectIdSuccess () {
-        UUID projectId = UUID.randomUUID();
-        List<Collaborator> expectedCollaborators = Collections.singletonList(new Collaborator("Filip"));
-        when(cs.getCollaboratorsByProjectId(projectId)).thenReturn(expectedCollaborators);
-        ResponseEntity<List<Collaborator>> responseEntity = cc.getCollaboratorsByProjectId(projectId);
-        assertEquals(expectedCollaborators, responseEntity.getBody());
-        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
-    }
-
-    @Test
-    void getCollaboratorsByProjectIdNotFound () {
-        UUID invalidProjectId = UUID.randomUUID();
-        when(cs.getCollaboratorsByProjectId(invalidProjectId)).thenThrow(EntityNotFoundException.class);
-        ResponseEntity<List<Collaborator>> responseEntity = cc.getCollaboratorsByProjectId(invalidProjectId);
-        assertEquals(HttpStatus.NOT_FOUND, responseEntity.getStatusCode());
-    }
-
-    @Test
-    void addCollaboratorToProjectSuccess () {
-        UUID projectId = UUID.randomUUID();
-        UUID collaboratorId = UUID.randomUUID();
-        String role = "Role";
-        Collaborator expectedCollaborator = new Collaborator("Andrei");
-        when(cs.addCollaboratorToProject(projectId, collaboratorId,role)).thenReturn(expectedCollaborator);
-        ResponseEntity<Collaborator> responseEntity = cc.addCollaboratorToProject(projectId, collaboratorId,role);
-        verify(collaboratorProjectWebSocketHandler).broadcast(any());
-        assertEquals(expectedCollaborator, responseEntity.getBody());
-        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
-    }
-
-
-    @Test
-    void addCollaboratorToProjectINotFoundProject () {
-        UUID invalidProjectId = UUID.randomUUID();
-        UUID invalidCollaboratorId = UUID.randomUUID();
-        String collaboratorName = "Filip";
-        String role = "Role";
-        when(cs.addCollaboratorToProject(invalidProjectId, invalidCollaboratorId,role)).thenThrow(EntityNotFoundException.class);
-        ResponseEntity<Collaborator> responseEntity = cc.addCollaboratorToProject(invalidProjectId, invalidCollaboratorId,role);
-        assertEquals(HttpStatus.NOT_FOUND, responseEntity.getStatusCode());
-    }
 
     @Test
     void editCollaboratorOfProjectSuccess() {

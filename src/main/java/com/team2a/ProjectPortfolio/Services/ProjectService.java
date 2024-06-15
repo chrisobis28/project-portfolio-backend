@@ -22,14 +22,11 @@ public class ProjectService {
 
     private final SecurityUtils securityUtils;
 
-    private final CollaboratorService collaboratorService;
-
     /**
      * Constructor for the Project Service
      * @param projectRepository - the Project Repository
      * @param securityUtils - the Security Utils
      * @param projectsToAccountsRepository - the Projects to Accounts Repository
-     * @param collaboratorService - the Collaborator Service
      */
     @Autowired
     public ProjectService(ProjectRepository projectRepository,
@@ -39,7 +36,6 @@ public class ProjectService {
         this.projectRepository = projectRepository;
         this.securityUtils = securityUtils;
         this.projectsToAccountsRepository = projectsToAccountsRepository;
-        this.collaboratorService = collaboratorService;
     }
 
     /**
@@ -97,8 +93,6 @@ public class ProjectService {
         ProjectsToAccounts pta = new ProjectsToAccounts(RoleInProject.PM, securityUtils.getCurrentUser(), result);
         result = projectRepository.save(result);
         projectsToAccountsRepository.save(pta);
-        collaboratorService.addCollaboratorToProject(result.getProjectId(),
-            collaboratorService.findCollaboratorIdByName(securityUtils.getCurrentUser().getName()), "PROJECT_MANAGER");
         return result;
     }
 

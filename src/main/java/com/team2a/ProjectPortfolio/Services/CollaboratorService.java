@@ -6,13 +6,16 @@ import com.team2a.ProjectPortfolio.Commons.ProjectsToCollaborators;
 import com.team2a.ProjectPortfolio.Repositories.CollaboratorRepository;
 import com.team2a.ProjectPortfolio.Repositories.ProjectRepository;
 import com.team2a.ProjectPortfolio.Repositories.ProjectsToCollaboratorsRepository;
+import com.team2a.ProjectPortfolio.dto.CollaboratorTransfer;
 import jakarta.persistence.EntityNotFoundException;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class CollaboratorService {
@@ -40,13 +43,18 @@ public class CollaboratorService {
      * @param projectId the projectId
      * @return the list of Collaborators
      */
-    public List<Collaborator> getCollaboratorsByProjectId (UUID projectId) {
-        Project project = projectRepository.findById(projectId).orElseThrow(EntityNotFoundException::new);
+    public List<CollaboratorTransfer> getCollaboratorsByProjectId (UUID projectId) {
+        Project project = projectRepository.findById(projectId).orElseThrow(
+            () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Project not found")
+        );
         List<ProjectsToCollaborators> projectsToCollaborators = projectsToCollaboratorsRepository.
                 findAllByProjectProjectId(projectId);
-        List<Collaborator> collaborators = projectsToCollaborators.stream()
-                .map(ProjectsToCollaborators::getCollaborator).collect(Collectors.toList());
-        return collaborators;
+        return projectsToCollaborators.stream()
+            .map(ptc -> {
+                Collaborator collaborator = ptc.getCollaborator();
+                return new CollaboratorTransfer(collaborator.getCollaboratorId(), collaborator.getName(), ptc.getRole());
+            })
+            .collect(Collectors.toList());
     }
 
     /**
@@ -77,6 +85,9 @@ public class CollaboratorService {
         Project project = projectRepository.findById(projectId).orElseThrow(EntityNotFoundException::new);
         Collaborator collaborator = collaboratorRepository.findById(collaboratorId)
                 .orElseThrow(EntityNotFoundException::new);
+        if(projectsToCollaboratorsRepository.
+                existsByProjectProjectIdAndCollaboratorCollaboratorId(projectId,collaboratorId))
+            return collaborator;
         ProjectsToCollaborators projectsToCollaborators = new ProjectsToCollaborators(project, collaborator,role);
         projectsToCollaboratorsRepository.save(projectsToCollaborators);
         return collaborator;
@@ -143,5 +154,31 @@ public class CollaboratorService {
     public UUID findCollaboratorIdByName (String name) {
         Optional<Collaborator> collaborator = collaboratorRepository.findByName(name);
         return collaborator.map(Collaborator::getCollaboratorId).orElse(null);
+    }
+
+    /**
+     * Creates a new collaborator and adds it to a project
+     * @param projectId the project ID
+     * @param collaboratorTransfer the collaborator transfer object
+     * @return the collaborator transfer object
+     */
+    public CollaboratorTransfer createAndAddCollaboratorToProject(UUID projectId, CollaboratorTransfer collaboratorTransfer) {
+        Project p = projectRepository.findById(projectId).orElseThrow(() ->
+            new ResponseStatusException(HttpStatus.NOT_FOUND,"Project not found"));
+        String role = collaboratorTransfer.getRole();
+        Optional<Collaborator> collaboratorOptional = collaboratorRepository.findByName(collaboratorTransfer.getName());
+        if (collaboratorOptional.isPresent()) {
+            collaboratorTransfer.setCollaboratorId(collaboratorOptional.get().getCollaboratorId());
+            if(projectsToCollaboratorsRepository.existsByProjectProjectIdAndCollaboratorCollaboratorId(p.getProjectId(), collaboratorTransfer.getCollaboratorId())) {
+                return collaboratorTransfer;
+            }
+            projectsToCollaboratorsRepository.save(new ProjectsToCollaborators(p, collaboratorOptional.get(), role));
+        } else {
+            Collaborator collaborator = collaboratorRepository.save(new Collaborator(collaboratorTransfer.getName()));
+            collaboratorTransfer.setCollaboratorId(collaborator.getCollaboratorId());
+            ProjectsToCollaborators ptc = new ProjectsToCollaborators(p, collaborator, role);
+            projectsToCollaboratorsRepository.save(ptc);
+        }
+        return collaboratorTransfer;
     }
 }
