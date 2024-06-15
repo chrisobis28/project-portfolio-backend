@@ -31,8 +31,7 @@ public class ProjectService {
     @Autowired
     public ProjectService(ProjectRepository projectRepository,
                           SecurityUtils securityUtils,
-                          ProjectsToAccountsRepository projectsToAccountsRepository,
-                          CollaboratorService collaboratorService) {
+                          ProjectsToAccountsRepository projectsToAccountsRepository) {
         this.projectRepository = projectRepository;
         this.securityUtils = securityUtils;
         this.projectsToAccountsRepository = projectsToAccountsRepository;

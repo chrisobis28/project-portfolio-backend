@@ -74,27 +74,6 @@ public class CollaboratorService {
     }
 
     /**
-     * Adds a collaborator to a specified projectId.If the collaborator is already in the database, we just
-     * link it to the project. Otherwise, we create it and link to the project.
-     * @param projectId the projectId
-     * @param collaboratorId the collaborator Id
-     * @param role the collaborator role
-     * @return the collaborator entity
-     */
-    public Collaborator addCollaboratorToProject (UUID projectId, UUID collaboratorId,String role) {
-        Project project = projectRepository.findById(projectId).orElseThrow(EntityNotFoundException::new);
-        Collaborator collaborator = collaboratorRepository.findById(collaboratorId)
-                .orElseThrow(EntityNotFoundException::new);
-        if(projectsToCollaboratorsRepository.
-                existsByProjectProjectIdAndCollaboratorCollaboratorId(projectId,collaboratorId))
-            return collaborator;
-        ProjectsToCollaborators projectsToCollaborators = new ProjectsToCollaborators(project, collaborator,role);
-        projectsToCollaboratorsRepository.save(projectsToCollaborators);
-        return collaborator;
-
-    }
-
-    /**
      * Changes the name of a collaborator
      * @param collaboratorId the collaborator ID
      * @param collaboratorName the new collaborator name
@@ -147,29 +126,22 @@ public class CollaboratorService {
     }
 
     /**
-     * Finds a collaborator by name
-     * @param name the name of the collaborator
-     * @return the collaborator ID
-     */
-    public UUID findCollaboratorIdByName (String name) {
-        Optional<Collaborator> collaborator = collaboratorRepository.findByName(name);
-        return collaborator.map(Collaborator::getCollaboratorId).orElse(null);
-    }
-
-    /**
      * Creates a new collaborator and adds it to a project
      * @param projectId the project ID
      * @param collaboratorTransfer the collaborator transfer object
      * @return the collaborator transfer object
      */
-    public CollaboratorTransfer createAndAddCollaboratorToProject(UUID projectId, CollaboratorTransfer collaboratorTransfer) {
+    public CollaboratorTransfer createAndAddCollaboratorToProject
+    (UUID projectId, CollaboratorTransfer collaboratorTransfer) {
         Project p = projectRepository.findById(projectId).orElseThrow(() ->
             new ResponseStatusException(HttpStatus.NOT_FOUND,"Project not found"));
         String role = collaboratorTransfer.getRole();
         Optional<Collaborator> collaboratorOptional = collaboratorRepository.findByName(collaboratorTransfer.getName());
         if (collaboratorOptional.isPresent()) {
             collaboratorTransfer.setCollaboratorId(collaboratorOptional.get().getCollaboratorId());
-            if(projectsToCollaboratorsRepository.existsByProjectProjectIdAndCollaboratorCollaboratorId(p.getProjectId(), collaboratorTransfer.getCollaboratorId())) {
+            if(projectsToCollaboratorsRepository
+                .existsByProjectProjectIdAndCollaboratorCollaboratorId(p.getProjectId(),
+                    collaboratorTransfer.getCollaboratorId())) {
                 return collaboratorTransfer;
             }
             projectsToCollaboratorsRepository.save(new ProjectsToCollaborators(p, collaboratorOptional.get(), role));

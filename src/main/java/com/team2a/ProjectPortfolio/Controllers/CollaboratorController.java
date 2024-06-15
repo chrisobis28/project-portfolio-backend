@@ -50,7 +50,8 @@ public class CollaboratorController {
      * @return a response entity that contains the list of collaborators entities
      */
     @GetMapping("/public/{projectId}")
-    public ResponseEntity<List<CollaboratorTransfer>> getCollaboratorsByProjectId (@PathVariable("projectId") UUID projectId){
+    public ResponseEntity<List<CollaboratorTransfer>> getCollaboratorsByProjectId
+    (@PathVariable("projectId") UUID projectId){
         return ResponseEntity.ok(collaboratorService.getCollaboratorsByProjectId(projectId));
     }
 
@@ -144,8 +145,9 @@ public class CollaboratorController {
      */
     @PostMapping("/{projectId}")
     @PreAuthorize(PM_IN_PROJECT)
-    public ResponseEntity<CollaboratorTransfer> createAndAddCollaboratorToProject(@RequestBody CollaboratorTransfer collaborator,
-                                                                          @PathVariable("projectId") UUID projectId) {
+    public ResponseEntity<CollaboratorTransfer>
+        createAndAddCollaboratorToProject (@RequestBody CollaboratorTransfer collaborator,
+                                       @PathVariable("projectId") UUID projectId) {
         return ResponseEntity.ok(collaboratorService.createAndAddCollaboratorToProject(projectId, collaborator));
     }
 }

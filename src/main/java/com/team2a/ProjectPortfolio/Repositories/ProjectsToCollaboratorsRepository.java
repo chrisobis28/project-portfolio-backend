@@ -13,5 +13,5 @@ public interface ProjectsToCollaboratorsRepository extends JpaRepository<Project
             (UUID projectId, UUID collaboratorId);
     List<ProjectsToCollaborators> findAllByCollaboratorCollaboratorId (UUID collaboratorId);
 
-    boolean existsByProjectProjectIdAndCollaboratorCollaboratorId(UUID projectId, UUID collaboratorId);
+    boolean existsByProjectProjectIdAndCollaboratorCollaboratorId (UUID projectId, UUID collaboratorId);
 }
