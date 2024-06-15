@@ -45,9 +45,6 @@ public class AccountControllerIntegrationTest {
   private AccountRepository accountRepository;
 
   @Autowired
-  private CollaboratorRepository collaboratorRepository;
-
-  @Autowired
   private ProjectRepository projectRepository;
 
   @Autowired
@@ -69,11 +66,9 @@ public class AccountControllerIntegrationTest {
     projectRepository.deleteAll();
     projectsToAccountsRepository.deleteAll();
     account = new Account("username1", "name1", "password1", Role.ROLE_USER);
-    collaboratorRepository.deleteAll();
     project = new Project("title", "description", false);
     project = projectRepository.save(project);
     account = accountRepository.saveAndFlush(account);
-    collaboratorRepository.saveAndFlush(new Collaborator(account.getName()));
     securityConfigUtils.setAuthentication();
   }
 
