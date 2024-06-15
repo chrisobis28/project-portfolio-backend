@@ -148,6 +148,7 @@ public class CollaboratorController {
     public ResponseEntity<CollaboratorTransfer>
         createAndAddCollaboratorToProject (@RequestBody CollaboratorTransfer collaborator,
                                        @PathVariable("projectId") UUID projectId) {
+        collaboratorProjectWebSocketHandler.broadcast("all");
         return ResponseEntity.ok(collaboratorService.createAndAddCollaboratorToProject(projectId, collaborator));
     }
 }
