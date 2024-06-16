@@ -4,19 +4,20 @@ import com.team2a.ProjectPortfolio.Commons.Collaborator;
 import com.team2a.ProjectPortfolio.Services.CollaboratorService;
 import com.team2a.ProjectPortfolio.WebSocket.CollaboratorProjectWebSocketHandler;
 import com.team2a.ProjectPortfolio.WebSocket.CollaboratorWebSocketHandler;
+import com.team2a.ProjectPortfolio.dto.CollaboratorTransfer;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
+
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -131,5 +132,29 @@ class CollaboratorControllerTest {
         ResponseEntity<List<Collaborator>> res = cc.getAllCollaborators();
         assertEquals(res.getStatusCode(), HttpStatus.OK);
         assertEquals(res.getBody(), List.of(c1));
+    }
+
+
+    @Test
+    void getCollaboratorsByProjectIdSuccess() {
+        UUID projectId = UUID.randomUUID ();
+        UUID collaboratorId1 = UUID.randomUUID();
+        UUID collaboratorId2 = UUID.randomUUID();
+        UUID collaboratorId3 = UUID.randomUUID();
+        UUID collaboratorId4 = UUID.randomUUID();
+        UUID collaboratorId5 = UUID.randomUUID();
+        CollaboratorTransfer collaborator1 = new CollaboratorTransfer(collaboratorId1, "Luca", "ROLE_USER");
+        CollaboratorTransfer collaborator2 = new CollaboratorTransfer(collaboratorId2, "Filip", "ROLE_USER");
+        CollaboratorTransfer collaborator3 = new CollaboratorTransfer(collaboratorId3, "Paul", "ROLE_USER");
+        CollaboratorTransfer collaborator4 = new CollaboratorTransfer(collaboratorId4, "Chris", "ROLE_USER");
+        CollaboratorTransfer collaborator5 = new CollaboratorTransfer(collaboratorId5, "Bogdan", "ROLE_ADMIN");
+        List<CollaboratorTransfer> collaborators = List.of(collaborator1, collaborator2,
+                collaborator3, collaborator4, collaborator5);
+
+        when(cs.getCollaboratorsByProjectId(projectId)).thenReturn(collaborators);
+        ResponseEntity<List<CollaboratorTransfer>> responseEntity = cc.getCollaboratorsByProjectId(projectId);
+        assertEquals(collaborators, responseEntity.getBody());
+        assertEquals(5, Objects.requireNonNull(responseEntity.getBody()).size());
+        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
     }
 }
