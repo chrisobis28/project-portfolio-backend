@@ -2,16 +2,16 @@ package com.team2a.ProjectPortfolio.Controllers;
 
 import static com.team2a.ProjectPortfolio.security.Permissions.ADMIN_ONLY;
 import static com.team2a.ProjectPortfolio.security.Permissions.PM_IN_PROJECT;
+import static com.team2a.ProjectPortfolio.security.Permissions.PM_ONLY;
 import static com.team2a.ProjectPortfolio.security.Permissions.USER_SPECIFIC;
 
 import com.team2a.ProjectPortfolio.Commons.Account;
 import com.team2a.ProjectPortfolio.Commons.RoleInProject;
 import com.team2a.ProjectPortfolio.CustomExceptions.AccountNotFoundException;
-import com.team2a.ProjectPortfolio.CustomExceptions.DuplicatedUsernameException;
-import com.team2a.ProjectPortfolio.CustomExceptions.NotFoundException;
-import com.team2a.ProjectPortfolio.CustomExceptions.ProjectNotFoundException;
 import com.team2a.ProjectPortfolio.Routes;
 import com.team2a.ProjectPortfolio.Services.AccountService;
+import com.team2a.ProjectPortfolio.WebSocket.AccountProjectWebSocketHandler;
+import com.team2a.ProjectPortfolio.WebSocket.AccountWebSocketHandler;
 import com.team2a.ProjectPortfolio.dto.AccountTransfer;
 import com.team2a.ProjectPortfolio.dto.ProjectTransfer;
 import jakarta.validation.Valid;
@@ -21,7 +21,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping(Routes.ACCOUNT)
@@ -30,13 +38,23 @@ public class AccountController {
 
     private final AccountService accountService;
 
+    private final AccountWebSocketHandler accountWebSocketHandler;
+
+    private final AccountProjectWebSocketHandler accountProjectWebSocketHandler;
+
     /**
-     * Constructor for the Account Controller
-     * @param accountService - the Account Service
+     * Constructor for the AccountController
+     * @param accountService - the service to be used
+     * @param accountWebSocketHandler - the handler for the web socket
+     * @param accountProjectWebSocketHandler - the handler for the web socket
      */
     @Autowired
-    public AccountController (AccountService accountService) {
+    public AccountController (AccountService accountService,
+                              AccountWebSocketHandler accountWebSocketHandler,
+                              AccountProjectWebSocketHandler accountProjectWebSocketHandler) {
         this.accountService = accountService;
+        this.accountWebSocketHandler = accountWebSocketHandler;
+        this.accountProjectWebSocketHandler = accountProjectWebSocketHandler;
     }
 
     /**
@@ -47,12 +65,9 @@ public class AccountController {
     @PutMapping("")
     @PreAuthorize(ADMIN_ONLY)
     public ResponseEntity<Account> editAccount (@Valid @RequestBody Account account) {
-        try {
-            return ResponseEntity.ok(accountService.editAccount(account));
-        }
-        catch(AccountNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
+        Account editedAccount = accountService.editAccount(account);
+        accountWebSocketHandler.broadcast("edit "+ account.getUsername());
+        return ResponseEntity.ok(editedAccount);
     }
 
     /**
@@ -78,13 +93,9 @@ public class AccountController {
     @DeleteMapping("/{username}")
     @PreAuthorize(USER_SPECIFIC)
     public ResponseEntity<String> deleteAccount (@PathVariable("username") String username) {
-        try {
-            accountService.deleteAccount(username);
-            return ResponseEntity.status(HttpStatus.OK).body("Success.");
-        }
-        catch(AccountNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        }
+        accountService.deleteAccount(username);
+        accountWebSocketHandler.broadcast("delete " + username);
+        return ResponseEntity.ok().build();
     }
 
     /**
@@ -98,16 +109,9 @@ public class AccountController {
     @PreAuthorize(PM_IN_PROJECT)
     public ResponseEntity<Void> addRole (@PathVariable("username") String username,
                                               @PathVariable("projectId") UUID projectId, @RequestBody RoleInProject role) {
-        try {
-            accountService.addRole(username, projectId, role);
-            return ResponseEntity.status(HttpStatus.OK).build();
-        }
-        catch (AccountNotFoundException | ProjectNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
-        catch (DuplicatedUsernameException e) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        }
+        accountService.addRole(username, projectId, role);
+        accountProjectWebSocketHandler.broadcast(projectId.toString() + " add");
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 
     /**
@@ -120,13 +124,9 @@ public class AccountController {
     @PreAuthorize(PM_IN_PROJECT)
     public ResponseEntity<Void> deleteRole (@PathVariable("username") String username,
                                             @PathVariable("projectId") UUID projectId) {
-        try {
-            accountService.deleteRole(username, projectId);
-            return ResponseEntity.status(HttpStatus.OK).build();
-        }
-        catch (NotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
+        accountService.deleteRole(username, projectId);
+        accountProjectWebSocketHandler.broadcast(projectId.toString() + " delete " + username);
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 
     /**
@@ -142,6 +142,7 @@ public class AccountController {
                                             @PathVariable("projectId") UUID projectId,
                                             @RequestBody RoleInProject role) {
         accountService.updateRole(username, projectId, role);
+        accountProjectWebSocketHandler.broadcast(projectId.toString() + " update " + username);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
@@ -186,5 +187,15 @@ public class AccountController {
     @GetMapping("/public/name/{name}")
     public ResponseEntity<List<String>> getAccountByName (@PathVariable("name") String name) {
         return ResponseEntity.ok(accountService.getAccountsByName(name));
+    }
+
+    /**
+     * Gets all usernames in the database
+     * @return - the list of all usernames
+     */
+    @GetMapping("/usernames")
+    @PreAuthorize(PM_ONLY)
+    public ResponseEntity<List<String>> getAllUsernames () {
+        return ResponseEntity.ok(accountService.getAllUsernames());
     }
 }

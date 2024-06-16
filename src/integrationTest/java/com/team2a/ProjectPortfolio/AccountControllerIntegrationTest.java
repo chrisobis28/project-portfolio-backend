@@ -78,8 +78,7 @@ public class AccountControllerIntegrationTest {
 
     mockMvc.perform(delete(Routes.ACCOUNT + "/" + account.getUsername())
             .contentType(MediaType.APPLICATION_JSON))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$", is("Success.")));
+        .andExpect(status().isOk());
 
     assertEquals(0, accountRepository.count());
 
@@ -164,7 +163,7 @@ public class AccountControllerIntegrationTest {
     mockMvc.perform(post(Routes.ACCOUNT + "/" + account.getUsername() + "/" + project.getProjectId())
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString("CONTENT_CREATOR")))
-        .andExpect(status().isForbidden());
+        .andExpect(status().isConflict());
   }
 
   @Test
