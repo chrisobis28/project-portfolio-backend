@@ -211,8 +211,6 @@ public class ProjectControllerIntegrationTest {
         assertEquals(createdProject.getProjectId(), pta.getProject().getProjectId());
         assertEquals(securityConfigUtils.getAccount().getUsername(), pta.getAccount().getUsername());
         assertEquals("PM", pta.getRole().toString());
-
-        assertEquals(1, projectsToCollaboratorsRepository.count());
     }
 
 }

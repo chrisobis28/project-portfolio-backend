@@ -12,7 +12,10 @@ import com.team2a.ProjectPortfolio.CustomExceptions.NotFoundException;
 import com.team2a.ProjectPortfolio.CustomExceptions.ProjectNotFoundException;
 import com.team2a.ProjectPortfolio.Routes;
 import com.team2a.ProjectPortfolio.Services.AccountService;
+import com.team2a.ProjectPortfolio.dto.AccountTransfer;
+import com.team2a.ProjectPortfolio.dto.ProjectTransfer;
 import jakarta.validation.Valid;
+import java.util.List;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -152,5 +155,36 @@ public class AccountController {
     public ResponseEntity<String> getRole (@PathVariable("username") String username,
                                                  @PathVariable("projectId") UUID projectId) {
         return ResponseEntity.ok(accountService.getRole(username, projectId));
+    }
+
+    /**
+     * Retrieve all Accounts on the platform for admin purposes
+     * @return - the list of Accounts
+     */
+    @GetMapping("")
+    @PreAuthorize(ADMIN_ONLY)
+    public ResponseEntity<List<AccountTransfer>> getAccounts () {
+        return ResponseEntity.ok(accountService.getAccounts());
+    }
+
+    /**
+     * Gets the projects an account has a permission on
+     * @param username - the username of the account to be searched
+     * @return - the list of all project ids
+     */
+    @GetMapping("/role/{username}")
+    @PreAuthorize(ADMIN_ONLY)
+    public ResponseEntity<List<ProjectTransfer>> getProjects (@PathVariable("username") String username) {
+        return ResponseEntity.ok(accountService.getProjects(username));
+    }
+
+    /**
+     * Gets the accounts username with the given name
+     * @param name - the name of the account to be searched
+     * @return - the list of all account usernames with the given name
+     */
+    @GetMapping("/public/name/{name}")
+    public ResponseEntity<List<String>> getAccountByName (@PathVariable("name") String name) {
+        return ResponseEntity.ok(accountService.getAccountsByName(name));
     }
 }
