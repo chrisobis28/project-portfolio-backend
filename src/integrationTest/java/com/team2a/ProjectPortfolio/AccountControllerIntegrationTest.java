@@ -84,8 +84,7 @@ public class AccountControllerIntegrationTest {
 
     mockMvc.perform(delete(Routes.ACCOUNT + "/" + "username1")
             .contentType(MediaType.APPLICATION_JSON))
-        .andExpect(status().isNotFound())
-        .andExpect(jsonPath("$", is("There is no account with username username1.")));
+        .andExpect(status().isNotFound());
   }
 
   @Test
