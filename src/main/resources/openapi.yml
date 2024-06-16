@@ -144,6 +144,36 @@ paths:
         '404':
           description: Project not found
 
+  /project/{projectId}/template/:
+    post:
+      tags:
+        - Project
+      summary: Update the Template of a Project.
+      operationId: updateProjectTemplate
+      description: Updates the Template of Project.
+      parameters:
+        - name: projectId
+          in: path
+          description: Username of the account to add the role to
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Template'
+      responses:
+        '201':
+          description: Template of project updated successfully.
+        '400':
+          description: Bad Request - Invalid fields
+        '403':
+          description: Forbidden - Project already has this template
+        '404':
+          description: Not Found - Template or Project not found
+
 #Media
   /media:
     put:

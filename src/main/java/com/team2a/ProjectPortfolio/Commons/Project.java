@@ -48,7 +48,6 @@ public class Project {
     @JoinColumn(name="TEMPLATE_NAME")
     @Getter
     @Setter
-    @JsonIgnore
     private Template template;
 
     @Getter
