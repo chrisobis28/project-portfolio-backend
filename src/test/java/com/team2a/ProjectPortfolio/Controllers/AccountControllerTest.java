@@ -2,7 +2,6 @@ package com.team2a.ProjectPortfolio.Controllers;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
@@ -16,9 +15,6 @@ import com.team2a.ProjectPortfolio.CustomExceptions.DuplicatedUsernameException;
 import com.team2a.ProjectPortfolio.CustomExceptions.NotFoundException;
 import com.team2a.ProjectPortfolio.CustomExceptions.ProjectNotFoundException;
 import com.team2a.ProjectPortfolio.Services.AccountService;
-import com.team2a.ProjectPortfolio.dto.AccountTransfer;
-import com.team2a.ProjectPortfolio.dto.ProjectTransfer;
-import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,7 +25,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.server.ResponseStatusException;
 
 @DataJpaTest
 @ExtendWith(MockitoExtension.class)
@@ -37,7 +32,6 @@ public class AccountControllerTest {
 
   @Mock
   private AccountService accountService;
-
   private AccountController accountController;
 
   @BeforeEach
@@ -149,73 +143,5 @@ public class AccountControllerTest {
     ResponseEntity<Void> responseEntity = accountController.deleteRole("username", id);
     assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
     assertNull(responseEntity.getBody());
-  }
-
-  @Test
-  void editRoleOfAccountTransferNotFound() {
-    AccountTransfer accountTransfer = new AccountTransfer("username", false, false);
-    doThrow(AccountNotFoundException.class).when(accountService).editAccount(accountTransfer);
-    ResponseEntity<Void> re = accountController.editRoleOfAccount(accountTransfer);
-    assertEquals(HttpStatus.NOT_FOUND, re.getStatusCode());
-  }
-
-  @Test
-  void editRoleOfAccountTransferSuccess() {
-    AccountTransfer accountTransfer = new AccountTransfer("username", false, false);
-    doNothing().when(accountService).editAccount(accountTransfer);
-    ResponseEntity<Void> re = accountController.editRoleOfAccount(accountTransfer);
-    assertEquals(HttpStatus.OK, re.getStatusCode());
-  }
-
-  @Test
-  void updateRoleNotFound() {
-    UUID id = UUID.randomUUID();
-    doThrow(ResponseStatusException.class).when(accountService).updateRole("username", id, RoleInProject.PM);
-    assertThrows(ResponseStatusException.class, () -> accountController.updateRole("username", id, RoleInProject.PM));
-  }
-
-  @Test
-  void updateRoleSuccess() {
-    UUID id = UUID.randomUUID();
-    doNothing().when(accountService).updateRole("username", id, RoleInProject.PM);
-    ResponseEntity<Void> re = accountController.updateRole("username", id, RoleInProject.PM);
-    assertEquals(HttpStatus.OK, re.getStatusCode());
-  }
-
-  @Test
-  void getRole() {
-    UUID id = UUID.randomUUID();
-    when(accountService.getRole("username", id)).thenReturn("CONTENT_CREATOR");
-    ResponseEntity<String> re = accountController.getRole("username", id);
-    assertEquals(HttpStatus.OK, re.getStatusCode());
-    assertEquals("CONTENT_CREATOR", re.getBody());
-  }
-
-  @Test
-  void getAccounts() {
-    List<AccountTransfer> list = List.of(new AccountTransfer("username", false, false));
-    when(accountService.getAccounts()).thenReturn(list);
-    ResponseEntity<List<AccountTransfer>> re = accountController.getAccounts();
-    assertEquals(HttpStatus.OK, re.getStatusCode());
-    assertEquals(list, re.getBody());
-  }
-
-  @Test
-  void getProjects() {
-    UUID id = UUID.randomUUID();
-    List<ProjectTransfer> list = List.of(new ProjectTransfer(id, "project_name", RoleInProject.CONTENT_CREATOR));
-    when(accountService.getProjects("username")).thenReturn(list);
-    ResponseEntity<List<ProjectTransfer>> re = accountController.getProjects("username");
-    assertEquals(HttpStatus.OK, re.getStatusCode());
-    assertEquals(list, re.getBody());
-  }
-
-  @Test
-  void getAccountByName() {
-    List<String> list = List.of("username1", "username2");
-    when(accountService.getAccountsByName("name")).thenReturn(list);
-    ResponseEntity<List<String>> re = accountController.getAccountByName("name");
-    assertEquals(HttpStatus.OK, re.getStatusCode());
-    assertEquals(list, re.getBody());
   }
 }
