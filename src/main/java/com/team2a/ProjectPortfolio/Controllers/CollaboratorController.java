@@ -163,7 +163,6 @@ public class CollaboratorController {
     }
 
     @GetMapping("/request/{requestId}")
-    @PreAuthorize(PM_IN_PROJECT)
     public ResponseEntity<List<RequestCollaboratorsProjects>> getCollaboratorsForRequest (@PathVariable("requestId") UUID requestId) {
         try {
             List<RequestCollaboratorsProjects> body = collaboratorService.getCollaboratorsForRequest(requestId);
@@ -174,7 +173,6 @@ public class CollaboratorController {
     }
 
     @PostMapping("/request/{requestId}/{collaboratorId}")
-    @PreAuthorize(USER_IN_PROJECT)
     public ResponseEntity<Collaborator> addCollaboratorToRequest (@PathVariable("requestId") UUID requestId,
                                                                   @PathVariable("collaboratorId") UUID collaboratorId,
                                                                   @RequestBody Boolean isRemove) {

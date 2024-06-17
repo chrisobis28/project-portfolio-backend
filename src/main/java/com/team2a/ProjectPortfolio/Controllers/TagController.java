@@ -149,7 +149,6 @@ public class TagController {
     }
 
     @GetMapping("/request/{requestId}")
-    @PreAuthorize(PM_IN_PROJECT)
     public ResponseEntity<List<RequestTagProject>> getTagsForRequest (@PathVariable("requestId") UUID requestId) {
         try {
             List<RequestTagProject> body = tagService.getTagsForRequest(requestId);
@@ -160,7 +159,6 @@ public class TagController {
     }
 
     @PostMapping("/request/{requestId}/{tagId}")
-    @PreAuthorize(USER_IN_PROJECT)
     public ResponseEntity<Tag> addTagToRequest (@PathVariable("requestId") UUID requestId,
                                                 @PathVariable("tagId") UUID tagId,
                                                 @RequestBody Boolean isRemove) {

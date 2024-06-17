@@ -119,7 +119,6 @@ public class LinkController {
     }
 
     @PutMapping("/request/remove/{requestId}/{linkId}")
-    @PreAuthorize(USER_IN_PROJECT)
     public ResponseEntity<Link> addRemovedLinkToRequest (@PathVariable("requestId") UUID requestId,
                                                   @PathVariable("linkId") UUID linkId){
         try {
@@ -131,7 +130,6 @@ public class LinkController {
     }
 
     @PutMapping("request/add/{requestId}")
-    @PreAuthorize(USER_IN_PROJECT)
     public ResponseEntity<Link> addAddedLinkToRequest (@PathVariable("requestId") UUID requestId,
                                                        @RequestBody Link link) {
         try {

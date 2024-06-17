@@ -5,6 +5,7 @@ import static com.team2a.ProjectPortfolio.security.Permissions.PM_IN_PROJECT;
 import static com.team2a.ProjectPortfolio.security.Permissions.USER_SPECIFIC;
 
 import com.team2a.ProjectPortfolio.Commons.Account;
+import com.team2a.ProjectPortfolio.Commons.Project;
 import com.team2a.ProjectPortfolio.Commons.RoleInProject;
 import com.team2a.ProjectPortfolio.CustomExceptions.AccountNotFoundException;
 import com.team2a.ProjectPortfolio.CustomExceptions.DuplicatedUsernameException;
@@ -13,6 +14,8 @@ import com.team2a.ProjectPortfolio.CustomExceptions.ProjectNotFoundException;
 import com.team2a.ProjectPortfolio.Routes;
 import com.team2a.ProjectPortfolio.Services.AccountService;
 import jakarta.validation.Valid;
+
+import java.util.List;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -152,5 +155,10 @@ public class AccountController {
     public ResponseEntity<String> getRole (@PathVariable("username") String username,
                                                  @PathVariable("projectId") UUID projectId) {
         return ResponseEntity.ok(accountService.getRole(username, projectId));
+    }
+
+    @GetMapping("/public/managed/{username}")
+    public ResponseEntity<List<Project>> getProjectsAccountManages (@PathVariable("username") String username) {
+        return ResponseEntity.ok(accountService.getProjectsAccountManages(username));
     }
 }

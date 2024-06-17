@@ -40,7 +40,7 @@ public class Request {
     @Column(name="IS_COUNTEROFFER")
     @Getter
     @Setter
-    private boolean isCounterOffer;
+    private Boolean isCounterOffer;
 
     @Getter
     @Setter

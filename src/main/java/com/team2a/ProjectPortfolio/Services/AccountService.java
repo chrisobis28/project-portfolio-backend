@@ -178,4 +178,15 @@ public class AccountService {
         }
         return list.get(0).getRole().toString();
     }
+
+    public List<Project> getProjectsAccountManages(String username) {
+        List<Project> projects = projectsToAccountsRepository
+                .findAllByAccountUsername(username)
+                .stream()
+                .filter(x -> x.getRole().equals(RoleInProject.PM))
+                .map(ProjectsToAccounts::getProject)
+                .toList();
+
+        return projects;
+    }
 }

@@ -132,8 +132,7 @@ public class MediaController {
         }
     }
 
-    @PostMapping("/request/remove/{requestId}/{mediaID}")
-    @PreAuthorize(USER_IN_PROJECT)
+    @PostMapping("/request/remove/{requestId}/{mediaId}")
     public ResponseEntity<Media> addRemovedMediaToRequest (@PathVariable("requestId") UUID requestId,
                                                            @PathVariable("mediaId") UUID mediaId) {
         try{
@@ -145,7 +144,6 @@ public class MediaController {
     }
 
     @PostMapping("request/add/{requestId}")
-    @PreAuthorize(USER_IN_PROJECT)
     public ResponseEntity<Media> addAddedMediaToRequest (@PathVariable("requestId") UUID requestId,
                                                          @RequestParam("file") MultipartFile file,
                                                          @RequestParam String name) {
