@@ -116,4 +116,28 @@ class ProjectControllerTest {
         assertNull(response.getBody());
         verify(projectService, times(1)).updateProjectTemplate(projectId, template);
     }
+
+    @Test
+    void getTemplateByProjectIdSuccess() {
+        UUID projectId = UUID.randomUUID();
+        Template template = new Template("TempTitle",
+                "StandardDescription", 6);
+        Project project1 = new Project("Title1", "Description1", false, template);
+        when(projectService.getTemplateByProjectId(projectId)).thenReturn(template);
+        ResponseEntity<Template> response = projectController.getTemplateByProjectId(projectId);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(template, response.getBody());
+    }
+
+    @Test
+    void getTemplateByProjectIdNotFound() {
+        UUID projectId = UUID.randomUUID();
+        Template template = new Template("TempTitle",
+                "StandardDescription", 6);
+        when(projectService.getTemplateByProjectId(projectId)).thenThrow(EntityNotFoundException.class);
+        ResponseEntity<Template> response = projectController.getTemplateByProjectId(projectId);
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertNull(response.getBody());
+        verify(projectService, times(1)).getTemplateByProjectId(projectId);
+    }
 }
