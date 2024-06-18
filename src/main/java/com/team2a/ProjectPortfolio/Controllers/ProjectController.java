@@ -5,9 +5,11 @@ import static com.team2a.ProjectPortfolio.security.Permissions.PM_IN_PROJECT;
 import static com.team2a.ProjectPortfolio.security.Permissions.PM_ONLY;
 
 import com.team2a.ProjectPortfolio.Commons.Project;
+import com.team2a.ProjectPortfolio.Commons.Template;
 import com.team2a.ProjectPortfolio.Routes;
 import com.team2a.ProjectPortfolio.Services.ProjectService;
 import com.team2a.ProjectPortfolio.WebSocket.ProjectWebSocketHandler;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -97,6 +99,24 @@ public class ProjectController {
         Project response = projectService.createProject(project);
         webSocketHandler.broadcast("added " + response.getProjectId());
         return ResponseEntity.ok(response);
+    }
+
+    /**
+     * Updates the template of a project, this could be adding, updating or deleting the template
+     * @param projectId the id of the project
+     * @param template the new template
+     * @return a response entity with the project with the updated template
+     */
+    @PutMapping("/{projectId}/template/")
+    @PreAuthorize(PM_IN_PROJECT)
+    public ResponseEntity<Project> updateProjectTemplate (@PathVariable("projectId") UUID projectId,
+                                                          @RequestBody Template template) {
+        try {
+            Project response = projectService.updateProjectTemplate(projectId, template);
+            return ResponseEntity.ok(response);
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
 }
