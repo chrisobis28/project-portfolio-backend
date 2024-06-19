@@ -3,6 +3,7 @@ package com.team2a.ProjectPortfolio.Services;
 import com.team2a.ProjectPortfolio.Commons.Project;
 import com.team2a.ProjectPortfolio.Commons.ProjectsToAccounts;
 import com.team2a.ProjectPortfolio.Commons.RoleInProject;
+import com.team2a.ProjectPortfolio.Commons.Template;
 import com.team2a.ProjectPortfolio.Repositories.ProjectRepository;
 import com.team2a.ProjectPortfolio.Repositories.ProjectsToAccountsRepository;
 import com.team2a.ProjectPortfolio.security.SecurityUtils;
@@ -123,5 +124,19 @@ public class ProjectService {
             .map(ProjectsToAccounts::getRole)
             .findFirst()
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN, "You do not belong to this project"));
+    }
+
+    /**
+     * Updates the template of a project, this could be adding, updating or deleting the template
+     * @param projectId the if of the project
+     * @param template the new template
+     * @return the project with the updated template
+     */
+    public Project updateProjectTemplate (UUID projectId, Template template) {
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Project not found"));
+        project.setTemplate(template);
+        project = projectRepository.save(project);
+        return project;
     }
 }
