@@ -1,5 +1,6 @@
 package com.team2a.ProjectPortfolio.Controllers;
 
+import static com.team2a.ProjectPortfolio.Routes.hostLink;
 import static com.team2a.ProjectPortfolio.security.Permissions.EDITOR_IN_PROJECT;
 import static com.team2a.ProjectPortfolio.security.Permissions.PM_ONLY;
 
@@ -20,7 +21,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(Routes.TAGS)
-@CrossOrigin("http://localhost:4200")
+@CrossOrigin(hostLink)
 public class TagController {
 
     private final TagService tagService;

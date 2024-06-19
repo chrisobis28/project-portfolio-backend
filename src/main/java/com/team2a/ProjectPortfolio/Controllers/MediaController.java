@@ -1,5 +1,6 @@
 package com.team2a.ProjectPortfolio.Controllers;
 
+import static com.team2a.ProjectPortfolio.Routes.hostLink;
 import static com.team2a.ProjectPortfolio.security.Permissions.EDITOR_IN_PROJECT;
 
 import com.team2a.ProjectPortfolio.Commons.Media;
@@ -20,7 +21,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping(Routes.MEDIA)
-@CrossOrigin("http://localhost:4200")
+@CrossOrigin(hostLink)
 public class MediaController {
 
     private final MediaService mediaService;

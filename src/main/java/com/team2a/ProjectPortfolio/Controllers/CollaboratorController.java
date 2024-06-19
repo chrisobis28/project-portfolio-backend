@@ -1,5 +1,6 @@
 package com.team2a.ProjectPortfolio.Controllers;
 
+import static com.team2a.ProjectPortfolio.Routes.hostLink;
 import static com.team2a.ProjectPortfolio.security.Permissions.PM_IN_PROJECT;
 import static com.team2a.ProjectPortfolio.security.Permissions.PM_ONLY;
 
@@ -21,7 +22,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping(Routes.COLLABORATOR)
-@CrossOrigin("http://localhost:4200")
+@CrossOrigin(hostLink)
 public class CollaboratorController {
     private final CollaboratorService collaboratorService;
 

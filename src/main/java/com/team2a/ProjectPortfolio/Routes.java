@@ -11,5 +11,6 @@ public class Routes {
     public final static String MEDIA = "/media";
     public final static String ACCOUNT = "/account";
 
+    public final static String hostLink = "https://frontend-project.eu.ngrok.io";
     public final static String AUTHENTICATION = "/authentication";
 }

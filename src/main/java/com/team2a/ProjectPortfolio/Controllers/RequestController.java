@@ -1,6 +1,7 @@
 package com.team2a.ProjectPortfolio.Controllers;
 
 
+import static com.team2a.ProjectPortfolio.Routes.hostLink;
 import static com.team2a.ProjectPortfolio.security.Permissions.ADMIN_ONLY;
 import static com.team2a.ProjectPortfolio.security.Permissions.IS_CREATOR_OR_PM_IN_PROJECT;
 import static com.team2a.ProjectPortfolio.security.Permissions.PM_IN_PROJECT;
@@ -20,7 +21,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping(Routes.REQUESTS)
-@CrossOrigin("http://localhost:4200/")
+@CrossOrigin(hostLink)
 public class RequestController {
 
     private final RequestService requestService;

@@ -19,6 +19,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import static com.team2a.ProjectPortfolio.Routes.hostLink;
+
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
@@ -77,7 +79,6 @@ public class SecurityConfig {
             .sessionManagement(sessionManagement ->
                 sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .httpBasic(Customizer.withDefaults())
-            .headers(headers -> headers.frameOptions().sameOrigin())
             .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class)
             .build();
     }
@@ -88,7 +89,7 @@ public class SecurityConfig {
             @Override
             public void addCorsMappings (CorsRegistry registry) {
                 registry.addMapping("/**")
-                    .allowedOrigins("http://localhost:4200")
+                    .allowedOrigins(hostLink)
                     .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                     .allowedHeaders("*")
                     .allowCredentials(true);

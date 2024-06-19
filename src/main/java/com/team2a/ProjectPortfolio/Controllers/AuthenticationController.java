@@ -25,9 +25,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+import static com.team2a.ProjectPortfolio.Routes.hostLink;
+
 @RestController
 @RequestMapping(Routes.AUTHENTICATION)
-@CrossOrigin("http://localhost:4200")
+@CrossOrigin(hostLink)
 public class AuthenticationController {
 
     private final AuthenticationService authenticationService;
@@ -80,10 +82,13 @@ public class AuthenticationController {
         cookie.setSecure(true);
         cookie.setPath("/");
         cookie.setMaxAge(expiration / 1000);
-        response.addCookie(cookie);
+        // Manually set the SameSite=None attribute
+        String cookieHeader = String.format("%s=%s; HttpOnly; Secure; Path=/; Max-Age=%d; SameSite=None;Domain=.eu.ngrok.io",
+                cookieName, token, expiration/1000);
+        response.addHeader("Set-Cookie", cookieHeader);
 
         Instant now = Instant.now();
-        Instant expirationInstant = now.plus(60, ChronoUnit.MINUTES);
+        Instant expirationInstant = now.plus(120, ChronoUnit.MINUTES);
         Date expirationDate = Date.from(expirationInstant);
 
         return ResponseEntity.ok(expirationDate.toString());
@@ -101,7 +106,12 @@ public class AuthenticationController {
         cookie.setSecure(true);
         cookie.setPath("/");
         cookie.setMaxAge(0);
-        response.addCookie(cookie);
+
+// Manually set the SameSite=None attribute
+        String cookieHeader = String.format("%s=%s; Path=%s; HttpOnly; Secure; SameSite=None; Max-Age=0",
+                cookie.getName(), cookie.getValue(), cookie.getPath());
+
+        response.setHeader("Set-Cookie", cookieHeader);
         return ResponseEntity.ok("Logged out successfully");
     }
 

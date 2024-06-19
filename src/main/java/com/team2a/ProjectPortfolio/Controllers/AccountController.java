@@ -1,5 +1,6 @@
 package com.team2a.ProjectPortfolio.Controllers;
 
+import static com.team2a.ProjectPortfolio.Routes.hostLink;
 import static com.team2a.ProjectPortfolio.security.Permissions.ADMIN_ONLY;
 import static com.team2a.ProjectPortfolio.security.Permissions.PM_IN_PROJECT;
 import static com.team2a.ProjectPortfolio.security.Permissions.USER_SPECIFIC;
@@ -25,7 +26,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(Routes.ACCOUNT)
-@CrossOrigin("http://localhost:4200")
+@CrossOrigin(hostLink)
 public class AccountController {
 
     private final AccountService accountService;
