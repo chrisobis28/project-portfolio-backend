@@ -7,6 +7,7 @@ import com.team2a.ProjectPortfolio.Commons.RoleInProject;
 import com.team2a.ProjectPortfolio.Repositories.AccountRepository;
 import com.team2a.ProjectPortfolio.Repositories.ProjectRepository;
 import com.team2a.ProjectPortfolio.Repositories.ProjectsToAccountsRepository;
+import com.team2a.ProjectPortfolio.dto.AccountDisplay;
 import com.team2a.ProjectPortfolio.dto.AccountTransfer;
 import com.team2a.ProjectPortfolio.dto.ProjectTransfer;
 import java.util.List;
@@ -200,5 +201,17 @@ public class AccountService {
      */
     public List<String> getAllUsernames () {
         return accountRepository.findAll().stream().map(Account::getUsername).toList();
+    }
+
+
+    /**
+     * Retrieves all accounts in a project
+     * @param projectId - the id of the project
+     * @return - the list of all accounts in the project
+     */
+    public List<AccountDisplay> getAccountsInProject (UUID projectId) {
+        return projectsToAccountsRepository.findAll().stream().filter(x -> x.getProject().getProjectId().equals(projectId))
+            .map(x -> new AccountDisplay(x.getAccount().getUsername(),
+                x.getAccount().getName(), x.getRole().toString())).toList();
     }
 }

@@ -12,6 +12,7 @@ import com.team2a.ProjectPortfolio.Routes;
 import com.team2a.ProjectPortfolio.Services.AccountService;
 import com.team2a.ProjectPortfolio.WebSocket.AccountProjectWebSocketHandler;
 import com.team2a.ProjectPortfolio.WebSocket.AccountWebSocketHandler;
+import com.team2a.ProjectPortfolio.dto.AccountDisplay;
 import com.team2a.ProjectPortfolio.dto.AccountTransfer;
 import com.team2a.ProjectPortfolio.dto.ProjectTransfer;
 import jakarta.validation.Valid;
@@ -197,5 +198,16 @@ public class AccountController {
     @PreAuthorize(PM_ONLY)
     public ResponseEntity<List<String>> getAllUsernames () {
         return ResponseEntity.ok(accountService.getAllUsernames());
+    }
+
+    /**
+     * Gets all accounts in a project
+     * @param projectId - the id of the project
+     * @return - the list of all accounts in the project
+     */
+    @GetMapping("/project/{projectId}")
+    @PreAuthorize(PM_IN_PROJECT)
+    public ResponseEntity<List<AccountDisplay>> getAccountsInProject (@PathVariable("projectId") UUID projectId) {
+        return ResponseEntity.ok(accountService.getAccountsInProject(projectId));
     }
 }

@@ -21,6 +21,7 @@ import com.team2a.ProjectPortfolio.CustomExceptions.ProjectNotFoundException;
 import com.team2a.ProjectPortfolio.Repositories.AccountRepository;
 import com.team2a.ProjectPortfolio.Repositories.ProjectRepository;
 import com.team2a.ProjectPortfolio.Repositories.ProjectsToAccountsRepository;
+import com.team2a.ProjectPortfolio.dto.AccountDisplay;
 import com.team2a.ProjectPortfolio.dto.AccountTransfer;
 import com.team2a.ProjectPortfolio.dto.ProjectTransfer;
 import java.util.List;
@@ -263,6 +264,18 @@ public class AccountServiceTest {
         List<String> usernames = accountService.getAccountsByName("name");
         assertEquals(1, usernames.size());
         assertEquals("username", usernames.get(0));
+    }
+
+    @Test
+    void testGetAccountsInProject(){
+        when(projectsToAccountsRepository.findAll()).thenReturn(List.of(pta));
+        List<AccountDisplay> accounts = accountService.getAccountsInProject(projectId);
+        assertEquals(1, accounts.size());
+        AccountDisplay account = accounts.get(0);
+        assertEquals(a.getUsername(), account.getUsername());
+        assertEquals(a.getName(), account.getName());
+        assertEquals(RoleInProject.CONTENT_CREATOR.toString(), account.getRoleInProject());
+
     }
 
 }
