@@ -143,7 +143,7 @@ public class AccountControllerTest {
 
   @Test
   void testGetAccounts() {
-    List<AccountTransfer> accounts = List.of(new AccountTransfer(null,null), new AccountTransfer(null,null));
+    List<AccountTransfer> accounts = List.of(new AccountTransfer(null,false,false), new AccountTransfer(null,false,false));
     when(accountService.getAccounts()).thenReturn(accounts);
 
     ResponseEntity<List<AccountTransfer>> response = accountController.getAccounts();
@@ -184,6 +184,7 @@ public class AccountControllerTest {
 
     assertEquals(HttpStatus.OK, response.getStatusCode());
     assertEquals(usernames, response.getBody());
+  }
 
   @Test
   void editRoleOfAccountTransferNotFound() {
