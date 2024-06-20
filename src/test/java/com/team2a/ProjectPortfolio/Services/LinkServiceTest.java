@@ -1,17 +1,23 @@
 package com.team2a.ProjectPortfolio.Services;
 
 import com.team2a.ProjectPortfolio.Commons.Project;
+import com.team2a.ProjectPortfolio.Commons.Request;
+import com.team2a.ProjectPortfolio.CustomExceptions.NotFoundException;
 import com.team2a.ProjectPortfolio.Repositories.LinkRepository;
 import com.team2a.ProjectPortfolio.Repositories.ProjectRepository;
+import com.team2a.ProjectPortfolio.Repositories.RequestLinkProjectRepository;
+import com.team2a.ProjectPortfolio.Repositories.RequestRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import com.team2a.ProjectPortfolio.Commons.Link;
 import jakarta.persistence.EntityNotFoundException;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -32,10 +38,16 @@ public class LinkServiceTest {
     private LinkRepository lr;
     @InjectMocks
     private LinkService ls;
+    @Mock
+    private RequestLinkProjectRepository requestLinkProjectRepository;
+    @Mock
+    private RequestRepository requestRepository;
 
     @BeforeEach
     void setUp () {
-        ls = new LinkService(lr,pr);
+        requestLinkProjectRepository = Mockito.mock(RequestLinkProjectRepository.class);
+        requestRepository = Mockito.mock(RequestRepository.class);
+        ls = new LinkService(lr,pr,requestLinkProjectRepository,requestRepository );
     }
 
     @Test
@@ -131,6 +143,67 @@ public class LinkServiceTest {
     void deleteLinkByIdNotFound() {
         when(lr.findById(any(UUID.class))).thenReturn(Optional.empty());
         assertThrows(EntityNotFoundException.class, () -> ls.deleteLinkById(UUID.randomUUID()));
+    }
+
+    @Test
+    void testAddRemovedLinkToRequestOk () {
+        Link l = new Link();
+        Request r = new Request();
+
+     when(lr.findById(any())).thenReturn(Optional.of(l));
+        when(requestRepository.findById(any())).thenReturn(Optional.of(r));
+
+        assertEquals(ls.addRemovedLinkToRequest(UUID.randomUUID(), UUID.randomUUID()), l);
+        verify(requestLinkProjectRepository).save(any());
+    }
+
+    @Test
+    void testAddRemovedLinkRequestNotFound () {
+        when(lr.findById(any())).thenReturn(Optional.empty());
+        assertThrows(EntityNotFoundException.class, () -> ls.addRemovedLinkToRequest(UUID.randomUUID(),
+                UUID.randomUUID()));
+    }
+
+    @Test
+    void testAddRemovedLinkRequestNotFound2 () {
+
+        Request r = new Request();
+        Link l = new Link();
+        when(lr.findById(any())).thenReturn(Optional.of(l));
+        when(requestRepository.findById(any())).thenReturn(Optional.empty());
+        assertThrows(EntityNotFoundException.class, () -> ls.addRemovedLinkToRequest(UUID.randomUUID(),
+                UUID.randomUUID()));
+
+    }
+
+    @Test
+    void testAddAddedLinkRequestOk () {
+        Request r = new Request();
+        when(requestRepository.findById(any())).thenReturn(Optional.of(r));
+        Link l = new Link();
+        assertEquals(ls.addAddedLinkToRequest(UUID.randomUUID(), l), l);
+        verify(lr).save(l);
+        verify(requestLinkProjectRepository).save(any());
+    }
+
+    @Test
+    void testAddAddedNotFound () {
+        when(requestRepository.findById(any())).thenThrow(new NotFoundException());
+        assertThrows(NotFoundException.class, () -> ls.addAddedLinkToRequest(UUID.randomUUID(), null));
+    }
+
+    @Test
+    void testGetLinksRequestOk () {
+        Request r = new Request();
+        r.setRequestLinkProjects(new ArrayList<>());
+        when(requestRepository.findById(any())).thenReturn(Optional.of(r));
+        assertEquals(new ArrayList<>(), ls.getLinksForRequest(UUID.randomUUID()));
+    }
+
+    @Test
+    void testGetLinkNotFound () {
+        when(requestRepository.findById(any())).thenThrow(new EntityNotFoundException());
+        assertThrows(EntityNotFoundException.class, () -> ls.getLinksForRequest(UUID.randomUUID()));
     }
 
 }

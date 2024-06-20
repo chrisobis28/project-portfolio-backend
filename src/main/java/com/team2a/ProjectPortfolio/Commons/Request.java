@@ -58,6 +58,7 @@ public class Request {
 
 
     @Getter
+    @Setter
     @OneToMany(cascade=CascadeType.ALL, orphanRemoval = true)
     @OnDelete(action= OnDeleteAction.CASCADE)
     @JoinColumn(name="REQUEST_ID", updatable = false, insertable = false)
@@ -65,6 +66,7 @@ public class Request {
     private List<RequestTagProject> requestTagProjects = new ArrayList<>();
 
     @Getter
+    @Setter
     @OneToMany(cascade=CascadeType.ALL, orphanRemoval = true)
     @OnDelete(action= OnDeleteAction.CASCADE)
     @JoinColumn(name="REQUEST_ID", updatable = false, insertable = false)
@@ -72,6 +74,7 @@ public class Request {
     private List<RequestMediaProject> requestMediaProjects = new ArrayList<>();
 
     @Getter
+    @Setter
     @OneToMany(cascade=CascadeType.ALL, orphanRemoval = true)
     @OnDelete(action= OnDeleteAction.CASCADE)
     @JoinColumn(name="REQUEST_ID", updatable = false, insertable = false)
@@ -80,6 +83,7 @@ public class Request {
 
 
     @Getter
+    @Setter
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @OnDelete(action= OnDeleteAction.CASCADE)
     @JoinColumn(name="REQUEST_ID", updatable = false, insertable = false)

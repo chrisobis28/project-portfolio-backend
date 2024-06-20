@@ -5,16 +5,15 @@ import com.team2a.ProjectPortfolio.Repositories.*;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import java.util.List;
-import java.util.Optional;
+
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.access.prepost.PreAuthorize;
+
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import static com.team2a.ProjectPortfolio.security.Permissions.PM_IN_PROJECT;
-import static com.team2a.ProjectPortfolio.security.Permissions.USER_IN_PROJECT;
+
 
 @Service
 public class TagService {
@@ -30,10 +29,11 @@ public class TagService {
 
     /**
      * Constructor for the tag service
-     *
-     * @param tagRepository the tag repository
-     * @param tagToProjectRepository the tag to project repository
-     * @param projectRepository the project repository
+     * @param tagRepository
+     * @param tagToProjectRepository
+     * @param projectRepository
+     * @param requestTagProjectRepository
+     * @param requestRepository
      */
     @Autowired
     public TagService(TagRepository tagRepository, TagToProjectRepository tagToProjectRepository,

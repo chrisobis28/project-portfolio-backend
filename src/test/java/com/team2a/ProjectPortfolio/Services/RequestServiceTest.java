@@ -1,12 +1,8 @@
 package com.team2a.ProjectPortfolio.Services;
 
-import com.team2a.ProjectPortfolio.Commons.Account;
-import com.team2a.ProjectPortfolio.Commons.Project;
-import com.team2a.ProjectPortfolio.Commons.Request;
-import com.team2a.ProjectPortfolio.Commons.Role;
-import com.team2a.ProjectPortfolio.Repositories.AccountRepository;
-import com.team2a.ProjectPortfolio.Repositories.ProjectRepository;
-import com.team2a.ProjectPortfolio.Repositories.RequestRepository;
+import com.team2a.ProjectPortfolio.Commons.*;
+import com.team2a.ProjectPortfolio.CustomExceptions.NotFoundException;
+import com.team2a.ProjectPortfolio.Repositories.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -32,15 +28,35 @@ class RequestServiceTest {
     @Mock
     private ProjectRepository projectRepository;
 
+    @Mock
+    private TagToProjectRepository tagToProjectRepository;
+
+    @Mock
+    private ProjectsToCollaboratorsRepository projectsToCollaboratorsRepository;
+
+    @Mock
+    private MediaRepository mediaRepository;
+
+    @Mock
+    private LinkRepository linkRepository;
+
     @BeforeEach
     void setup() {
         sut = new RequestService();
         accountRepository = Mockito.mock(AccountRepository.class);
         requestRepository = Mockito.mock(RequestRepository.class);
         projectRepository = Mockito.mock(ProjectRepository.class);
+        tagToProjectRepository = mock(TagToProjectRepository.class);
+        projectsToCollaboratorsRepository = mock(ProjectsToCollaboratorsRepository.class);
+        mediaRepository = mock(MediaRepository.class);
+        linkRepository = mock(LinkRepository.class);
         sut.setAccountRepository(accountRepository);
         sut.setRequestRepository(requestRepository);
         sut.setProjectRepository(projectRepository);
+        sut.setTagToProjectRepository(tagToProjectRepository);
+        sut.setProjectsToCollaboratorsRepository(projectsToCollaboratorsRepository);
+        sut.setMediaRepository(mediaRepository);
+        sut.setLinkRepository(linkRepository);
     }
 
     @Test
@@ -192,16 +208,76 @@ class RequestServiceTest {
 
     @Test
     void testAcceptRequestOk() throws Exception {
-        UUID id1 = UUID.randomUUID();
-        Project p = new Project("title", "desc", false);
-        Request r = new Request("title", "description", false, new Account(), p);
-        r.setNewTitle("new title");
-        r.setNewDescription("new description");
-        when(requestRepository.findById(id1)).thenReturn(Optional.of(r));
-        sut.acceptRequest(id1);
-        assertEquals(p.getTitle(), "new title");
-        assertEquals(p.getDescription(), "new description");
+        RequestTagProject r1add = new RequestTagProject(new Request(), new Tag(), false);
+        RequestTagProject r1rem = new RequestTagProject(new Request(), new Tag(), true);
+
+        RequestCollaboratorsProjects r2add = new RequestCollaboratorsProjects( new Collaborator(),new Request(), false);
+        RequestCollaboratorsProjects r2rem = new RequestCollaboratorsProjects( new Collaborator(),new Request(), true);
+
+        RequestMediaProject r3add = new RequestMediaProject(new Request(), new Media(), false);
+        RequestMediaProject r3rem = new RequestMediaProject(new Request(), new Media(), true);
+
+        RequestLinkProject r4add = new RequestLinkProject(new Request(), new Link(), false);
+        RequestLinkProject r4rem = new RequestLinkProject(new Request(), new Link(), true);
+
+        Request r = new Request();
+        r.setRequestTagProjects(List.of(r1add, r1rem));
+        r.setRequestCollaboratorsProjects(List.of(r2add, r2rem));
+        r.setRequestMediaProjects(List.of(r3add, r3rem));
+        r.setRequestLinkProjects(List.of(r4add, r4rem));
+
+        Project p = new Project();
+        r.setProject(p);
+
+        when(requestRepository.findById(any())).thenReturn(Optional.of(r));
+        sut.acceptRequest(UUID.randomUUID());
+
         verify(projectRepository).save(p);
-        verify(requestRepository).delete(r);
+
+        verify(tagToProjectRepository).findAllByProjectProjectIdAndTagTagId(any(), any());
+        verify(tagToProjectRepository).deleteAll(any());
+        verify(tagToProjectRepository).save(any());
+
+        verify(projectsToCollaboratorsRepository).findAllByProjectProjectIdAndCollaboratorCollaboratorId(any(), any());
+        verify(projectsToCollaboratorsRepository).deleteAll(any());
+        verify(projectsToCollaboratorsRepository).save(any());
+
+        verify(mediaRepository).delete(any());
+        verify(mediaRepository).save(any());
+
+        verify(linkRepository).delete(any());
+        verify(linkRepository).save(any());
+
+        verify(requestRepository).deleteAll(any());
+
+
     }
+
+    @Test
+    void testGetRequestsForIdOk () {
+        Request r = new Request();
+        when(requestRepository.findById(any())).thenReturn(Optional.of(r));
+        assertEquals(sut.getRequestForId(UUID.randomUUID()), r);
+    }
+
+    @Test
+    void testGetRequestsForIdNotFound () {
+        when(requestRepository.findById(any())).thenReturn(Optional.empty());
+        assertThrows(NotFoundException.class, ()-> sut.getRequestForId(UUID.randomUUID()));
+    }
+
+    @Test
+    void testGetRequestsByIdOk () {
+        Request r = new Request();
+        when(requestRepository.findById(any())).thenReturn(Optional.of(r));
+        assertEquals(sut.getRequestById(UUID.randomUUID()), r);
+    }
+
+    @Test
+    void  testGetRequestByIdNotFound () {
+        when(requestRepository.findById(any())).thenReturn(Optional.empty());
+        assertThrows(ResponseStatusException.class, ()-> sut.getRequestById(UUID.randomUUID()));
+    }
+
+
 }

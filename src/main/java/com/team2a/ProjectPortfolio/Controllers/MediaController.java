@@ -1,6 +1,7 @@
 package com.team2a.ProjectPortfolio.Controllers;
 
 import com.team2a.ProjectPortfolio.Commons.Media;
+
 import com.team2a.ProjectPortfolio.Commons.RequestMediaProject;
 import com.team2a.ProjectPortfolio.CustomExceptions.MediaNotFoundException;
 import com.team2a.ProjectPortfolio.CustomExceptions.NotFoundException;
@@ -121,9 +122,10 @@ public class MediaController {
         return ResponseEntity.status(HttpStatus.OK).body(body);
     }
 
-    @GetMapping("/request/{requestId}")
+    @GetMapping("/request/{requestId}/{projectId}")
     @PreAuthorize(PM_IN_PROJECT)
-    public ResponseEntity<List<RequestMediaProject>> getMediaForRequest (@PathVariable("requestId") UUID requestId) {
+    public ResponseEntity<List<RequestMediaProject>> getMediaForRequest (@PathVariable("requestId") UUID requestId,
+                                                                         @PathVariable("projectId") UUID projectId) {
         try {
             List<RequestMediaProject> body = mediaService.getMediaForRequest(requestId);
             return new ResponseEntity<>(body, HttpStatus.OK);
@@ -132,9 +134,11 @@ public class MediaController {
         }
     }
 
-    @PostMapping("/request/remove/{requestId}/{mediaId}")
+    @PostMapping("/request/remove/{requestId}/{mediaId}/{projectId}")
+    @PreAuthorize(USER_IN_PROJECT)
     public ResponseEntity<Media> addRemovedMediaToRequest (@PathVariable("requestId") UUID requestId,
-                                                           @PathVariable("mediaId") UUID mediaId) {
+                                                           @PathVariable("mediaId") UUID mediaId,
+                                                           @PathVariable("projectId") UUID projectId) {
         try{
             Media body = mediaService.addRemovedMediaToRequest(requestId, mediaId);
             return new ResponseEntity<>(body, HttpStatus.OK);
@@ -143,9 +147,11 @@ public class MediaController {
         }
     }
 
-    @PostMapping("request/add/{requestId}")
+    @PostMapping("/request/add/{requestId}/{projectId}")
+    @PreAuthorize(USER_IN_PROJECT)
     public ResponseEntity<Media> addAddedMediaToRequest (@PathVariable("requestId") UUID requestId,
                                                          @RequestParam("file") MultipartFile file,
+                                                         @PathVariable("projectId") UUID projectId,
                                                          @RequestParam String name) {
         try {
             Media body = mediaService.addAddedMediaToRequest(requestId, file, name);

@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+
 import org.springframework.web.bind.annotation.*;
 
 import static com.team2a.ProjectPortfolio.security.Permissions.*;
@@ -148,8 +149,10 @@ public class TagController {
 
     }
 
-    @GetMapping("/request/{requestId}")
-    public ResponseEntity<List<RequestTagProject>> getTagsForRequest (@PathVariable("requestId") UUID requestId) {
+    @GetMapping("/request/{requestId}/{projectId}")
+    @PreAuthorize(PM_IN_PROJECT)
+    public ResponseEntity<List<RequestTagProject>> getTagsForRequest (@PathVariable("requestId") UUID requestId,
+                                                                      @PathVariable("projectId") UUID projectId) {
         try {
             List<RequestTagProject> body = tagService.getTagsForRequest(requestId);
             return new ResponseEntity<>(body, HttpStatus.OK);
@@ -158,9 +161,11 @@ public class TagController {
         }
     }
 
-    @PostMapping("/request/{requestId}/{tagId}")
+    @PostMapping("/request/{requestId}/{tagId}/{projectId}")
+    @PreAuthorize(USER_IN_PROJECT)
     public ResponseEntity<Tag> addTagToRequest (@PathVariable("requestId") UUID requestId,
                                                 @PathVariable("tagId") UUID tagId,
+                                                @PathVariable("projectId") UUID projectId,
                                                 @RequestBody Boolean isRemove) {
         try{
             Tag body = tagService.addTagToRequest(requestId, tagId, isRemove);

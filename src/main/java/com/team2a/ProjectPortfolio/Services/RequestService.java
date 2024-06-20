@@ -7,7 +7,7 @@ import jakarta.transaction.Transactional;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.access.prepost.PreAuthorize;
+
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,7 +15,6 @@ import java.util.Optional;
 import java.util.UUID;
 import org.springframework.web.server.ResponseStatusException;
 
-import static com.team2a.ProjectPortfolio.security.Permissions.PM_IN_PROJECT;
 
 @Service
 @Transactional
@@ -166,13 +165,14 @@ public class RequestService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Request not found.");
 
         requestRepository.delete(request.get());
+        requestRepository.flush();
     }
 
     /**
      * Method for accepting a request
      * @param requestId the id of the request to be accepted
      */
-    @Transactional
+
 //    @PreAuthorize(PM_IN_PROJECT)
     public void acceptRequest (UUID requestId) {
         Optional<Request> request = requestRepository.findById(requestId);
@@ -241,7 +241,7 @@ public class RequestService {
 
     }
 
-    public Request getRequestForId(UUID requestId) {
+    public Request getRequestForId (UUID requestId) {
         Request body = requestRepository.findById(requestId).orElseThrow(NotFoundException::new);
         return body;
     }

@@ -23,8 +23,6 @@ import org.antlr.v4.runtime.misc.Triple;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -39,9 +37,11 @@ public class MediaService {
     private MediaHelper mediaHelper;
 
     /**
-     * Constructor for the Media Service
-     * @param mediaRepository the Media Repository
-     * @param projectRepository the Project Repository
+     * Constructor
+     * @param mediaRepository
+     * @param projectRepository
+     * @param requestRepository
+     * @param requestMediaProjectRepository
      */
     @Autowired
     public MediaService(MediaRepository mediaRepository, ProjectRepository projectRepository,

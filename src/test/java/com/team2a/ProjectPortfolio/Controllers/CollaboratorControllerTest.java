@@ -1,6 +1,7 @@
 package com.team2a.ProjectPortfolio.Controllers;
 
 import com.team2a.ProjectPortfolio.Commons.Collaborator;
+import com.team2a.ProjectPortfolio.Commons.RequestCollaboratorsProjects;
 import com.team2a.ProjectPortfolio.Services.CollaboratorService;
 import com.team2a.ProjectPortfolio.WebSocket.CollaboratorProjectWebSocketHandler;
 import com.team2a.ProjectPortfolio.WebSocket.CollaboratorWebSocketHandler;
@@ -12,6 +13,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -19,11 +21,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class CollaboratorControllerTest {
@@ -174,4 +174,43 @@ class CollaboratorControllerTest {
         assertEquals(res.getStatusCode(), HttpStatus.OK);
         assertEquals(res.getBody(), List.of(c1));
     }
+
+    @Test
+    void testGetCollaboratorsRequestOk () {
+        RequestCollaboratorsProjects rq = new RequestCollaboratorsProjects();
+        when(cs.getCollaboratorsForRequest(any())).thenReturn(List.of(rq));
+        ResponseEntity<List<RequestCollaboratorsProjects>> res = cc.getCollaboratorsForRequest(UUID.randomUUID(),
+                UUID.randomUUID());
+        assertEquals(res.getStatusCode(), HttpStatus.OK);
+        assertEquals(res.getBody(), List.of(rq));
+    }
+
+    @Test
+    void testGetCollaboratorRequestNotFound () {
+        when(cs.getCollaboratorsForRequest(any())).thenThrow(new EntityNotFoundException());
+        assertEquals(cc.getCollaboratorsForRequest(UUID.randomUUID(), UUID.randomUUID()).getStatusCode(),
+                HttpStatus.NOT_FOUND);
+    }
+
+    @Test
+    void testAddCollaboratorToRequestOk () {
+        Collaborator c = new Collaborator();
+        when(cs.addCollaboratorToRequest(any(),any(), any())).thenReturn(c);
+        ResponseEntity<Collaborator> res = cc.addCollaboratorToRequest(UUID.randomUUID(),
+                UUID.randomUUID(),
+                UUID.randomUUID(), false);
+
+        assertEquals(res.getStatusCode(), HttpStatus.OK);
+        assertEquals(res.getBody(), c);
+    }
+
+    @Test
+    void testAddCollaboratorToRequestNotFound () {
+        when(cs.addCollaboratorToRequest(any(), any(), any())).thenThrow(new EntityNotFoundException());
+        assertEquals(cc.addCollaboratorToRequest(UUID.randomUUID(),
+                UUID.randomUUID(), UUID.randomUUID(),
+                false).getStatusCode(), HttpStatus.NOT_FOUND);
+    }
+
+
 }

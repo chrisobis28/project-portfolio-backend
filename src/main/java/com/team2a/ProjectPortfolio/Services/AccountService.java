@@ -179,7 +179,7 @@ public class AccountService {
         return list.get(0).getRole().toString();
     }
 
-    public List<Project> getProjectsAccountManages(String username) {
+    public List<Project> getProjectsAccountManages (String username) {
         List<Project> projects = projectsToAccountsRepository
                 .findAllByAccountUsername(username)
                 .stream()

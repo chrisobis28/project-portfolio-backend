@@ -4,6 +4,7 @@ import com.team2a.ProjectPortfolio.Commons.Request;
 import com.team2a.ProjectPortfolio.Commons.RoleInProject;
 import com.team2a.ProjectPortfolio.Services.ProjectService;
 import com.team2a.ProjectPortfolio.Services.RequestService;
+import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
@@ -19,7 +20,16 @@ public class CustomSecurityService {
     private ProjectService projectService;
 
     @Autowired
+    @Setter
     private RequestService requestService;
+
+    public boolean belongsToProjectBoolean (Authentication authentication, UUID projectId) {
+        Account account = (Account) authentication.getPrincipal();
+
+        return projectService.userBelongsToProject(account.getUsername(), projectId).equals(RoleInProject.CONTENT_CREATOR) ||
+                projectService.userBelongsToProject(account.getUsername(), projectId).equals(RoleInProject.PM) ||
+                projectService.userBelongsToProject(account.getUsername(), projectId).equals(RoleInProject.EDITOR);
+    }
 
     /**
      * Checks if the user belongs to the project

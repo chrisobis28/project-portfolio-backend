@@ -8,6 +8,7 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
 import com.team2a.ProjectPortfolio.Commons.Account;
+import com.team2a.ProjectPortfolio.Commons.Project;
 import com.team2a.ProjectPortfolio.Commons.Role;
 import com.team2a.ProjectPortfolio.Commons.RoleInProject;
 import com.team2a.ProjectPortfolio.CustomExceptions.AccountNotFoundException;
@@ -15,6 +16,9 @@ import com.team2a.ProjectPortfolio.CustomExceptions.DuplicatedUsernameException;
 import com.team2a.ProjectPortfolio.CustomExceptions.NotFoundException;
 import com.team2a.ProjectPortfolio.CustomExceptions.ProjectNotFoundException;
 import com.team2a.ProjectPortfolio.Services.AccountService;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -143,5 +147,28 @@ public class AccountControllerTest {
     ResponseEntity<Void> responseEntity = accountController.deleteRole("username", id);
     assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
     assertNull(responseEntity.getBody());
+  }
+
+  @Test
+  void testUpdateRole () {
+    doNothing().when(accountService).updateRole(any(), any(), any());
+    assertEquals(accountController.updateRole("a", UUID.randomUUID(), RoleInProject.PM)
+            .getStatusCode(), HttpStatus.OK);
+  }
+
+  @Test
+  void testGetRole() {
+    when(accountService.getRole(any(), any())).thenReturn("a");
+    ResponseEntity<String> res = accountController.getRole("a", UUID.randomUUID());
+    assertEquals(res.getStatusCode(), HttpStatus.OK);
+    assertEquals(res.getBody(), "a");
+  }
+
+  @Test
+  void testGetProjectsManaged () {
+    when(accountService.getProjectsAccountManages("a")).thenReturn(new ArrayList<>());
+    ResponseEntity<List<Project>> res = accountController.getProjectsAccountManages("a");
+    assertEquals(res.getStatusCode(), HttpStatus.OK);
+    assertEquals(res.getBody(), new ArrayList<>());
   }
 }

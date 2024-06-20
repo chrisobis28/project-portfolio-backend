@@ -162,19 +162,26 @@ public class CollaboratorController {
         return new ResponseEntity<>(collaborators, HttpStatus.OK);
     }
 
-    @GetMapping("/request/{requestId}")
-    public ResponseEntity<List<RequestCollaboratorsProjects>> getCollaboratorsForRequest (@PathVariable("requestId") UUID requestId) {
+    @GetMapping("/request/{requestId}/{projectId}")
+    @PreAuthorize(PM_IN_PROJECT)
+    public ResponseEntity<List<RequestCollaboratorsProjects>> getCollaboratorsForRequest (
+            @PathVariable("requestId") UUID requestId,
+             @PathVariable("projectId") UUID projectId) {
         try {
-            List<RequestCollaboratorsProjects> body = collaboratorService.getCollaboratorsForRequest(requestId);
+            List<RequestCollaboratorsProjects> body =
+                    collaboratorService.getCollaboratorsForRequest
+                            (requestId);
             return new ResponseEntity<>(body, HttpStatus.OK);
         } catch (EntityNotFoundException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 
-    @PostMapping("/request/{requestId}/{collaboratorId}")
+    @PostMapping("/request/{requestId}/{collaboratorId}/{projectId}")
+    @PreAuthorize(USER_IN_PROJECT)
     public ResponseEntity<Collaborator> addCollaboratorToRequest (@PathVariable("requestId") UUID requestId,
                                                                   @PathVariable("collaboratorId") UUID collaboratorId,
+                                                                  @PathVariable("projectId") UUID projectId,
                                                                   @RequestBody Boolean isRemove) {
         try{
             Collaborator body = collaboratorService.addCollaboratorToRequest(requestId, collaboratorId, isRemove);

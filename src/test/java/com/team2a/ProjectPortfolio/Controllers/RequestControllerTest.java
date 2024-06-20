@@ -86,7 +86,7 @@ class RequestControllerTest {
 
         doNothing().when(requestService).deleteRequest(id1);
 
-        ResponseEntity<Void> res = sut.deleteRequest(id1);
+        ResponseEntity<Void> res = sut.deleteRequest(id1, UUID.randomUUID());
         assertEquals(HttpStatus.NO_CONTENT, res.getStatusCode());
     }
 

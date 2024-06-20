@@ -2,6 +2,7 @@ package com.team2a.ProjectPortfolio.Controllers;
 
 
 import com.team2a.ProjectPortfolio.Commons.Link;
+
 import com.team2a.ProjectPortfolio.Commons.RequestLinkProject;
 import com.team2a.ProjectPortfolio.CustomExceptions.NotFoundException;
 import com.team2a.ProjectPortfolio.Routes;
@@ -107,9 +108,10 @@ public class LinkController {
         }
     }
 
-    @GetMapping("/request/{requestId}")
+    @GetMapping("/request/{requestId}/{projectId}")
     @PreAuthorize(PM_IN_PROJECT)
-    public ResponseEntity<List<RequestLinkProject>> getLinksForRequest (@PathVariable("requestId") UUID requestId) {
+    public ResponseEntity<List<RequestLinkProject>> getLinksForRequest (@PathVariable("requestId") UUID requestId,
+                                                                        @PathVariable("projectId") UUID projectId) {
         try {
             List<RequestLinkProject> body = linkService.getLinksForRequest(requestId);
             return new ResponseEntity<>(body, HttpStatus.OK);
@@ -118,9 +120,11 @@ public class LinkController {
         }
     }
 
-    @PutMapping("/request/remove/{requestId}/{linkId}")
+    @PutMapping("/request/remove/{requestId}/{linkId}/{projectId}")
+    @PreAuthorize(USER_IN_PROJECT)
     public ResponseEntity<Link> addRemovedLinkToRequest (@PathVariable("requestId") UUID requestId,
-                                                  @PathVariable("linkId") UUID linkId){
+                                                         @PathVariable("linkId") UUID linkId,
+                                                         @PathVariable("projectId") UUID projectId){
         try {
             Link body = linkService.addRemovedLinkToRequest(requestId, linkId);
             return new ResponseEntity<>(body, HttpStatus.OK);
@@ -129,9 +133,11 @@ public class LinkController {
         }
     }
 
-    @PutMapping("request/add/{requestId}")
+    @PutMapping("request/add/{requestId}/{projectId}")
+    @PreAuthorize(USER_IN_PROJECT)
     public ResponseEntity<Link> addAddedLinkToRequest (@PathVariable("requestId") UUID requestId,
-                                                       @RequestBody Link link) {
+                                                       @RequestBody Link link,
+                                                       @PathVariable("projectId") UUID projectId) {
         try {
             Link body = linkService.addAddedLinkToRequest(requestId, link);
             return new ResponseEntity<>(body, HttpStatus.OK);

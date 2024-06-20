@@ -19,10 +19,12 @@ public class CollaboratorService {
     private final RequestCollaboratorsProjectsRepository requestCollaboratorsProjectsRepository;
 
     /**
-     * The constructor for the Collaborator Service
-     * @param projectsToCollaboratorsRepository the projectToCollaboratorsRepository
-     * @param collaboratorRepository the collaborator repository
-     * @param projectRepository the project repository
+     * Constructor for CollaboratorService
+     * @param projectsToCollaboratorsRepository
+     * @param collaboratorRepository
+     * @param projectRepository
+     * @param requestRepository
+     * @param requestCollaboratorsProjectsRepository
      */
     @Autowired
     public CollaboratorService (ProjectsToCollaboratorsRepository projectsToCollaboratorsRepository,

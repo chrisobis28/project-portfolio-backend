@@ -28,9 +28,11 @@ public class LinkService {
     private final RequestRepository requestRepository;
 
     /**
-     * Constructor for the link repository
-     * @param linkRepository the Link repository
-     * @param projectRepository the Project repository
+     * Constructor for the link service
+     * @param linkRepository
+     * @param projectRepository
+     * @param requestLinkProjectRepository
+     * @param requestRepository
      */
     @Autowired
     public LinkService(LinkRepository linkRepository, ProjectRepository projectRepository,

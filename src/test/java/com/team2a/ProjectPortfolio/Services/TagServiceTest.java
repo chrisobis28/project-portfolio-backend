@@ -1,21 +1,19 @@
 package com.team2a.ProjectPortfolio.Services;
 
 import com.team2a.ProjectPortfolio.Commons.Project;
+import com.team2a.ProjectPortfolio.Commons.Request;
 import com.team2a.ProjectPortfolio.Commons.Tag;
 import com.team2a.ProjectPortfolio.Commons.TagsToProject;
-import com.team2a.ProjectPortfolio.Repositories.ProjectRepository;
-import com.team2a.ProjectPortfolio.Repositories.TagRepository;
-import com.team2a.ProjectPortfolio.Repositories.TagToProjectRepository;
+import com.team2a.ProjectPortfolio.Repositories.*;
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -32,12 +30,21 @@ class TagServiceTest {
 
     private TagService tagService;
 
+    @Mock
+    private RequestTagProjectRepository requestTagProjectRepository;
+
+    @Mock
+    private RequestRepository requestRepository;
+
     @BeforeEach
     void setUp() {
         tagRepository = mock(TagRepository.class);
         tagToProjectRepository = mock(TagToProjectRepository.class);
         projectRepository = mock(ProjectRepository.class);
-        tagService = new TagService(tagRepository, tagToProjectRepository, projectRepository);
+        requestTagProjectRepository = mock(RequestTagProjectRepository.class);
+        requestRepository = mock(RequestRepository.class);
+        tagService = new TagService(tagRepository, tagToProjectRepository, projectRepository,
+                requestTagProjectRepository, requestRepository);
     }
 
     @Test
@@ -180,8 +187,55 @@ class TagServiceTest {
     }
 
     @Test
-    void testGetAllTags() {
+    void testGetAllTags () {
         when(tagRepository.findAll()).thenReturn(List.of(new Tag("tag1", "blue")));
         assertEquals(tagService.getAllTags(), List.of(new Tag("tag1", "blue")));
+    }
+
+    @Test
+    void testGetTagsForRequestOk () {
+        Request r = new Request();
+        r.setRequestTagProjects(new ArrayList<>());
+        when(requestRepository.findById(any())).thenReturn(Optional.of(r));
+        assertEquals(tagService.getTagsForRequest(UUID.randomUUID()), new ArrayList<>());
+    }
+
+    @Test
+    void testGetTagsForRequestNotFound () {
+        when(requestRepository.findById(any())).thenReturn(Optional.empty());
+        assertThrows(EntityNotFoundException.class, ()-> tagService.getTagsForRequest(UUID.randomUUID()));
+    }
+
+    @Test
+    void testAddTagToRequestOk () {
+        Request r = new Request();
+        when(requestRepository.findById(any())).thenReturn(Optional.of(r));
+        Tag t = new Tag();
+        when(tagRepository.findById(any())).thenReturn(Optional.of(t));
+        assertEquals(tagService.addTagToRequest(UUID.randomUUID(), UUID.randomUUID(), false), t);
+        verify(requestTagProjectRepository).save(any());
+
+    }
+
+    @Test
+    void testAddTagRequestNotFound () {
+        when(requestRepository.findById(any())).thenReturn(Optional.empty());
+        assertThrows(EntityNotFoundException.class, () -> tagService.addTagToRequest(
+                UUID.randomUUID(),
+                UUID.randomUUID(),
+                false
+        ));
+    }
+
+    @Test
+    void testAddTagRequestNotFound2 () {
+        Request r = new Request();
+        when(requestRepository.findById(any())).thenReturn(Optional.of(r));
+        when(tagRepository.findById(any())).thenReturn(Optional.empty());
+        assertThrows(EntityNotFoundException.class, () -> tagService.addTagToRequest(
+                UUID.randomUUID(),
+                UUID.randomUUID(),
+                false
+        ));
     }
 }
