@@ -14,7 +14,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.team2a.ProjectPortfolio.Commons.Collaborator;
 import com.team2a.ProjectPortfolio.Commons.Project;
 import com.team2a.ProjectPortfolio.Commons.ProjectsToAccounts;
-import com.team2a.ProjectPortfolio.Commons.Template;
 import com.team2a.ProjectPortfolio.Repositories.*;
 import com.team2a.ProjectPortfolio.security.SecurityConfigUtils;
 import java.util.UUID;
@@ -27,7 +26,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 
 @SpringBootTest
 @AutoConfigureMockMvc(addFilters=false)
