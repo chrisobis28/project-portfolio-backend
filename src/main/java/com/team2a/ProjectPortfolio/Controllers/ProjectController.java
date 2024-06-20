@@ -122,6 +122,7 @@ public class ProjectController {
     /**
      * Remove the template of a project
      * @param projectId the id of the project
+     * @param str placeholder string - has no functionality
      * @return a response entity with the project having the template set to null
      */
     @PutMapping("/remove-template/{projectId}")
