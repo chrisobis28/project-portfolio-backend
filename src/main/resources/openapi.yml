@@ -145,6 +145,33 @@ paths:
           description: Project not found
 
   /project/{projectId}/template/:
+    get:
+      tags:
+        - Project
+      summary: Get the template of a project
+      operationId: getTemplateByProjectId
+      description: Returns a template based on the provided project ID
+      parameters:
+        - name: projectId
+          in: path
+          description: ID of the project to retrieve
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Template'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Template'
     post:
       tags:
         - Project
@@ -163,7 +190,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Template'
+              type: string
       responses:
         '201':
           description: Template of project updated successfully.

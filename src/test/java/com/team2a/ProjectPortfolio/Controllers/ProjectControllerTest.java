@@ -122,7 +122,7 @@ class ProjectControllerTest {
         UUID projectId = UUID.randomUUID();
         Project project1 = new Project("Title1", "Description1", false, null);
         when(projectService.removeTemplateFromProject(projectId)).thenReturn(project1);
-        ResponseEntity<Project> response = projectController.removeTemplateFromProject(projectId);
+        ResponseEntity<Project> response = projectController.removeTemplateFromProject(projectId, "");
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNull(response.getBody().getTemplate());
     }
@@ -131,9 +131,33 @@ class ProjectControllerTest {
     void removeTemplateFromProjectNotFound() {
         UUID projectId = UUID.randomUUID();
         when(projectService.removeTemplateFromProject(projectId)).thenThrow(EntityNotFoundException.class);
-        ResponseEntity<Project> response = projectController.removeTemplateFromProject(projectId);
+        ResponseEntity<Project> response = projectController.removeTemplateFromProject(projectId, "");
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
         assertNull(response.getBody());
         verify(projectService, times(1)).removeTemplateFromProject(projectId);
+    }
+
+    @Test
+    void getTemplateByProjectIdSuccess() {
+        UUID projectId = UUID.randomUUID();
+        Template template = new Template("TempTitle",
+                "StandardDescription", 6);
+        Project project1 = new Project("Title1", "Description1", false, template);
+        when(projectService.getTemplateByProjectId(projectId)).thenReturn(template);
+        ResponseEntity<Template> response = projectController.getTemplateByProjectId(projectId);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(template, response.getBody());
+    }
+
+    @Test
+    void getTemplateByProjectIdNotFound() {
+        UUID projectId = UUID.randomUUID();
+        Template template = new Template("TempTitle",
+                "StandardDescription", 6);
+        when(projectService.getTemplateByProjectId(projectId)).thenThrow(EntityNotFoundException.class);
+        ResponseEntity<Template> response = projectController.getTemplateByProjectId(projectId);
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertNull(response.getBody());
+        verify(projectService, times(1)).getTemplateByProjectId(projectId);
     }
 }

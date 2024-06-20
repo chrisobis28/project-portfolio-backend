@@ -14,6 +14,12 @@ public class WebSocketConfig implements WebSocketConfigurer {
     private ProjectWebSocketHandler projectWebSocketHandler;
 
     @Autowired
+    private AccountWebSocketHandler accountWebSocketHandler;
+
+    @Autowired
+    private AccountProjectWebSocketHandler accountProjectWebSocketHandler;
+
+    @Autowired
     private CollaboratorWebSocketHandler collaboratorWebSocketHandler;
 
     @Autowired
@@ -34,6 +40,10 @@ public class WebSocketConfig implements WebSocketConfigurer {
     @Override
     public void registerWebSocketHandlers (WebSocketHandlerRegistry registry) {
         registry.addHandler(projectWebSocketHandler, "/topic/projects")
+                .setAllowedOrigins("*");
+        registry.addHandler(accountWebSocketHandler, "/topic/accounts")
+                .setAllowedOrigins("*");
+        registry.addHandler(accountProjectWebSocketHandler, "/topic/accounts/project")
                 .setAllowedOrigins("*");
         registry.addHandler(collaboratorWebSocketHandler, "/topic/collaborators")
                 .setAllowedOrigins("*");

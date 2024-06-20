@@ -154,4 +154,15 @@ public class ProjectService {
         project = projectRepository.save(project);
         return project;
     }
+
+    /**
+     * Retrieve the template of a project given the project id
+     * @param projectId the id of the project
+     * @return the template of the specific project
+     */
+    public Template getTemplateByProjectId (UUID projectId) {
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Project not found"));
+        return project.getTemplate();
+    }
 }
