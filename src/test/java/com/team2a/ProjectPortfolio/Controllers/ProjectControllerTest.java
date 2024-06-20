@@ -118,6 +118,26 @@ class ProjectControllerTest {
     }
 
     @Test
+    void removeTemplateFromProjectSuccess() {
+        UUID projectId = UUID.randomUUID();
+        Project project1 = new Project("Title1", "Description1", false, null);
+        when(projectService.removeTemplateFromProject(projectId)).thenReturn(project1);
+        ResponseEntity<Project> response = projectController.removeTemplateFromProject(projectId, "");
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNull(response.getBody().getTemplate());
+    }
+
+    @Test
+    void removeTemplateFromProjectNotFound() {
+        UUID projectId = UUID.randomUUID();
+        when(projectService.removeTemplateFromProject(projectId)).thenThrow(EntityNotFoundException.class);
+        ResponseEntity<Project> response = projectController.removeTemplateFromProject(projectId, "");
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertNull(response.getBody());
+        verify(projectService, times(1)).removeTemplateFromProject(projectId);
+    }
+
+    @Test
     void getTemplateByProjectIdSuccess() {
         UUID projectId = UUID.randomUUID();
         Template template = new Template("TempTitle",

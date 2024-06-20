@@ -88,7 +88,8 @@ jacocoTestReport {
 							  '**/MediaHelper.class',
 							  '**/security/SecurityConfig.class',
 							  '**/security/Permissions.class',
-							  '**/WebSocket'
+							  '**/WebSocket',
+							  '**/Services/MediaHelper'
 					])
 		})
 	}
@@ -110,7 +111,8 @@ jacocoTestCoverageVerification {
 							  '**/MediaHelper.class',
 							  '**/security/SecurityConfig.class',
 							  '**/security/Permissions.class',
-							  '**/WebSocket'
+							  '**/WebSocket',
+							  '**/Services/MediaHelper'
 					])
 		})
 	}

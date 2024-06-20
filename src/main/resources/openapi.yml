@@ -159,6 +159,12 @@ paths:
           schema:
             type: string
             format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Template'
       responses:
         '200':
           description: Successful response
@@ -184,7 +190,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Template'
+              type: string
       responses:
         '201':
           description: Template of project updated successfully.
@@ -194,6 +200,33 @@ paths:
           description: Forbidden - Project already has this template
         '404':
           description: Not Found - Template or Project not found
+
+  /project/remove-template/{projectId}:
+    put:
+      tags:
+        - Project
+      summary: Remove template from project
+      operationId: removeTemplateFromProject
+      description: Update an existing project with the provided ID to not have a template
+      parameters:
+        - name: projectId
+          in: path
+          description: ID of the project to retrieve
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Project updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+        '401':
+          description: Unauthorized - user is does not have permission to edit this project
+        '404':
+          description: Project not found
 
 #Media
   /media:

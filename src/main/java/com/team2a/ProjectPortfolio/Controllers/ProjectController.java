@@ -120,6 +120,24 @@ public class ProjectController {
     }
 
     /**
+     * Remove the template of a project
+     * @param projectId the id of the project
+     * @param str placeholder string - has no functionality
+     * @return a response entity with the project having the template set to null
+     */
+    @PutMapping("/remove-template/{projectId}")
+    @PreAuthorize(PM_IN_PROJECT)
+    public ResponseEntity<Project> removeTemplateFromProject (@PathVariable("projectId") UUID projectId,
+                                                              @RequestBody String str) {
+        try {
+            Project response = projectService.removeTemplateFromProject(projectId);
+            return ResponseEntity.ok(response);
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    /**
      * Retrieve the template of a project given the project id
      * @param projectId the id of the project
      * @return the template of the specific project in a response entity
