@@ -2,6 +2,7 @@ package com.team2a.ProjectPortfolio.Controllers;
 
 import com.team2a.ProjectPortfolio.Routes;
 import com.team2a.ProjectPortfolio.Services.AuthenticationService;
+import com.team2a.ProjectPortfolio.WebSocket.AccountWebSocketHandler;
 import com.team2a.ProjectPortfolio.dto.LoginUserRequest;
 import com.team2a.ProjectPortfolio.dto.RegisterUserRequest;
 import jakarta.servlet.http.Cookie;
@@ -32,6 +33,8 @@ public class AuthenticationController {
 
     private final AuthenticationService authenticationService;
 
+    private final AccountWebSocketHandler accountWebSocketHandler;
+
     private final String cookieName = "auth-cookie";
 
     @Value("${jwt.expiration}")
@@ -39,11 +42,14 @@ public class AuthenticationController {
 
     /**
      * Constructor for the Authentication Controller
-     * @param authenticationService - the Authentication Service
+     * @param authenticationService - the service for authentication
+     * @param accountWebSocketHandler - the handler for the web socket
      */
     @Autowired
-    public AuthenticationController(AuthenticationService authenticationService) {
+    public AuthenticationController(AuthenticationService authenticationService,
+                                    AccountWebSocketHandler accountWebSocketHandler) {
         this.authenticationService = authenticationService;
+        this.accountWebSocketHandler = accountWebSocketHandler;
     }
 
     /**
@@ -54,6 +60,7 @@ public class AuthenticationController {
     @PostMapping("/register")
     public ResponseEntity<Void> createAccount (@Valid @RequestBody RegisterUserRequest registerUserRequest) {
         authenticationService.registerUser(registerUserRequest);
+        accountWebSocketHandler.broadcast("add " + registerUserRequest.getUsername());
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 

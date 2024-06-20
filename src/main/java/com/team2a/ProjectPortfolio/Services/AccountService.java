@@ -6,12 +6,10 @@ import com.team2a.ProjectPortfolio.Commons.ProjectsToAccounts;
 import com.team2a.ProjectPortfolio.Commons.Role;
 import com.team2a.ProjectPortfolio.Commons.RoleInProject;
 import com.team2a.ProjectPortfolio.CustomExceptions.AccountNotFoundException;
-import com.team2a.ProjectPortfolio.CustomExceptions.DuplicatedUsernameException;
-import com.team2a.ProjectPortfolio.CustomExceptions.NotFoundException;
-import com.team2a.ProjectPortfolio.CustomExceptions.ProjectNotFoundException;
 import com.team2a.ProjectPortfolio.Repositories.AccountRepository;
 import com.team2a.ProjectPortfolio.Repositories.ProjectRepository;
 import com.team2a.ProjectPortfolio.Repositories.ProjectsToAccountsRepository;
+import com.team2a.ProjectPortfolio.dto.AccountDisplay;
 import com.team2a.ProjectPortfolio.dto.AccountTransfer;
 import com.team2a.ProjectPortfolio.dto.ProjectTransfer;
 import java.util.List;
@@ -45,15 +43,14 @@ public class AccountService {
     }
 
     /**
-     * Edits an Account in the database
-     * @param account - the Account that needs to be edited
-     * @return - the Account with the modifications applied
-     * @throws RuntimeException - Account was not found or the id is null
+     * Edit an account
+     * @param account - the Account to be edited
+     * @return - the edited Account
      */
     public Account editAccount (Account account) throws RuntimeException {
         Optional<Account> o = accountRepository.findById(account.getUsername());
         if(o.isEmpty()) {
-            throw new AccountNotFoundException("There is no account with username " + account.getUsername() + ".");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Account not found.");
         }
         return accountRepository.save(account);
     }
@@ -92,12 +89,12 @@ public class AccountService {
      * Helper method to check whether an Account exists
      * @param username - the id of the Account to be localized
      * @return - the Account desired, provided it exists
-     * @throws RuntimeException - Account was not found
+     * @throws ResponseStatusException - Account was not found
      */
     public Account checkAccountExistence (String username) throws RuntimeException {
         Optional<Account> o = accountRepository.findById(username);
         if(o.isEmpty()) {
-            throw new AccountNotFoundException("There is no account with username " + username + ".");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Account not found.");
         }
         return o.get();
     }
@@ -111,7 +108,7 @@ public class AccountService {
     public Project checkProjectExistence (UUID projectId) throws RuntimeException {
         Optional<Project> o = projectRepository.findById(projectId);
         if(o.isEmpty()) {
-            throw new ProjectNotFoundException("There is no project with id " + projectId + ".");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Project not found.");
         }
         return o.get();
     }
@@ -128,7 +125,7 @@ public class AccountService {
         if(projectsToAccountsRepository.findAll().stream()
             .filter(x -> x.getProject().equals(optionalProject) && x.getAccount().equals(optionalAccount))
             .toList().size() > 0) {
-            throw new DuplicatedUsernameException("");
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Account already belongs to this project.");
         }
         ProjectsToAccounts pta = new ProjectsToAccounts(role, optionalAccount, optionalProject);
         projectsToAccountsRepository.save(pta);
@@ -144,7 +141,7 @@ public class AccountService {
             list = projectsToAccountsRepository.findAll().stream().filter(x -> x.getAccount().getUsername().equals(username))
             .filter(x -> x.getProject().getProjectId().equals(projectId)).toList();
         if(list.isEmpty()) {
-            throw new NotFoundException();
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Project or account not found.");
         }
         projectsToAccountsRepository.deleteById(list.get(0).getPtaId());
     }
@@ -211,5 +208,25 @@ public class AccountService {
      */
     public List<String> getAccountsByName (String name) {
         return accountRepository.findAll().stream().filter(x -> x.getName().equals(name)).map(Account::getUsername).toList();
+    }
+
+    /**
+     * Retrieves all usernames in the database
+     * @return - the list of all usernames
+     */
+    public List<String> getAllUsernames () {
+        return accountRepository.findAll().stream().map(Account::getUsername).toList();
+    }
+
+
+    /**
+     * Retrieves all accounts in a project
+     * @param projectId - the id of the project
+     * @return - the list of all accounts in the project
+     */
+    public List<AccountDisplay> getAccountsInProject (UUID projectId) {
+        return projectsToAccountsRepository.findAll().stream().filter(x -> x.getProject().getProjectId().equals(projectId))
+            .map(x -> new AccountDisplay(x.getAccount().getUsername(),
+                x.getAccount().getName(), x.getRole().toString())).toList();
     }
 }
