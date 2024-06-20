@@ -67,7 +67,7 @@ public class AccountController {
     @PreAuthorize(ADMIN_ONLY)
     public ResponseEntity<Account> editAccount (@Valid @RequestBody Account account) {
         Account editedAccount = accountService.editAccount(account);
-        accountWebSocketHandler.broadcast("edit "+ account.getUsername());
+        accountWebSocketHandler.broadcast("edit " + account.getUsername());
         return ResponseEntity.ok(editedAccount);
     }
 
@@ -81,6 +81,7 @@ public class AccountController {
     public ResponseEntity<Void> editRoleOfAccount (@Valid @RequestBody AccountTransfer accountTransfer) {
         try {
             accountService.editAccount(accountTransfer);
+            accountWebSocketHandler.broadcast("edit " + accountTransfer.getUsername());
             return ResponseEntity.ok().build();
         }
         catch(AccountNotFoundException e) {
@@ -128,7 +129,7 @@ public class AccountController {
     public ResponseEntity<Void> addRole (@PathVariable("username") String username,
                                               @PathVariable("projectId") UUID projectId, @RequestBody RoleInProject role) {
         accountService.addRole(username, projectId, role);
-        accountProjectWebSocketHandler.broadcast(projectId.toString() + " add");
+        accountProjectWebSocketHandler.broadcast(projectId.toString() + " add " + username);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
