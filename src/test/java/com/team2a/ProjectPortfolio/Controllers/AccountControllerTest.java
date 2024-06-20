@@ -106,7 +106,7 @@ public class AccountControllerTest {
     UUID id = UUID.randomUUID();
     doNothing().when(accountService).addRole("username", id, RoleInProject.CONTENT_CREATOR);
     ResponseEntity<Void> responseEntity = accountController.addRole("username", id, RoleInProject.CONTENT_CREATOR);
-    verify(accountProjectWebSocketHandler, times(1)).broadcast(id.toString() + " add");
+    verify(accountProjectWebSocketHandler, times(1)).broadcast(id.toString() + " add " + "username");
     assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
     assertNull(responseEntity.getBody());
   }
