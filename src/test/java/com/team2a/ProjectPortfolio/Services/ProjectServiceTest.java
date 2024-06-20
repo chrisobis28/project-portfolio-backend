@@ -171,4 +171,31 @@ class ProjectServiceTest {
         verify(projectRepository, times(0)).save(project1);
     }
 
+    @Test
+    void removeTemplateFromProjectSuccess() {
+        UUID projectId = UUID.randomUUID();
+        Template template = new Template("TempTitle",
+                "StandardDescription", 6);
+        Project project1 = new Project("Title1", "Description1", false, template);
+        Project project2 = new Project("Title1", "Description1", false, null);
+        when(projectRepository.findById(projectId)).thenReturn(Optional.of(project1));
+        when(projectRepository.save(project1)).thenReturn(project2);
+        Project response = projectService.updateProjectTemplate(projectId, template);
+        assertEquals(project2, response);
+    }
+
+    @Test
+    void removeTemplateFromProjectNotFound() {
+        UUID projectId = UUID.randomUUID();
+        Template template = new Template("TempTitle",
+                "StandardDescription", 6);
+        Project project1 = new Project("Title1", "Description1", false, template);
+        Project project2 = new Project("Title1", "Description1", false, null);
+        when(projectRepository.findById(projectId)).thenThrow(ResponseStatusException.class);
+        when(projectRepository.save(project1)).thenReturn(project2);
+        assertThrows(ResponseStatusException.class, () ->
+                projectService.removeTemplateFromProject(projectId));
+        verify(projectRepository, times(0)).save(project1);
+    }
+
 }

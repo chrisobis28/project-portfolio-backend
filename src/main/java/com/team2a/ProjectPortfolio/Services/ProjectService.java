@@ -10,10 +10,18 @@ import com.team2a.ProjectPortfolio.security.SecurityUtils;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.server.ResponseStatusException;
+
+import static com.team2a.ProjectPortfolio.security.Permissions.PM_IN_PROJECT;
 
 @Service
 public class ProjectService {
@@ -136,6 +144,19 @@ public class ProjectService {
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Project not found"));
         project.setTemplate(template);
+        project = projectRepository.save(project);
+        return project;
+    }
+
+    /**
+     * Remove the template of a project
+     * @param projectId the id of the project
+     * @return the project having the template set to null
+     */
+    public Project removeTemplateFromProject (UUID projectId) {
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Project not found"));
+        project.setTemplate(null);
         project = projectRepository.save(project);
         return project;
     }
