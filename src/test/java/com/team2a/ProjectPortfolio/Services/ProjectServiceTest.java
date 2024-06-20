@@ -180,7 +180,7 @@ class ProjectServiceTest {
         Project project2 = new Project("Title1", "Description1", false, null);
         when(projectRepository.findById(projectId)).thenReturn(Optional.of(project1));
         when(projectRepository.save(project1)).thenReturn(project2);
-        Project response = projectService.updateProjectTemplate(projectId, template);
+        Project response = projectService.removeTemplateFromProject(projectId);
         assertEquals(project2, response);
     }
 
