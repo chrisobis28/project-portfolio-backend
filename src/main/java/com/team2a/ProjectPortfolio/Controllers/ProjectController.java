@@ -119,4 +119,20 @@ public class ProjectController {
         }
     }
 
+    /**
+     * Retrieve the template of a project given the project id
+     * @param projectId the id of the project
+     * @return the template of the specific project in a response entity
+     */
+    @GetMapping("/{projectId}/template/")
+    @PreAuthorize(PM_IN_PROJECT)
+    public ResponseEntity<Template> getTemplateByProjectId (@PathVariable("projectId") UUID projectId) {
+        try {
+            Template response = projectService.getTemplateByProjectId(projectId);
+            return ResponseEntity.ok(response);
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
 }

@@ -214,42 +214,43 @@ public class ProjectControllerIntegrationTest {
         assertEquals("PM", pta.getRole().toString());
     }
 
-//    @Test
-//    public void updateProjectTemplate() throws Exception {
-//        assertEquals(3, projectRepository.count());
-//
-//        Template template1 = new Template("templateTitle1",
-//                "standardDescription1", 6);
-//        templateRepository.saveAndFlush(template1);
-//        Template template2 = new Template("templateTitle2",
-//                "standardDescription2", 4);
-//        templateRepository.saveAndFlush(template2);
-//
-//        Project project4 = new Project("title4", "description4", false);
-//        project4 = projectRepository.saveAndFlush(project4);
-//        assertEquals(4, projectRepository.count());
-//
-//        MvcResult result = mockMvc.perform(put(Routes.PROJECT + "/" + project4.getProjectId() + "/template/")
-//                        .contentType(MediaType.APPLICATION_JSON)
-//                        .content(objectMapper.writeValueAsString(template2)))
-//                .andExpect(status().isOk())
-//                .andExpect(jsonPath("$.title", is("title4")))
-//                .andExpect(jsonPath("$.description", is("description4")))
-//                .andExpect(jsonPath("$.archived", is(false)))
-//                .andReturn();
-//
-//        String responseBody = result.getResponse().getContentAsString();
-//        System.out.println("Response: " + responseBody);
-//
-//        Project responseProject = objectMapper.readValue(responseBody, Project.class);
-//        assertEquals(template2.getTemplateName(), responseProject.getTemplate().getTemplateName());
-//
-//        projectRepository.deleteById(project4.getProjectId());
-//
-//        mockMvc.perform(put(Routes.PROJECT + "/" + project4.getProjectId() + "/template/")
-//                        .contentType(MediaType.APPLICATION_JSON)
-//                        .content(objectMapper.writeValueAsString(template2)))
-//                .andExpect(status().isNotFound());
-//    }
+    @Test
+    public void updateProjectTemplateAndGetTemplateByProjectId() throws Exception {
+        assertEquals(3, projectRepository.count());
+
+        Template template1 = new Template("templateTitle1",
+                "standardDescription1", 6);
+        templateRepository.saveAndFlush(template1);
+        Template template2 = new Template("templateTitle2",
+                "standardDescription2", 4);
+        templateRepository.saveAndFlush(template2);
+
+        Project project4 = new Project("title4", "description4", false);
+        project4 = projectRepository.saveAndFlush(project4);
+        assertEquals(4, projectRepository.count());
+
+        mockMvc.perform(put(Routes.PROJECT + "/" + project4.getProjectId() + "/template/")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(template2)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.title", is("title4")))
+                .andExpect(jsonPath("$.description", is("description4")))
+                .andExpect(jsonPath("$.archived", is(false)));
+
+        MvcResult result = mockMvc.perform(get(Routes.PROJECT + "/" + project4.getProjectId() + "/template/")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.templateName", is("templateTitle2")))
+                .andExpect(jsonPath("$.standardDescription", is("standardDescription2")))
+                .andExpect(jsonPath("$.numberOfCollaborators", is(4)))
+                .andReturn();
+
+        projectRepository.deleteById(project4.getProjectId());
+
+        mockMvc.perform(put(Routes.PROJECT + "/" + project4.getProjectId() + "/template/")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(template2)))
+                .andExpect(status().isNotFound());
+    }
 
 }
