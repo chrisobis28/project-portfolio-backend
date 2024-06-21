@@ -117,4 +117,18 @@ public class MediaController {
         mediaProjectWebSocketHandler.broadcast(media.getProject().getProjectId().toString());
         return ResponseEntity.status(HttpStatus.OK).body(body);
     }
+
+    /**
+     * Edit media content
+     * @param mediaId the mediaId
+     * @param file the file content
+     * @return the updated media
+     */
+    @PutMapping("/{mediaId}")
+    public ResponseEntity<Media> editMediaContent (@PathVariable("mediaId") UUID mediaId,
+                                                  @RequestParam("file") MultipartFile file) {
+        Media body  = mediaService.changeFile(mediaId,file);
+        mediaProjectWebSocketHandler.broadcast(body.getProject().getProjectId().toString());
+        return ResponseEntity.status(HttpStatus.OK).body(body);
+    }
 }

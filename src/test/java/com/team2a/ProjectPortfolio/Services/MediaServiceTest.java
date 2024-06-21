@@ -206,4 +206,29 @@ public class MediaServiceTest {
     assertEquals(media, mediaService.editMedia(media));
   }
 
+  @Test
+  void testEditMediaContentNotFound() {
+    MockMultipartFile file = new MockMultipartFile("file", "test.md", "text/plain", "test".getBytes());
+    UUID id = UUID.randomUUID();
+    Media media = new Media();
+    media.setMediaId(id);
+    when(mediaRepository.findById(id)).thenReturn(Optional.empty());
+    assertThrows(MediaNotFoundException.class, () -> mediaService.changeFile(id,file));
+  }
+
+  @Test
+  void testEditMediaContentSuccess() {
+    MockMultipartFile file = new MockMultipartFile("file", "test.md", "text/plain", "test".getBytes());
+    Project p =new Project("test","test",false);
+    UUID id = UUID.randomUUID();
+    Media media = new Media();
+    media.setMediaId(id);
+    media.setProject(p);
+    media.setPath("path");
+    doNothing().when(mediaHelper).deleteFile(any());
+    when(mediaRepository.findById(id)).thenReturn(Optional.of(media));
+    when(mediaRepository.save(media)).thenReturn(media);
+    assertEquals(media, mediaService.changeFile(id,file));
+  }
+
 }

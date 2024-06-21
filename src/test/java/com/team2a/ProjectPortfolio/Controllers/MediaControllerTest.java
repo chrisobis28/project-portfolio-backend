@@ -9,17 +9,12 @@ import static org.mockito.Mockito.*;
 import com.team2a.ProjectPortfolio.Commons.Media;
 import com.team2a.ProjectPortfolio.Commons.Project;
 import com.team2a.ProjectPortfolio.CustomExceptions.MediaNotFoundException;
-import com.team2a.ProjectPortfolio.CustomExceptions.ProjectNotFoundException;
 import com.team2a.ProjectPortfolio.Services.MediaService;
 import java.util.List;
 import java.util.UUID;
 
 import com.team2a.ProjectPortfolio.WebSocket.MediaProjectWebSocketHandler;
-import com.team2a.ProjectPortfolio.WebSocket.MediaWebSocketHandler;
 import com.team2a.ProjectPortfolio.dto.MediaFileContent;
-import jakarta.persistence.Tuple;
-import org.antlr.v4.runtime.misc.Pair;
-import org.antlr.v4.runtime.misc.Triple;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,9 +24,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.mock.http.client.MockClientHttpRequest;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.security.core.parameters.P;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -148,5 +141,35 @@ public class MediaControllerTest {
     verify(mediaProjectWebSocketHandler).broadcast(any());
     assertEquals(HttpStatus.OK, entity.getStatusCode());
     assertEquals(media, mediaService.editMedia(media));
+  }
+
+  @Test
+  void testEditMediaContentNotFound() {
+    Media media = new Media();
+    media.setMediaId(UUID.randomUUID());
+    when(mediaService.changeFile(any(UUID.class),any(MockMultipartFile.class))).thenThrow(new ResponseStatusException(HttpStatus.NOT_FOUND));
+    assertThrows(ResponseStatusException.class, () -> mediaController.editMediaContent(media.getMediaId(),new MockMultipartFile("file", "test.md", "text/plain", "test".getBytes())));
+  }
+
+  @Test
+  void testEditMediaContentForbiddenPath() {
+    Media media = new Media();
+    media.setMediaId(UUID.randomUUID());
+    when(mediaService.changeFile(any(UUID.class),any(MockMultipartFile.class))).thenThrow(new ResponseStatusException(HttpStatus.FORBIDDEN));
+    assertThrows(ResponseStatusException.class, () -> mediaController.editMediaContent(media.getMediaId(),new MockMultipartFile("file", "test.md", "text/plain", "test".getBytes())));
+  }
+
+  @Test
+  void testEditMediaContentSuccess() {
+    MockMultipartFile file = new MockMultipartFile("file", "test.md", "text/plain", "test".getBytes());
+    Media media = new Media();
+    Project p = new Project();
+    p.setProjectId(UUID.randomUUID());
+    media.setProject(p);
+    when(mediaService.changeFile(media.getMediaId(),file)).thenReturn(media);
+    ResponseEntity<Media> entity = mediaController.editMediaContent(media.getMediaId(),file);
+    verify(mediaProjectWebSocketHandler).broadcast(any());
+    assertEquals(HttpStatus.OK, entity.getStatusCode());
+    assertEquals(media, mediaService.changeFile(media.getMediaId(),file));
   }
 }
