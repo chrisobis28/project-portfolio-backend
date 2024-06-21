@@ -187,7 +187,6 @@ public class MediaService {
                 m.getPath()+m.getProject().getProjectId());
         String filePath = System.getProperty("user.dir") + "/assets" + File.separator +
                 file.getOriginalFilename()+m.getProject().getProjectId();
-        System.out.println(filePath);
         mediaHelper.saveFile(filePath,file);
         m.setPath(file.getOriginalFilename());
 
