@@ -181,4 +181,16 @@ public class MediaService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         return mediaRepository.save(media);
     }
+    public Media changeFile (UUID mediaId,MultipartFile file){
+        Media m = checkMediaExistence(mediaId);
+        mediaHelper.deleteFile(System.getProperty("user.dir") + "/assets" + File.separator +
+                m.getPath()+m.getProject().getProjectId());
+        String filePath = System.getProperty("user.dir") + "/assets" + File.separator +
+                file.getOriginalFilename()+m.getProject().getProjectId();
+        System.out.println(filePath);
+        mediaHelper.saveFile(filePath,file);
+        m.setPath(file.getOriginalFilename());
+
+        return mediaRepository.save(m);
+    }
 }
