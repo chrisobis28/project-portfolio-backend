@@ -196,8 +196,8 @@ public class AccountService {
      */
     public List<AccountTransfer> getAccounts () {
         return accountRepository.findAll().stream().map(x -> new AccountTransfer(x.getUsername(),
-            x.getRole().equals(Role.ROLE_PM),
-            x.getRole().equals(Role.ROLE_ADMIN)))
+                x.getRole().equals(Role.ROLE_PM),
+                x.getRole().equals(Role.ROLE_ADMIN)))
             .toList();
     }
 

@@ -27,7 +27,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(Routes.ACCOUNT)
-@CrossOrigin("http://localhost:4200")
+@CrossOrigin("http://localhost:4200/")
 public class AccountController {
 
     private final AccountService accountService;
@@ -152,7 +152,7 @@ public class AccountController {
     @PreAuthorize(PM_IN_PROJECT)
     public ResponseEntity<Void> updateRole (@PathVariable("username") String username,
                                             @PathVariable("projectId") UUID projectId,
-                                            @Valid @RequestBody RoleInProject role) {
+                                            @RequestBody RoleInProject role) {
         accountService.updateRole(username, projectId, role);
         accountProjectWebSocketHandler.broadcast(projectId.toString() + " update " + username);
         return ResponseEntity.status(HttpStatus.OK).build();

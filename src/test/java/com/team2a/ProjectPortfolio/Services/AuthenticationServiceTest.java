@@ -51,6 +51,7 @@ public class AuthenticationServiceTest {
     @Test
     void testRegisterUserSuccess() {
         when(accountRepository.existsById("username")).thenReturn(false);
+        when(collaboratorRepository.findByName("username")).thenReturn(Optional.empty());
         RegisterUserRequest request = new RegisterUserRequest("username", "name", "password");
         assertDoesNotThrow(() -> authenticationService.registerUser(request));
     }

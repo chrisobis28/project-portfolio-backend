@@ -287,16 +287,16 @@ public class AccountServiceTest {
     assertEquals(Role.ROLE_USER, ac.getValue().getRole());
   }
 
-    @Test
-    void testGetAccountsInProject(){
-        when(projectsToAccountsRepository.findAll()).thenReturn(List.of(pta));
-        List<AccountDisplay> accounts = accountService.getAccountsInProject(projectId);
-        assertEquals(1, accounts.size());
-        AccountDisplay account = accounts.get(0);
-        assertEquals(a.getUsername(), account.getUsername());
-        assertEquals(a.getName(), account.getName());
-        assertEquals(RoleInProject.CONTENT_CREATOR.toString(), account.getRoleInProject());
+  @Test
+  void testGetAccountsInProject(){
+    when(projectsToAccountsRepository.findAll()).thenReturn(List.of(pta));
+    List<AccountDisplay> accounts = accountService.getAccountsInProject(projectId);
+    assertEquals(1, accounts.size());
+    AccountDisplay account = accounts.get(0);
+    assertEquals(a.getUsername(), account.getUsername());
+    assertEquals(a.getName(), account.getName());
+    assertEquals(RoleInProject.CONTENT_CREATOR.toString(), account.getRoleInProject());
 
-    }
+  }
 
 }
