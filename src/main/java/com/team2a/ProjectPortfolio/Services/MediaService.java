@@ -214,7 +214,7 @@ public class MediaService {
     public Media addAddedMediaToRequest (UUID requestId, MultipartFile file,String name) {
         Request r = requestRepository.findById(requestId).orElseThrow(NotFoundException::new);
         checkPathUniqueness(file.getOriginalFilename());
-        String filePath = System.getProperty("user.dir") + "/assets" + File.separator + file.getOriginalFilename();
+        String filePath = System.getProperty("user.dir") + "/assets" + File.separator + file.getOriginalFilename()+ r.getProject().getProjectId();
         Media media = new Media(name,file.getOriginalFilename());
         mediaHelper.saveFile(filePath, file);
         RequestMediaProject body = new RequestMediaProject(r, media, false);
