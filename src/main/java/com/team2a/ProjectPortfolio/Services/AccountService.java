@@ -3,6 +3,7 @@ package com.team2a.ProjectPortfolio.Services;
 import com.team2a.ProjectPortfolio.Commons.Account;
 import com.team2a.ProjectPortfolio.Commons.Project;
 import com.team2a.ProjectPortfolio.Commons.ProjectsToAccounts;
+import com.team2a.ProjectPortfolio.Commons.Role;
 import com.team2a.ProjectPortfolio.Commons.RoleInProject;
 import com.team2a.ProjectPortfolio.CustomExceptions.AccountNotFoundException;
 import com.team2a.ProjectPortfolio.Repositories.AccountRepository;
@@ -26,24 +27,19 @@ public class AccountService {
     private final ProjectRepository projectRepository;
     private final ProjectsToAccountsRepository projectsToAccountsRepository;
 
-    private final CollaboratorService collaboratorService;
-
     /**
      * Constructor for the AccountService class
      * @param accountRepository - the repository for the Account class
      * @param projectRepository - the repository for the Project class
      * @param projectsToAccountsRepository - the repository for the ProjectsToAccounts class
-     * @param collaboratorService - the service for the Collaborator class
      */
     @Autowired
     public AccountService (AccountRepository accountRepository,
                            ProjectRepository projectRepository,
-                           ProjectsToAccountsRepository projectsToAccountsRepository,
-                           CollaboratorService collaboratorService) {
+                           ProjectsToAccountsRepository projectsToAccountsRepository) {
         this.accountRepository = accountRepository;
         this.projectRepository = projectRepository;
         this.projectsToAccountsRepository = projectsToAccountsRepository;
-        this.collaboratorService = collaboratorService;
     }
 
     /**
@@ -57,6 +53,16 @@ public class AccountService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Account not found.");
         }
         return accountRepository.save(account);
+    }
+
+    public void editAccount (AccountTransfer accountTransfer) throws RuntimeException {
+        Optional<Account> o = accountRepository.findById(accountTransfer.getUsername());
+        if(o.isEmpty()) {
+            throw new AccountNotFoundException("There is no account with username " + accountTransfer.getUsername() + ".");
+        }
+        o.get().setRole(accountTransfer.isAdmin() ? Role.ROLE_ADMIN :
+            accountTransfer.isPM() ? Role.ROLE_PM : Role.ROLE_USER);
+        accountRepository.save(o.get());
     }
 
     /**
@@ -123,8 +129,6 @@ public class AccountService {
         }
         ProjectsToAccounts pta = new ProjectsToAccounts(role, optionalAccount, optionalProject);
         projectsToAccountsRepository.save(pta);
-        collaboratorService.addCollaboratorToProject(projectId,
-            collaboratorService.findCollaboratorIdByName(optionalAccount.getName()), "CONTENT_CREATOR");
     }
 
     /**
@@ -140,8 +144,6 @@ public class AccountService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Project or account not found.");
         }
         projectsToAccountsRepository.deleteById(list.get(0).getPtaId());
-        collaboratorService.deleteCollaboratorFromProject(projectId,
-            collaboratorService.findCollaboratorIdByName(checkAccountExistence(username).getName()));
     }
 
     /**
@@ -194,8 +196,8 @@ public class AccountService {
      */
     public List<AccountTransfer> getAccounts () {
         return accountRepository.findAll().stream().map(x -> new AccountTransfer(x.getUsername(),
-            x.getRole().equals(Role.ROLE_PM),
-            x.getRole().equals(Role.ROLE_ADMIN)))
+                x.getRole().equals(Role.ROLE_PM),
+                x.getRole().equals(Role.ROLE_ADMIN)))
             .toList();
     }
 

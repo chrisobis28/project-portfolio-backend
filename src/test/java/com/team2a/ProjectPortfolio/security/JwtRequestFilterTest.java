@@ -1,5 +1,8 @@
 package com.team2a.ProjectPortfolio.security;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -22,6 +25,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationContext;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.test.util.ReflectionTestUtils;
 
 @ExtendWith(MockitoExtension.class)
@@ -44,7 +48,7 @@ class JwtRequestFilterTest {
 
     @Mock
     private Account account;
-    private final List<String> publicEndpoints = List.of("/public");
+    private final List<String> publicEndpoints = List.of("/public", "/h2-console/**");
 
 
     @InjectMocks
@@ -124,6 +128,57 @@ class JwtRequestFilterTest {
 
         verify(response).setStatus(HttpServletResponse.SC_UNAUTHORIZED);
     }
+
+    @Test
+    public void testDoFilterInternal_NoAuthCookie() throws ServletException, IOException {
+        when(request.getCookies()).thenReturn(new Cookie[]{new Cookie("another-cookie", "value")});
+
+        jwtRequestFilter.doFilterInternal(request, response, filterChain);
+
+        verify(response).setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+    }
+
+    @Test
+    public void testDoFilterInternal_InvalidJwtToken() throws ServletException, IOException {
+        when(request.getCookies()).thenReturn(new Cookie[]{new Cookie("auth-cookie", "invalidToken")});
+        when(jwtTokenUtil.getUsernameFromToken("invalidToken")).thenThrow(new RuntimeException("Invalid token"));
+
+        jwtRequestFilter.doFilterInternal(request, response, filterChain);
+
+        verify(response).setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+    }
+
+    @Test
+    public void testDoFilterInternal_AdditionalPublicEndpoint() throws ServletException, IOException {
+        when(request.getRequestURI()).thenReturn("/another-public-endpoint");
+        ReflectionTestUtils.setField(jwtRequestFilter, "publicEndpoints", List.of("/another-public-endpoint"));
+        jwtRequestFilter.doFilterInternal(request, response, filterChain);
+        verify(filterChain).doFilter(request, response);
+    }
+
+    @Test
+    public void testDoFilterInternal_ValidTokenWithAuthorities() throws ServletException, IOException {
+        when(request.getCookies()).thenReturn(new Cookie[]{new Cookie("auth-cookie", "validToken")});
+        when(jwtTokenUtil.getUsernameFromToken("validToken")).thenReturn("username");
+        when(account.getUsername()).thenReturn("username");
+        doReturn(List.of(new SimpleGrantedAuthority("ROLE_USER"))).when(account).getAuthorities();
+        when(accountRepository.findById("username")).thenReturn(Optional.of(account));
+        when(jwtTokenUtil.validateToken("validToken", "username")).thenReturn(true);
+
+        jwtRequestFilter.doFilterInternal(request, response, filterChain);
+
+        verify(filterChain).doFilter(request, response);
+    }
+
+    @Test
+    public void testDoFilterInternal_H2ConsolePublicEndpoint() throws ServletException, IOException {
+        when(request.getRequestURI()).thenReturn("/h2-console/something");
+
+        jwtRequestFilter.doFilterInternal(request, response, filterChain);
+
+        verify(filterChain).doFilter(request, response);
+    }
+
 
 
 }
