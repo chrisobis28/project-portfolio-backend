@@ -16,7 +16,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.nio.file.Path;
 import java.util.List;
 import java.util.UUID;
 
@@ -63,6 +62,7 @@ public class LinkController {
     /**
      * Edit the link of the project
      * @param link the link entity
+     * @param projectId
      * @return the new link entity
      */
     @PutMapping("/{projectId}")
@@ -95,6 +95,7 @@ public class LinkController {
     /**
      * Delete a link based on its id
      * @param linkId the linkId of the link to be deleted
+     * @param projectId
      * @return a string containing a message if the link was deleted
      */
     @DeleteMapping("/{linkId}/{projectId}")

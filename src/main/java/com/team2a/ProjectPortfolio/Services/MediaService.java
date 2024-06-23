@@ -12,8 +12,6 @@ import com.team2a.ProjectPortfolio.Repositories.ProjectRepository;
 import com.team2a.ProjectPortfolio.dto.MediaFileContent;
 import java.io.File;
 import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import com.team2a.ProjectPortfolio.Repositories.RequestMediaProjectRepository;
 import com.team2a.ProjectPortfolio.Repositories.RequestRepository;
