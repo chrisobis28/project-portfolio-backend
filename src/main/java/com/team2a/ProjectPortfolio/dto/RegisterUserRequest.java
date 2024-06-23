@@ -22,9 +22,9 @@ public class RegisterUserRequest {
 
     @Getter
     @NotNull(message = "Name must be specified.")
-    @Pattern(regexp = "^[a-zA-Z_]{1,50}$",
-        message = "Name must consist of alphanumeric characters only, be separated by _ " +
-        "and be between 1 to 50 characters long.")
+    @Pattern(regexp = "^[a-zA-Z ]{1,50}$",
+        message = "Name must consist of alphanumeric characters only, be separated by spaces " +
+            "and be between 1 to 50 characters long.")
     private String name;
 
     /**

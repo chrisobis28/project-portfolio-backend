@@ -2,6 +2,7 @@ package com.team2a.ProjectPortfolio.Controllers;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
@@ -9,6 +10,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.team2a.ProjectPortfolio.Services.AuthenticationService;
+import com.team2a.ProjectPortfolio.WebSocket.AccountWebSocketHandler;
 import com.team2a.ProjectPortfolio.dto.LoginUserRequest;
 import com.team2a.ProjectPortfolio.dto.RegisterUserRequest;
 import jakarta.servlet.http.Cookie;
@@ -33,6 +35,9 @@ public class AuthenticationControllerTest {
 
   @Mock
   private AuthenticationService authenticationService;
+
+  @Mock
+  private AccountWebSocketHandler accountWebSocketHandler;
   @Mock
   private HttpServletRequest httpServletRequest;
   @Mock
@@ -44,9 +49,10 @@ public class AuthenticationControllerTest {
   @BeforeEach
   void setUp() {
     authenticationService = Mockito.mock(AuthenticationService.class);
+    accountWebSocketHandler = Mockito.mock(AccountWebSocketHandler.class);
     httpServletRequest = Mockito.mock(HttpServletRequest.class);
     httpServletResponse = Mockito.mock(HttpServletResponse.class);
-    authenticationController = new AuthenticationController(authenticationService);
+    authenticationController = new AuthenticationController(authenticationService, accountWebSocketHandler);
   }
 
   @Test
@@ -54,6 +60,7 @@ public class AuthenticationControllerTest {
     RegisterUserRequest request = new RegisterUserRequest("username", "password", "name");
     doThrow(new ResponseStatusException(HttpStatus.CONFLICT, "Username already exists.")).when(authenticationService).registerUser(request);
     ResponseStatusException e = assertThrows(ResponseStatusException.class, () -> authenticationController.createAccount(request));
+    verify(accountWebSocketHandler, times(0)).broadcast(any());
     assertEquals(HttpStatus.CONFLICT, e.getStatusCode());
     assertEquals("Username already exists.", e.getReason());
   }
@@ -63,6 +70,7 @@ public class AuthenticationControllerTest {
     RegisterUserRequest request = new RegisterUserRequest("username", "password", "name");
     doNothing().when(authenticationService).registerUser(request);
     assertEquals(HttpStatus.CREATED, authenticationController.createAccount(request).getStatusCode());
+    verify(accountWebSocketHandler, times(1)).broadcast("add " + request.getUsername());
   }
 
   @Test

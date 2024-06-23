@@ -3,16 +3,19 @@ package com.team2a.ProjectPortfolio.Services;
 import com.team2a.ProjectPortfolio.Commons.Project;
 import com.team2a.ProjectPortfolio.Commons.ProjectsToAccounts;
 import com.team2a.ProjectPortfolio.Commons.RoleInProject;
+import com.team2a.ProjectPortfolio.Commons.Template;
 import com.team2a.ProjectPortfolio.Repositories.ProjectRepository;
 import com.team2a.ProjectPortfolio.Repositories.ProjectsToAccountsRepository;
 import com.team2a.ProjectPortfolio.security.SecurityUtils;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+
 
 @Service
 public class ProjectService {
@@ -22,24 +25,19 @@ public class ProjectService {
 
     private final SecurityUtils securityUtils;
 
-    private final CollaboratorService collaboratorService;
-
     /**
      * Constructor for the Project Service
      * @param projectRepository - the Project Repository
      * @param securityUtils - the Security Utils
      * @param projectsToAccountsRepository - the Projects to Accounts Repository
-     * @param collaboratorService - the Collaborator Service
      */
     @Autowired
     public ProjectService(ProjectRepository projectRepository,
                           SecurityUtils securityUtils,
-                          ProjectsToAccountsRepository projectsToAccountsRepository,
-                          CollaboratorService collaboratorService) {
+                          ProjectsToAccountsRepository projectsToAccountsRepository) {
         this.projectRepository = projectRepository;
         this.securityUtils = securityUtils;
         this.projectsToAccountsRepository = projectsToAccountsRepository;
-        this.collaboratorService = collaboratorService;
     }
 
     /**
@@ -97,8 +95,6 @@ public class ProjectService {
         ProjectsToAccounts pta = new ProjectsToAccounts(RoleInProject.PM, securityUtils.getCurrentUser(), result);
         result = projectRepository.save(result);
         projectsToAccountsRepository.save(pta);
-        collaboratorService.addCollaboratorToProject(result.getProjectId(),
-            collaboratorService.findCollaboratorIdByName(securityUtils.getCurrentUser().getName()), "PROJECT_MANAGER");
         return result;
     }
 
@@ -130,5 +126,43 @@ public class ProjectService {
             .map(ProjectsToAccounts::getRole)
             .findFirst()
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN, "You do not belong to this project"));
+    }
+
+    /**
+     * Updates the template of a project, this could be adding, updating or deleting the template
+     * @param projectId the if of the project
+     * @param template the new template
+     * @return the project with the updated template
+     */
+    public Project updateProjectTemplate (UUID projectId, Template template) {
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Project not found"));
+        project.setTemplate(template);
+        project = projectRepository.save(project);
+        return project;
+    }
+
+    /**
+     * Remove the template of a project
+     * @param projectId the id of the project
+     * @return the project having the template set to null
+     */
+    public Project removeTemplateFromProject (UUID projectId) {
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Project not found"));
+        project.setTemplate(null);
+        project = projectRepository.save(project);
+        return project;
+    }
+
+    /**
+     * Retrieve the template of a project given the project id
+     * @param projectId the id of the project
+     * @return the template of the specific project
+     */
+    public Template getTemplateByProjectId (UUID projectId) {
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Project not found"));
+        return project.getTemplate();
     }
 }

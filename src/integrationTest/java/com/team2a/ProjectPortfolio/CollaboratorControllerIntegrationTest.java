@@ -79,17 +79,6 @@ public class CollaboratorControllerIntegrationTest {
                 .andExpect(jsonPath("$[1].name", is("Test3")));
     }
     @Test
-    public void addCollaboratorToProject() throws Exception {
-        assertThat(projectsToCollaboratorsRepository.findAllByCollaboratorCollaboratorId(collaborator1.getCollaboratorId()).size()).isEqualTo(0);
-        mockMvc.perform(post(Routes.COLLABORATOR + "/" + projectId +"/" +collaborator1.getCollaboratorId())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("Backend"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.name", is(collaborator1.getName() )))
-                .andExpect(jsonPath("$.collaboratorId", is(collaborator1.getCollaboratorId().toString())));
-        assertThat(projectsToCollaboratorsRepository.findAllByCollaboratorCollaboratorId(collaborator1.getCollaboratorId()).size()).isEqualTo(1);
-    }
-    @Test
     public void editCollaboratorOfProject() throws Exception {
         assertThat(collaboratorRepository.findAll().size()).isEqualTo(3);
         mockMvc.perform(put(Routes.COLLABORATOR +"/"+ collaborator1.getCollaboratorId())
@@ -128,26 +117,6 @@ public class CollaboratorControllerIntegrationTest {
         mockMvc.perform(get(Routes.COLLABORATOR + "/public/" + UUID.randomUUID())
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
-    }
-    @Test
-    public void addCollaboratorToProjectNotFound() throws Exception {
-        assertThat(projectsToCollaboratorsRepository.findAllByCollaboratorCollaboratorId(UUID.randomUUID()).size()).isEqualTo(0);
-        mockMvc.perform(post(Routes.COLLABORATOR + "/" + UUID.randomUUID()+"/"+UUID.randomUUID())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("Backend"))
-                .andExpect(status().isNotFound());
-        assertThat(projectsToCollaboratorsRepository.findAllByCollaboratorCollaboratorId(collaborator1.getCollaboratorId()).size()).isEqualTo(0);
-    }
-    @Test
-    public void addNewCollaboratorToProjectNotFound() throws Exception {
-        assertThat(collaboratorRepository.findAll().size()).isEqualTo(3);
-        assertThat(collaboratorRepository.findAllByName("newName").size()).isEqualTo(0);
-        mockMvc.perform(post(Routes.COLLABORATOR + "/" + UUID.randomUUID()+"/"+UUID.randomUUID())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("Backend"))
-                .andExpect(status().isNotFound());
-        assertThat(collaboratorRepository.findAllByName("newName").size()).isEqualTo(0);
-        assertThat(collaboratorRepository.findAll().size()).isEqualTo(3);
     }
     @Test
     public void editCollaboratorOfProjectNotFound() throws Exception {

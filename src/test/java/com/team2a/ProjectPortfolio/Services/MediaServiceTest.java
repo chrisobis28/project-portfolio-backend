@@ -17,6 +17,7 @@ import com.team2a.ProjectPortfolio.Repositories.ProjectRepository;
 import java.io.IOException;
 import java.util.*;
 
+import com.team2a.ProjectPortfolio.dto.MediaFileContent;
 import org.antlr.v4.runtime.misc.Pair;
 import org.antlr.v4.runtime.misc.Triple;
 import org.junit.jupiter.api.BeforeEach;
@@ -72,14 +73,12 @@ public class MediaServiceTest {
     Media m3 = new Media("name3", "path3");
     m3.setProject(p);
     when(mediaRepository.findAllByProjectProjectId(x)).thenReturn(List.of(m1, m2, m3));
-    String[] returnExample = {"path1","path2","path3"};
-    when(mediaHelper.getFiles()).thenReturn(returnExample);
-    List<Triple<String, String, String>> expectedList = List.of(
-            new Triple<>("path1", "null", "name1"),
-            new Triple<>("path2", "null", "name2"),
-            new Triple<>("path3", "null", "name3")
+    List<MediaFileContent> expectedList = List.of(
+            new MediaFileContent("name1", "path1", "null"),
+            new MediaFileContent("name2", "path2", "null"),
+            new MediaFileContent("name3", "path3", "null")
     );
-    List<Triple<String, String, String>> actualList = mediaService.getImagesContentByProjectId(x).stream().toList();
+    List<MediaFileContent> actualList = mediaService.getImagesContentByProjectId(x).stream().toList();
     assertThat(actualList.toString()).isEqualTo(expectedList.toString());
   }
   @Test
@@ -114,9 +113,9 @@ public class MediaServiceTest {
     m1.setProject(p);
     when(mediaRepository.findById(x)).thenReturn(Optional.of(m1));
     when(mediaRepository.findMediaByMediaId(x)).thenReturn(m1);
-    when(mediaHelper.getFileContents(m1.getPath())).thenReturn("content1");
-    Pair<String, String> expectedList =new Pair<>("path1","content1");
-    Pair<String, String> actualPair = mediaService.getDocumentByMediaId(x);
+    when(mediaHelper.getFileContents(m1.getPath()+p.getProjectId())).thenReturn("content1");
+    MediaFileContent expectedList =new MediaFileContent("name1","path1","content1");
+    MediaFileContent actualPair = mediaService.getDocumentByMediaId(x);
     assertThat(actualPair.toString()).isEqualTo(expectedList.toString());
   }
   @Test
@@ -131,15 +130,6 @@ public class MediaServiceTest {
     UUID x = UUID.randomUUID();
     when(projectRepository.findById(x)).thenReturn(Optional.empty());
     assertThrows(ResponseStatusException.class, () -> mediaService.addMediaToProject(x, new MockMultipartFile("file", "test.md", "text/plain", "test".getBytes()),"Test"),"test");
-  }
-
-  @Test
-  void testAddMediaToProjectPathNotUnique() {
-    UUID x = UUID.randomUUID();
-    Project p = new Project();
-    when(projectRepository.findById(x)).thenReturn(Optional.of(p));
-    when(mediaRepository.findAll()).thenReturn(List.of(new Media("name", "path")));
-    assertThrows(ResponseStatusException.class, () -> mediaService.addMediaToProject(x, new MockMultipartFile("name", "path", "text/plain", "test".getBytes()),"Test"),"test");
   }
 
   @Test
@@ -184,8 +174,13 @@ public class MediaServiceTest {
   @Test
   void testDeleteMediaFromProjectSuccess(){
     UUID x = UUID.randomUUID();
+    Project project = new Project();
+    UUID projectId = UUID.randomUUID();
+    project.setProjectId(projectId);
     Media m = new Media("name", "path");
+    m.setProject(project);
     when(mediaRepository.findById(x)).thenReturn(Optional.of(m));
+    doNothing().when(mediaHelper).deleteFile(any());
     doNothing().when(mediaRepository).deleteById(x);
     mediaService.deleteMedia(x);
     verify(mediaRepository, times(1)).deleteById(x);
@@ -201,26 +196,39 @@ public class MediaServiceTest {
   }
 
   @Test
-  void testEditMediaPathNotUnique() {
-    UUID id = UUID.randomUUID();
-    Media media = new Media();
-    media.setMediaId(id);
-    media.setPath("path");
-    when(mediaRepository.findAll()).thenReturn(List.of(new Media("name", "path")));
-    when(mediaRepository.findById(id)).thenReturn(Optional.of(new Media("name", "some_other_path")));
-    assertThrows(ResponseStatusException.class, () -> mediaService.editMedia(media));
-  }
-
-  @Test
   void testEditMediaSuccess() {
     UUID id = UUID.randomUUID();
     Media media = new Media();
     media.setMediaId(id);
     media.setPath("path");
-    when(mediaRepository.findAll()).thenReturn(List.of());
     when(mediaRepository.findById(id)).thenReturn(Optional.of(new Media()));
     when(mediaRepository.save(media)).thenReturn(media);
     assertEquals(media, mediaService.editMedia(media));
+  }
+
+  @Test
+  void testEditMediaContentNotFound() {
+    MockMultipartFile file = new MockMultipartFile("file", "test.md", "text/plain", "test".getBytes());
+    UUID id = UUID.randomUUID();
+    Media media = new Media();
+    media.setMediaId(id);
+    when(mediaRepository.findById(id)).thenReturn(Optional.empty());
+    assertThrows(MediaNotFoundException.class, () -> mediaService.changeFile(id,file));
+  }
+
+  @Test
+  void testEditMediaContentSuccess() {
+    MockMultipartFile file = new MockMultipartFile("file", "test.md", "text/plain", "test".getBytes());
+    Project p =new Project("test","test",false);
+    UUID id = UUID.randomUUID();
+    Media media = new Media();
+    media.setMediaId(id);
+    media.setProject(p);
+    media.setPath("path");
+    doNothing().when(mediaHelper).deleteFile(any());
+    when(mediaRepository.findById(id)).thenReturn(Optional.of(media));
+    when(mediaRepository.save(media)).thenReturn(media);
+    assertEquals(media, mediaService.changeFile(id,file));
   }
 
 }
