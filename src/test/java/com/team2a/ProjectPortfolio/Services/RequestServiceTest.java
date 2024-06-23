@@ -196,7 +196,7 @@ class RequestServiceTest {
         Request r = new Request("title", "description", false, new Account(), new Project());
         when(requestRepository.findById(id1)).thenReturn(Optional.of(r));
         sut.deleteRequest(id1);
-        verify(requestRepository).delete(r);
+        verify(requestRepository).deleteByRequestId(any());
     }
 
     @Test
@@ -248,7 +248,7 @@ class RequestServiceTest {
         verify(linkRepository).delete(any());
         verify(linkRepository).save(any());
 
-        verify(requestRepository).deleteAll(any());
+        verify(requestRepository).deleteByRequestId(any());
 
 
     }

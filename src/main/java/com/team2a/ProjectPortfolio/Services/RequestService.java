@@ -164,7 +164,7 @@ public class RequestService {
         if(request.isEmpty())
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Request not found.");
 
-        requestRepository.delete(request.get());
+        requestRepository.deleteByRequestId(request.get().getRequestId());
         requestRepository.flush();
     }
 
@@ -236,7 +236,7 @@ public class RequestService {
             }
         }
 
-        requestRepository.deleteAll(List.of(r));
+        requestRepository.deleteByRequestId(r.getRequestId());
 
 
     }
