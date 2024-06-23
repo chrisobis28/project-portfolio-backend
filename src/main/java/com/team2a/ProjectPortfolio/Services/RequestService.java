@@ -1,11 +1,13 @@
 package com.team2a.ProjectPortfolio.Services;
 
 import com.team2a.ProjectPortfolio.Commons.*;
+import com.team2a.ProjectPortfolio.CustomExceptions.NotFoundException;
 import com.team2a.ProjectPortfolio.Repositories.*;
 import jakarta.transaction.Transactional;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,7 +15,9 @@ import java.util.Optional;
 import java.util.UUID;
 import org.springframework.web.server.ResponseStatusException;
 
+
 @Service
+@Transactional
 public class RequestService {
 
     @Autowired
@@ -27,6 +31,23 @@ public class RequestService {
     @Autowired
     @Setter
     private ProjectRepository projectRepository;
+
+    @Autowired
+    @Setter
+    private TagToProjectRepository tagToProjectRepository;
+
+    @Autowired
+    @Setter
+    private ProjectsToCollaboratorsRepository projectsToCollaboratorsRepository;
+
+    @Autowired
+    @Setter
+    private MediaRepository mediaRepository;
+
+    @Autowired
+    @Setter
+    private LinkRepository linkRepository;
+
 
     /**
      * Method for getting a request by its id
@@ -143,14 +164,16 @@ public class RequestService {
         if(request.isEmpty())
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Request not found.");
 
-        requestRepository.delete(request.get());
+        requestRepository.deleteByRequestId(request.get().getRequestId());
+        requestRepository.flush();
     }
 
     /**
      * Method for accepting a request
      * @param requestId the id of the request to be accepted
      */
-    @Transactional
+
+//    @PreAuthorize(PM_IN_PROJECT)
     public void acceptRequest (UUID requestId) {
         Optional<Request> request = requestRepository.findById(requestId);
 
@@ -164,9 +187,62 @@ public class RequestService {
         if(r.getNewDescription() != null)
             p.setDescription(r.getNewDescription());
 
-        //Resolve other fields
-
         projectRepository.save(p);
-        requestRepository.delete(r);
+
+
+        for(RequestTagProject tagRequest : r.getRequestTagProjects()) {
+            if(tagRequest.getIsRemove()) {
+                List<TagsToProject> body = tagToProjectRepository.findAllByProjectProjectIdAndTagTagId
+                        (p.getProjectId(), tagRequest.getTag().getTagId());
+
+                tagToProjectRepository.deleteAll(body);
+            }
+            else {
+                TagsToProject body = new TagsToProject(tagRequest.getTag(), p);
+                tagToProjectRepository.save(body);
+            }
+        }
+
+        for(RequestCollaboratorsProjects collRequest: r.getRequestCollaboratorsProjects()) {
+            if(collRequest.getIsRemove()) {
+                List<ProjectsToCollaborators> body = projectsToCollaboratorsRepository
+                        .findAllByProjectProjectIdAndCollaboratorCollaboratorId
+                        (p.getProjectId(), collRequest.getCollaborator().getCollaboratorId());
+
+                projectsToCollaboratorsRepository.deleteAll(body);
+            } else {
+                ProjectsToCollaborators body = new ProjectsToCollaborators(p, collRequest.getCollaborator(),"");
+                projectsToCollaboratorsRepository.save(body);
+            }
+        }
+
+        for(RequestMediaProject mediaRequest: r.getRequestMediaProjects()) {
+            if(mediaRequest.getIsRemove()) {
+                mediaRepository.delete(mediaRequest.getMedia());
+            } else {
+                Media body = mediaRequest.getMedia();
+                body.setProject(p);
+                mediaRepository.save(body);
+            }
+        }
+
+        for(RequestLinkProject linkRequest: r.getRequestLinkProjects()) {
+            if(linkRequest.getIsRemove()) {
+                linkRepository.delete(linkRequest.getLink());
+            } else {
+                Link body = linkRequest.getLink();
+                body.setProject(p);
+                linkRepository.save(body);
+            }
+        }
+
+        requestRepository.deleteByRequestId(r.getRequestId());
+
+
+    }
+
+    public Request getRequestForId (UUID requestId) {
+        Request body = requestRepository.findById(requestId).orElseThrow(NotFoundException::new);
+        return body;
     }
 }

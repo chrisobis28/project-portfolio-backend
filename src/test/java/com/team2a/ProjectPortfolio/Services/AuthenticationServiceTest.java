@@ -3,6 +3,8 @@ package com.team2a.ProjectPortfolio.Services;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.team2a.ProjectPortfolio.Commons.Account;
@@ -55,6 +57,15 @@ public class AuthenticationServiceTest {
     }
 
     @Test
+    void testCollaboratorEmpty () {
+
+        when(accountRepository.existsById("username")).thenReturn(false);
+        RegisterUserRequest request = new RegisterUserRequest("username", "name", "password");
+        assertDoesNotThrow(() -> authenticationService.registerUser(request));
+        verify(accountRepository).save(any());
+    }
+
+    @Test
     void testLoginUserUsernameIncorrect() {
         LoginUserRequest request = new LoginUserRequest("username", "password");
         when(accountRepository.findById("username")).thenReturn(Optional.empty());
@@ -76,5 +87,19 @@ public class AuthenticationServiceTest {
         when(passwordEncoder.matches("password", "password")).thenReturn(true);
         when(jwtTokenUtil.generateToken("username")).thenReturn("token");
         assertEquals("token", authenticationService.authenticate(request));
+    }
+
+    @Test
+    void testGetAccountRoleEmpty () {
+        when(accountRepository.findById(any())).thenReturn(Optional.empty());
+        assertEquals(authenticationService.getAccountRole("a"), "ROLE_VISITOR");
+    }
+
+    @Test
+    void testGetAccountRoleNotEmpty () {
+        Account a = new Account();
+        a.setRole(Role.ROLE_PM);
+        when(accountRepository.findById(any())).thenReturn(Optional.of(a));
+        assertEquals(authenticationService.getAccountRole("a"), "ROLE_PM");
     }
 }

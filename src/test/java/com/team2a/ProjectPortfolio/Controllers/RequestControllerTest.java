@@ -86,7 +86,7 @@ class RequestControllerTest {
 
         doNothing().when(requestService).deleteRequest(id1);
 
-        ResponseEntity<Void> res = sut.deleteRequest(id1);
+        ResponseEntity<Void> res = sut.deleteRequest(id1, UUID.randomUUID());
         assertEquals(HttpStatus.NO_CONTENT, res.getStatusCode());
     }
 
@@ -97,6 +97,24 @@ class RequestControllerTest {
                 true, new Account(), new Project());
         doNothing().when(requestService).acceptRequest(id1);
         assertEquals(sut.acceptRequest(id1,id1).getStatusCode(), HttpStatus.NO_CONTENT);;
+    }
+
+    @Test
+    void testGetRequestByIdOk() {
+        Request r = new Request();
+        when(requestService.getRequestById(any())).thenReturn(r);
+        ResponseEntity<Request> res = sut.getRequestById(UUID.randomUUID(),
+                UUID.randomUUID());
+        assertEquals(res.getStatusCode(), HttpStatus.OK);
+        assertEquals(res.getBody(), r);
+    }
+
+    @Test
+    void testGetRequestsNotFound() {
+        when(requestService.getRequestById(any())).thenThrow(NotFoundException.class);
+        ResponseEntity<Request> res = sut.getRequestById(UUID.randomUUID(),
+                UUID.randomUUID());
+        assertEquals(res.getStatusCode(), HttpStatus.NOT_FOUND);
     }
 
 }

@@ -16,7 +16,7 @@ public class Permissions {
         "@customSecurityService.editorInProject(authentication, #projectId)";
 
     public final static String USER_IN_PROJECT = ADMIN_ALLOW +
-        "@customSecurityService.belongsToProject(authentication, #request.project.projectId)";
+        "@customSecurityService.belongsToProjectBoolean(authentication, #projectId)";
 
     public final static String IS_CREATOR_OR_PM_IN_PROJECT = ADMIN_ALLOW +
         "@customSecurityService.isCreatorOrPmInProject(authentication, #requestId, #request.project.projectId)";

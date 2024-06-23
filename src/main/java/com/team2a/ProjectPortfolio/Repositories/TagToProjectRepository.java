@@ -14,5 +14,7 @@ public interface TagToProjectRepository extends JpaRepository<TagsToProject, UUI
 
     List<TagsToProject> findAllByProjectProjectId (UUID projectId);
 
+    List<TagsToProject> findAllByProjectProjectIdAndTagTagId (UUID projectId, UUID tagId);
+
     void deleteByProjectProjectIdAndTagTagId (UUID projectId, UUID tagId);
 }

@@ -1,11 +1,7 @@
 package com.team2a.ProjectPortfolio.Services;
 
-import com.team2a.ProjectPortfolio.Commons.Collaborator;
-import com.team2a.ProjectPortfolio.Commons.Project;
-import com.team2a.ProjectPortfolio.Commons.ProjectsToCollaborators;
-import com.team2a.ProjectPortfolio.Repositories.CollaboratorRepository;
-import com.team2a.ProjectPortfolio.Repositories.ProjectRepository;
-import com.team2a.ProjectPortfolio.Repositories.ProjectsToCollaboratorsRepository;
+import com.team2a.ProjectPortfolio.Commons.*;
+import com.team2a.ProjectPortfolio.Repositories.*;
 import com.team2a.ProjectPortfolio.dto.CollaboratorTransfer;
 import jakarta.persistence.EntityNotFoundException;
 import java.util.Optional;
@@ -22,19 +18,27 @@ public class CollaboratorService {
     private final ProjectsToCollaboratorsRepository projectsToCollaboratorsRepository;
     private final CollaboratorRepository collaboratorRepository;
     private final ProjectRepository projectRepository;
+    private final RequestRepository requestRepository;
+    private final RequestCollaboratorsProjectsRepository requestCollaboratorsProjectsRepository;
 
     /**
-     * The constructor for the Collaborator Service
-     * @param projectsToCollaboratorsRepository the projectToCollaboratorsRepository
-     * @param collaboratorRepository the collaborator repository
-     * @param projectRepository the project repository
+     * Constructor for CollaboratorService
+     * @param projectsToCollaboratorsRepository
+     * @param collaboratorRepository
+     * @param projectRepository
+     * @param requestRepository
+     * @param requestCollaboratorsProjectsRepository
      */
     @Autowired
     public CollaboratorService (ProjectsToCollaboratorsRepository projectsToCollaboratorsRepository,
-                               CollaboratorRepository collaboratorRepository, ProjectRepository projectRepository) {
+                               CollaboratorRepository collaboratorRepository, ProjectRepository projectRepository,
+                                RequestRepository requestRepository,
+                                RequestCollaboratorsProjectsRepository requestCollaboratorsProjectsRepository) {
         this.projectsToCollaboratorsRepository = projectsToCollaboratorsRepository;
         this.collaboratorRepository = collaboratorRepository;
         this.projectRepository = projectRepository;
+        this.requestRepository = requestRepository;
+        this.requestCollaboratorsProjectsRepository = requestCollaboratorsProjectsRepository;
     }
 
 
@@ -152,5 +156,20 @@ public class CollaboratorService {
             projectsToCollaboratorsRepository.save(ptc);
         }
         return collaboratorTransfer;
+    }
+
+    public List<RequestCollaboratorsProjects> getCollaboratorsForRequest (UUID requestId) {
+        Optional<Request> req = requestRepository.findById(requestId);
+        if(req.isEmpty())
+            throw new EntityNotFoundException();
+        return req.get().getRequestCollaboratorsProjects();
+    }
+
+    public Collaborator addCollaboratorToRequest (UUID requestId, UUID collaboratorID, Boolean isRemove) {
+        Request req = requestRepository.findById(requestId).orElseThrow(EntityNotFoundException::new);
+        Collaborator col = collaboratorRepository.findById(collaboratorID).orElseThrow(EntityNotFoundException::new);
+        RequestCollaboratorsProjects body = new RequestCollaboratorsProjects(col, req, isRemove);
+        requestCollaboratorsProjectsRepository.save(body);
+        return col;
     }
 }

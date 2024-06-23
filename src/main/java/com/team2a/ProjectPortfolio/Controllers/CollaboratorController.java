@@ -1,9 +1,7 @@
 package com.team2a.ProjectPortfolio.Controllers;
 
-import static com.team2a.ProjectPortfolio.security.Permissions.PM_IN_PROJECT;
-import static com.team2a.ProjectPortfolio.security.Permissions.PM_ONLY;
-
 import com.team2a.ProjectPortfolio.Commons.Collaborator;
+import com.team2a.ProjectPortfolio.Commons.RequestCollaboratorsProjects;
 import com.team2a.ProjectPortfolio.Routes;
 import com.team2a.ProjectPortfolio.Services.CollaboratorService;
 import com.team2a.ProjectPortfolio.WebSocket.CollaboratorProjectWebSocketHandler;
@@ -18,6 +16,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.UUID;
+
+import static com.team2a.ProjectPortfolio.security.Permissions.*;
 
 @RestController
 @RequestMapping(Routes.COLLABORATOR)
@@ -150,5 +150,34 @@ public class CollaboratorController {
                                        @PathVariable("projectId") UUID projectId) {
         collaboratorProjectWebSocketHandler.broadcast("all");
         return ResponseEntity.ok(collaboratorService.createAndAddCollaboratorToProject(projectId, collaborator));
+    }
+
+    @GetMapping("/request/{requestId}/{projectId}")
+    @PreAuthorize(PM_IN_PROJECT)
+    public ResponseEntity<List<RequestCollaboratorsProjects>> getCollaboratorsForRequest (
+            @PathVariable("requestId") UUID requestId,
+             @PathVariable("projectId") UUID projectId) {
+        try {
+            List<RequestCollaboratorsProjects> body =
+                    collaboratorService.getCollaboratorsForRequest
+                            (requestId);
+            return new ResponseEntity<>(body, HttpStatus.OK);
+        } catch (EntityNotFoundException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @PostMapping("/request/{requestId}/{collaboratorId}/{projectId}")
+    @PreAuthorize(USER_IN_PROJECT)
+    public ResponseEntity<Collaborator> addCollaboratorToRequest (@PathVariable("requestId") UUID requestId,
+                                                                  @PathVariable("collaboratorId") UUID collaboratorId,
+                                                                  @PathVariable("projectId") UUID projectId,
+                                                                  @RequestBody Boolean isRemove) {
+        try{
+            Collaborator body = collaboratorService.addCollaboratorToRequest(requestId, collaboratorId, isRemove);
+            return new ResponseEntity<>(body, HttpStatus.OK);
+        } catch (EntityNotFoundException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 }
