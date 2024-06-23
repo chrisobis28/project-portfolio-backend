@@ -6,6 +6,7 @@ import com.team2a.ProjectPortfolio.Routes;
 import com.team2a.ProjectPortfolio.Services.CollaboratorService;
 import com.team2a.ProjectPortfolio.WebSocket.CollaboratorProjectWebSocketHandler;
 import com.team2a.ProjectPortfolio.WebSocket.CollaboratorWebSocketHandler;
+import com.team2a.ProjectPortfolio.dto.CollaboratorTransfer;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -49,13 +50,9 @@ public class CollaboratorController {
      * @return a response entity that contains the list of collaborators entities
      */
     @GetMapping("/public/{projectId}")
-    public ResponseEntity<List<Collaborator>> getCollaboratorsByProjectId (@PathVariable("projectId") UUID projectId){
-        try {
-            List<Collaborator> collaboratorsList = collaboratorService.getCollaboratorsByProjectId(projectId);
-            return ResponseEntity.ok(collaboratorsList);
-        } catch (EntityNotFoundException e) {
-            return ResponseEntity.notFound().build();
-        }
+    public ResponseEntity<List<CollaboratorTransfer>> getCollaboratorsByProjectId
+    (@PathVariable("projectId") UUID projectId){
+        return ResponseEntity.ok(collaboratorService.getCollaboratorsByProjectId(projectId));
     }
 
     /**
@@ -71,28 +68,6 @@ public class CollaboratorController {
         Collaborator c = collaboratorService.addCollaborator(name);
         collaboratorWebSocketHandler.broadcast("Collaborator added");
         return new ResponseEntity<>(c, HttpStatus.OK);
-    }
-
-    /**
-     * Adds a collaborator to a specified projectId. If the collaborator is already in the database, we just
-     * link it to the project. Otherwise, we create it and link to the project.
-     * @param projectId the projectId
-     * @param collaboratorId the collaborator ID
-     * @param role the collaborator role
-     * @return a responseEntity containing a collaborator entity
-     */
-    @PostMapping("/{projectId}/{collaboratorId}")
-    @PreAuthorize(PM_IN_PROJECT)
-    public ResponseEntity<Collaborator> addCollaboratorToProject (@PathVariable("projectId") UUID projectId,
-                                                                  @PathVariable("collaboratorId") UUID collaboratorId,
-                                                                  @RequestBody String role){
-        try {
-            Collaborator collaborator = collaboratorService.addCollaboratorToProject(projectId,collaboratorId,role);
-            collaboratorProjectWebSocketHandler.broadcast(projectId.toString());
-            return ResponseEntity.ok(collaborator);
-        } catch (EntityNotFoundException e) {
-            return ResponseEntity.notFound().build();
-        }
     }
 
     /**
@@ -160,6 +135,21 @@ public class CollaboratorController {
     public ResponseEntity<List<Collaborator>> getAllCollaborators () {
         List<Collaborator> collaborators = collaboratorService.getAllCollaborators();
         return new ResponseEntity<>(collaborators, HttpStatus.OK);
+    }
+
+    /**
+     * endpoint for creating and adding a collaborator to a project
+     * @param collaborator the collaborator to be added
+     * @param projectId the project ID
+     * @return a response entity containing the collaborator entity
+     */
+    @PostMapping("/{projectId}")
+    @PreAuthorize(PM_IN_PROJECT)
+    public ResponseEntity<CollaboratorTransfer>
+        createAndAddCollaboratorToProject (@RequestBody CollaboratorTransfer collaborator,
+                                       @PathVariable("projectId") UUID projectId) {
+        collaboratorProjectWebSocketHandler.broadcast("all");
+        return ResponseEntity.ok(collaboratorService.createAndAddCollaboratorToProject(projectId, collaborator));
     }
 
     @GetMapping("/request/{requestId}/{projectId}")

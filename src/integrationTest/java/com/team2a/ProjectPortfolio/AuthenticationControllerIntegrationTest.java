@@ -38,9 +38,6 @@ public class AuthenticationControllerIntegrationTest {
     private AccountRepository accountRepository;
 
     @Autowired
-    private CollaboratorRepository collaboratorRepository;
-
-    @Autowired
     private ObjectMapper objectMapper;
 
     @Autowired
@@ -53,7 +50,6 @@ public class AuthenticationControllerIntegrationTest {
     @BeforeEach
     public void setUp() {
         accountRepository.deleteAll();
-        collaboratorRepository.deleteAll();
         registerUserRequest = new RegisterUserRequest("username","Password!1","user");
         loginUserRequest = new LoginUserRequest("username","Password!1");
     }
@@ -65,14 +61,12 @@ public class AuthenticationControllerIntegrationTest {
                 .content(objectMapper.writeValueAsString(registerUserRequest)))
                 .andExpect(status().isCreated());
         assertEquals(1, accountRepository.count());
-        assertEquals(1, collaboratorRepository.count());
         Account account = accountRepository.findById("username")
             .orElseThrow(() -> new AssertionError("Account not found"));
         assertEquals("username", account.getUsername());
         assertTrue(passwordEncoder.matches("Password!1", account.getPassword()));
         assertEquals("user", account.getName());
         assertEquals(Role.ROLE_USER, account.getRole());
-        assertEquals(account.getName(), collaboratorRepository.findByName(account.getName()).get().getName());
     }
 
     @Test

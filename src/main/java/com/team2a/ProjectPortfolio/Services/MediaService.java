@@ -9,7 +9,7 @@ import com.team2a.ProjectPortfolio.CustomExceptions.NotFoundException;
 import com.team2a.ProjectPortfolio.CustomExceptions.ProjectNotFoundException;
 import com.team2a.ProjectPortfolio.Repositories.MediaRepository;
 import com.team2a.ProjectPortfolio.Repositories.ProjectRepository;
-
+import com.team2a.ProjectPortfolio.dto.MediaFileContent;
 import java.io.File;
 import java.util.*;
 import java.util.function.Function;
@@ -18,8 +18,6 @@ import java.util.stream.Collectors;
 import com.team2a.ProjectPortfolio.Repositories.RequestMediaProjectRepository;
 import com.team2a.ProjectPortfolio.Repositories.RequestRepository;
 import lombok.Setter;
-import org.antlr.v4.runtime.misc.Pair;
-import org.antlr.v4.runtime.misc.Triple;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -59,20 +57,15 @@ public class MediaService {
      * @return a List of Tuples that contain the media, the media name and the media description
      * @throws RuntimeException- Project doesn't exist or the id is null
      */
-    public List<Triple<String,String,String>> getImagesContentByProjectId (UUID projectId){
+    public List<MediaFileContent> getImagesContentByProjectId (UUID projectId){
         //https://www.geeksforgeeks.org/spring-boot-file-handling/
         checkProjectExistence(projectId);
-        List<String> filenames = java.util.Arrays.stream(mediaHelper.getFiles()).toList();
         List<Media> mediaToGetObject = mediaRepository.findAllByProjectProjectId(projectId);
-
-        Map<String, Media> filenameToMediaMap = mediaToGetObject.stream()
-                .collect(Collectors.toMap(Media::getPath, Function.identity()));
-
-        List<Triple<String, String, String>> mediaFiles = new ArrayList<>();
-        for (String filename : filenames) {
-            Media media = filenameToMediaMap.get(filename);
+        List<MediaFileContent> mediaFiles = new ArrayList<>();
+        for (Media media : mediaToGetObject) {
             if (media != null) {
-                mediaFiles.add(new Triple<>(filename, mediaHelper.getFileContents(filename),  media.getName()));
+                mediaFiles.add(new MediaFileContent(media.getName(), media.getPath(),
+                        mediaHelper.getFileContents(media.getPath()+projectId)));
             }
         }
         return mediaFiles;
@@ -97,16 +90,18 @@ public class MediaService {
      * @param mediaId the mediaId of the document
      * @return a Pair containing the file contents and it's filename
      */
-    public Pair<String,String> getDocumentByMediaId (UUID mediaId){
+    public MediaFileContent getDocumentByMediaId (UUID mediaId){
         //https://www.geeksforgeeks.org/spring-boot-file-handling/
+        Media media;
         try {
-            checkMediaExistence(mediaId);
+            media = checkMediaExistence(mediaId);
         }
         catch (MediaNotFoundException e){
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
         }
         Media mediaToGetObject = mediaRepository.findMediaByMediaId(mediaId);
-        return new Pair<>(mediaToGetObject.getPath(), mediaHelper.getFileContents(mediaToGetObject.getPath()));
+        return new MediaFileContent(mediaToGetObject.getName(),mediaToGetObject.getPath(),
+                mediaHelper.getFileContents(mediaToGetObject.getPath()+media.getProject().getProjectId()));
     }
     /**
      * Adds a Media to a specific Project
@@ -124,8 +119,8 @@ public class MediaService {
         catch (ProjectNotFoundException e){
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
         }
-        checkPathUniqueness(file.getOriginalFilename());
-        String filePath = System.getProperty("user.dir") + "/assets" + File.separator + file.getOriginalFilename();
+        checkPathUniqueness(file.getOriginalFilename()+projectId);
+        String filePath = System.getProperty("user.dir") + "/assets" + File.separator + file.getOriginalFilename()+projectId;
         Media media = new Media(name,file.getOriginalFilename());
         media.setProject(p);
         //https://www.geeksforgeeks.org/spring-boot-file-handling/
@@ -141,8 +136,10 @@ public class MediaService {
      * @throws RuntimeException - Media doesn't exist or the id is null
      * @return returns the media deleted
      */
-    public Media deleteMedia (UUID mediaId) {
+    public Media deleteMedia (UUID mediaId) throws RuntimeException {
         Media m = checkMediaExistence(mediaId);
+        mediaHelper.deleteFile(System.getProperty("user.dir") + "/assets" + File.separator +
+                m.getPath()+m.getProject().getProjectId());
         mediaRepository.deleteById(mediaId);
         return m;
     }
@@ -183,7 +180,7 @@ public class MediaService {
      */
     public void checkPathUniqueness (String path) throws RuntimeException {
         if(!mediaRepository.findAll().stream()
-                .filter(x -> x.getPath().equals(path)).toList().isEmpty()) {
+                .filter(x -> (x.getPath()).equals(path)).toList().isEmpty()) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
     }
@@ -197,10 +194,18 @@ public class MediaService {
         Optional<Media> o = mediaRepository.findById(media.getMediaId());
         if(o.isEmpty())
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-        else if(!media.getPath().equals(o.get().getPath())){
-            checkPathUniqueness(media.getPath());
-        }
         return mediaRepository.save(media);
+    }
+    public Media changeFile (UUID mediaId,MultipartFile file){
+        Media m = checkMediaExistence(mediaId);
+        mediaHelper.deleteFile(System.getProperty("user.dir") + "/assets" + File.separator +
+                m.getPath()+m.getProject().getProjectId());
+        String filePath = System.getProperty("user.dir") + "/assets" + File.separator +
+                file.getOriginalFilename()+m.getProject().getProjectId();
+        mediaHelper.saveFile(filePath,file);
+        m.setPath(file.getOriginalFilename());
+
+        return mediaRepository.save(m);
     }
 
     public List<RequestMediaProject> getMediaForRequest (UUID requestId) {

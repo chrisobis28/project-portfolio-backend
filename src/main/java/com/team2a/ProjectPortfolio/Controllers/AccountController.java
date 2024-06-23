@@ -2,6 +2,7 @@ package com.team2a.ProjectPortfolio.Controllers;
 
 import static com.team2a.ProjectPortfolio.security.Permissions.ADMIN_ONLY;
 import static com.team2a.ProjectPortfolio.security.Permissions.PM_IN_PROJECT;
+import static com.team2a.ProjectPortfolio.security.Permissions.PM_ONLY;
 import static com.team2a.ProjectPortfolio.security.Permissions.USER_SPECIFIC;
 
 import com.team2a.ProjectPortfolio.Commons.Account;
@@ -13,8 +14,12 @@ import com.team2a.ProjectPortfolio.CustomExceptions.NotFoundException;
 import com.team2a.ProjectPortfolio.CustomExceptions.ProjectNotFoundException;
 import com.team2a.ProjectPortfolio.Routes;
 import com.team2a.ProjectPortfolio.Services.AccountService;
+import com.team2a.ProjectPortfolio.WebSocket.AccountProjectWebSocketHandler;
+import com.team2a.ProjectPortfolio.WebSocket.AccountWebSocketHandler;
+import com.team2a.ProjectPortfolio.dto.AccountDisplay;
+import com.team2a.ProjectPortfolio.dto.AccountTransfer;
+import com.team2a.ProjectPortfolio.dto.ProjectTransfer;
 import jakarta.validation.Valid;
-
 import java.util.List;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,18 +30,28 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(Routes.ACCOUNT)
-@CrossOrigin("http://localhost:4200/")
+@CrossOrigin("http://localhost:4200")
 public class AccountController {
 
     private final AccountService accountService;
 
+    private final AccountWebSocketHandler accountWebSocketHandler;
+
+    private final AccountProjectWebSocketHandler accountProjectWebSocketHandler;
+
     /**
-     * Constructor for the Account Controller
-     * @param accountService - the Account Service
+     * Constructor for the AccountController
+     * @param accountService - the service to be used
+     * @param accountWebSocketHandler - the handler for the web socket
+     * @param accountProjectWebSocketHandler - the handler for the web socket
      */
     @Autowired
-    public AccountController (AccountService accountService) {
+    public AccountController (AccountService accountService,
+                              AccountWebSocketHandler accountWebSocketHandler,
+                              AccountProjectWebSocketHandler accountProjectWebSocketHandler) {
         this.accountService = accountService;
+        this.accountWebSocketHandler = accountWebSocketHandler;
+        this.accountProjectWebSocketHandler = accountProjectWebSocketHandler;
     }
 
     /**
@@ -47,8 +62,23 @@ public class AccountController {
     @PutMapping("")
     @PreAuthorize(ADMIN_ONLY)
     public ResponseEntity<Account> editAccount (@Valid @RequestBody Account account) {
+        Account editedAccount = accountService.editAccount(account);
+        accountWebSocketHandler.broadcast("edit " + account.getUsername());
+        return ResponseEntity.ok(editedAccount);
+    }
+
+    /**
+     * Edits only the role of an Account
+     * @param accountTransfer - the DTO
+     * @return - Void because just the status of OK is needed
+     */
+    @PutMapping("editRole")
+    @PreAuthorize(ADMIN_ONLY)
+    public ResponseEntity<Void> editRoleOfAccount (@Valid @RequestBody AccountTransfer accountTransfer) {
         try {
-            return ResponseEntity.ok(accountService.editAccount(account));
+            accountService.editAccount(accountTransfer);
+            accountWebSocketHandler.broadcast("edit " + accountTransfer.getUsername());
+            return ResponseEntity.ok().build();
         }
         catch(AccountNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
@@ -78,13 +108,9 @@ public class AccountController {
     @DeleteMapping("/{username}")
     @PreAuthorize(USER_SPECIFIC)
     public ResponseEntity<String> deleteAccount (@PathVariable("username") String username) {
-        try {
-            accountService.deleteAccount(username);
-            return ResponseEntity.status(HttpStatus.OK).body("Success.");
-        }
-        catch(AccountNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        }
+        accountService.deleteAccount(username);
+        accountWebSocketHandler.broadcast("delete " + username);
+        return ResponseEntity.ok().build();
     }
 
     /**
@@ -98,16 +124,9 @@ public class AccountController {
     @PreAuthorize(PM_IN_PROJECT)
     public ResponseEntity<Void> addRole (@PathVariable("username") String username,
                                               @PathVariable("projectId") UUID projectId, @RequestBody RoleInProject role) {
-        try {
-            accountService.addRole(username, projectId, role);
-            return ResponseEntity.status(HttpStatus.OK).build();
-        }
-        catch (AccountNotFoundException | ProjectNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
-        catch (DuplicatedUsernameException e) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        }
+        accountService.addRole(username, projectId, role);
+        accountProjectWebSocketHandler.broadcast(projectId.toString() + " add " + username);
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 
     /**
@@ -120,13 +139,9 @@ public class AccountController {
     @PreAuthorize(PM_IN_PROJECT)
     public ResponseEntity<Void> deleteRole (@PathVariable("username") String username,
                                             @PathVariable("projectId") UUID projectId) {
-        try {
-            accountService.deleteRole(username, projectId);
-            return ResponseEntity.status(HttpStatus.OK).build();
-        }
-        catch (NotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
+        accountService.deleteRole(username, projectId);
+        accountProjectWebSocketHandler.broadcast(projectId.toString() + " delete " + username);
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 
     /**
@@ -140,8 +155,9 @@ public class AccountController {
     @PreAuthorize(PM_IN_PROJECT)
     public ResponseEntity<Void> updateRole (@PathVariable("username") String username,
                                             @PathVariable("projectId") UUID projectId,
-                                            @RequestBody RoleInProject role) {
+                                            @Valid @RequestBody RoleInProject role) {
         accountService.updateRole(username, projectId, role);
+        accountProjectWebSocketHandler.broadcast(projectId.toString() + " update " + username);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
@@ -160,5 +176,57 @@ public class AccountController {
     @GetMapping("/public/managed/{username}")
     public ResponseEntity<List<Project>> getProjectsAccountManages (@PathVariable("username") String username) {
         return ResponseEntity.ok(accountService.getProjectsAccountManages(username));
+    }
+
+    /**
+     * Retrieve all Accounts on the platform for admin purposes
+     * @return - the list of Accounts
+     */
+    @GetMapping("")
+    @PreAuthorize(ADMIN_ONLY)
+    public ResponseEntity<List<AccountTransfer>> getAccounts () {
+        return ResponseEntity.ok(accountService.getAccounts());
+    }
+
+    /**
+     * Gets the projects an account has a permission on
+     * @param username - the username of the account to be searched
+     * @return - the list of all project ids
+     */
+    @GetMapping("/role/{username}")
+    @PreAuthorize(ADMIN_ONLY)
+    public ResponseEntity<List<ProjectTransfer>> getProjects (@PathVariable("username") String username) {
+        return ResponseEntity.ok(accountService.getProjects(username));
+    }
+
+    /**
+     * Gets the accounts username with the given name
+     * @param name - the name of the account to be searched
+     * @return - the list of all account usernames with the given name
+     */
+    @GetMapping("/public/name/{name}")
+    public ResponseEntity<List<String>> getAccountByName (@PathVariable("name") String name) {
+        return ResponseEntity.ok(accountService.getAccountsByName(name));
+    }
+
+    /**
+     * Gets all usernames in the database
+     * @return - the list of all usernames
+     */
+    @GetMapping("/usernames")
+    @PreAuthorize(PM_ONLY)
+    public ResponseEntity<List<String>> getAllUsernames () {
+        return ResponseEntity.ok(accountService.getAllUsernames());
+    }
+
+    /**
+     * Gets all accounts in a project
+     * @param projectId - the id of the project
+     * @return - the list of all accounts in the project
+     */
+    @GetMapping("/project/{projectId}")
+    @PreAuthorize(PM_IN_PROJECT)
+    public ResponseEntity<List<AccountDisplay>> getAccountsInProject (@PathVariable("projectId") UUID projectId) {
+        return ResponseEntity.ok(accountService.getAccountsInProject(projectId));
     }
 }

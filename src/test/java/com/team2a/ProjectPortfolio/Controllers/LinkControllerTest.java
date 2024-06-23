@@ -77,7 +77,7 @@ class LinkControllerTest {
         link.setProject(p);
         link.setLinkId(UUID.randomUUID());
         when(ls.editLinkOfProject(any(Link.class))).thenReturn(link);
-        ResponseEntity<Link> responseEntity = lc.editLinkOfProject(link);
+        ResponseEntity<Link> responseEntity = lc.editLinkOfProject(link, UUID.randomUUID());
         verify(linkProjectWebSocketHandler).broadcast(any());
         assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
         assertEquals(link, responseEntity.getBody());
@@ -88,7 +88,7 @@ class LinkControllerTest {
         Link link = new Link("Test Link", "Test Description");
         link.setLinkId(UUID.randomUUID());
         when(ls.editLinkOfProject(any(Link.class))).thenThrow(EntityNotFoundException.class);
-        ResponseEntity<Link> responseEntity = lc.editLinkOfProject(link);
+        ResponseEntity<Link> responseEntity = lc.editLinkOfProject(link, UUID.randomUUID());
         assertEquals(HttpStatus.NOT_FOUND, responseEntity.getStatusCode());
         assertNull(responseEntity.getBody());
         verify(ls, times(1)).editLinkOfProject(any(Link.class));
@@ -108,7 +108,7 @@ class LinkControllerTest {
     void DeleteLinkByIdSuccess () {
         UUID linkId = UUID.randomUUID();
         when(ls.deleteLinkById(linkId)).thenReturn("Link deleted");
-        ResponseEntity<String> response = lc.deleteLinkById(linkId);
+        ResponseEntity<String> response = lc.deleteLinkById(linkId, UUID.randomUUID());
         verify(linkProjectWebSocketHandler).broadcast(any());
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals("Link deleted", response.getBody());
@@ -126,7 +126,7 @@ class LinkControllerTest {
     void deleteLinkByIdNotFound () {
         UUID linkId = UUID.randomUUID();
         when(ls.deleteLinkById(linkId)).thenThrow(EntityNotFoundException.class);
-        ResponseEntity<String> response = lc.deleteLinkById(linkId);
+        ResponseEntity<String> response = lc.deleteLinkById(linkId, UUID.randomUUID());
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
         assertNull(response.getBody());
     }

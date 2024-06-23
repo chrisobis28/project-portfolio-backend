@@ -35,12 +35,6 @@ public class Template {
     @NotNull
     private String standardDescription;
 
-    @Column(name="BIBTEX")
-    @Getter
-    @Setter
-    @NotNull
-    private String standardBibtex;
-
     @Column(name="NUMBER_COLLABORATORS")
     @Getter
     @Setter
@@ -61,11 +55,10 @@ public class Template {
     @JoinColumn(name="TEMPLATE_NAME")
     private List<TemplateAddition> templateAdditions = new ArrayList<>();
 
-    public Template(String templateName, String standardDescription, String standardBibtex,
+    public Template(String templateName, String standardDescription,
                     int numberOfCollaborators) {
         this.templateName = templateName;
         this.standardDescription = standardDescription;
-        this.standardBibtex = standardBibtex;
         this.numberOfCollaborators = numberOfCollaborators;
     }
 }

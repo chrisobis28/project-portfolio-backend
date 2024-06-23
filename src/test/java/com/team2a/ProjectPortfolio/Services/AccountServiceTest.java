@@ -1,6 +1,7 @@
 package com.team2a.ProjectPortfolio.Services;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
@@ -21,12 +22,16 @@ import com.team2a.ProjectPortfolio.CustomExceptions.ProjectNotFoundException;
 import com.team2a.ProjectPortfolio.Repositories.AccountRepository;
 import com.team2a.ProjectPortfolio.Repositories.ProjectRepository;
 import com.team2a.ProjectPortfolio.Repositories.ProjectsToAccountsRepository;
+import com.team2a.ProjectPortfolio.dto.AccountDisplay;
+import com.team2a.ProjectPortfolio.dto.AccountTransfer;
+import com.team2a.ProjectPortfolio.dto.ProjectTransfer;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -47,34 +52,32 @@ public class AccountServiceTest {
   @Mock
   private ProjectsToAccountsRepository projectsToAccountsRepository;
 
-  private CollaboratorService collaboratorService;
-
   private AccountService accountService;
 
   private ProjectsToAccounts pta;
 
   private Account a;
 
-  private UUID projectId = UUID.randomUUID();
+  private final UUID projectId = UUID.randomUUID();
 
   @BeforeEach
   void setUp() {
     accountRepository = Mockito.mock(AccountRepository.class);
     projectRepository = Mockito.mock(ProjectRepository.class);
     projectsToAccountsRepository = Mockito.mock(ProjectsToAccountsRepository.class);
-    accountService = new AccountService(accountRepository, projectRepository, projectsToAccountsRepository, collaboratorService);
+    accountService = new AccountService(accountRepository, projectRepository, projectsToAccountsRepository);
     a = new Account("username", "name", "password", Role.ROLE_USER);
     Project project = new Project();
     project.setProjectId(projectId);
+    project.setTitle("Title project");
     pta = new ProjectsToAccounts(RoleInProject.CONTENT_CREATOR, a, project);
-    collaboratorService = Mockito.mock(CollaboratorService.class);
-    accountService = new AccountService(accountRepository, projectRepository, projectsToAccountsRepository, collaboratorService);
+    accountService = new AccountService(accountRepository, projectRepository, projectsToAccountsRepository);
   }
   @Test
   void testEditAccountAccountNotFoundException() {
     Account account = new Account("username", "name", "password", Role.ROLE_USER);
     when(accountRepository.findById("username")).thenReturn(Optional.empty());
-    assertThrows(AccountNotFoundException.class, () -> accountService.editAccount(account));
+    assertThrows(ResponseStatusException.class, () -> accountService.editAccount(account));
     verify(accountRepository, never()).save(any(Account.class));
   }
 
@@ -91,7 +94,7 @@ public class AccountServiceTest {
   @Test
   void testGetAccountByIdAccountNotFoundException() {
     when(accountRepository.findById("username")).thenReturn(Optional.empty());
-    assertThrows(AccountNotFoundException.class, () -> accountService.getAccountById("username"));
+    assertThrows(ResponseStatusException.class, () -> accountService.getAccountById("username"));
   }
 
   @Test
@@ -106,7 +109,7 @@ public class AccountServiceTest {
   @Test
   void testDeleteAccountByIdAccountNotFoundException() {
     when(accountRepository.findById("username")).thenReturn(Optional.empty());
-    assertThrows(AccountNotFoundException.class, () -> accountService.deleteAccount("username"));
+    assertThrows(ResponseStatusException.class, () -> accountService.deleteAccount("username"));
     verify(accountRepository, never()).deleteById("username");
   }
 
@@ -122,7 +125,7 @@ public class AccountServiceTest {
   @Test
   void testAddRoleAccountNotFound() {
     when(accountRepository.findById("username")).thenReturn(Optional.empty());
-    assertThrows(AccountNotFoundException.class, () -> accountService.addRole("username", UUID.randomUUID(), RoleInProject.CONTENT_CREATOR));
+    assertThrows(ResponseStatusException.class, () -> accountService.addRole("username", UUID.randomUUID(), RoleInProject.CONTENT_CREATOR));
   }
 
   @Test
@@ -130,7 +133,7 @@ public class AccountServiceTest {
     UUID id = UUID.randomUUID();
     when(accountRepository.findById("username")).thenReturn(Optional.of(new Account()));
     when(projectRepository.findById(id)).thenReturn(Optional.empty());
-    assertThrows(ProjectNotFoundException.class, () -> accountService.addRole("username", id, RoleInProject.CONTENT_CREATOR));
+    assertThrows(ResponseStatusException.class, () -> accountService.addRole("username", id, RoleInProject.CONTENT_CREATOR));
   }
 
   @Test
@@ -143,7 +146,7 @@ public class AccountServiceTest {
     when(projectRepository.findById(id)).thenReturn(Optional.of(p));
     when(accountRepository.findById("username")).thenReturn(Optional.of(a));
     when(projectsToAccountsRepository.findAll()).thenReturn(List.of(new ProjectsToAccounts(RoleInProject.CONTENT_CREATOR, a, p)));
-    assertThrows(DuplicatedUsernameException.class, () -> accountService.addRole("username", id, RoleInProject.CONTENT_CREATOR));
+    assertThrows(ResponseStatusException.class, () -> accountService.addRole("username", id, RoleInProject.CONTENT_CREATOR));
   }
 
   @Test
@@ -165,7 +168,7 @@ public class AccountServiceTest {
     a.setUsername("username");
     ProjectsToAccounts pta = new ProjectsToAccounts(RoleInProject.CONTENT_CREATOR, a, p);
     when(projectsToAccountsRepository.findAll()).thenReturn(List.of(pta));
-    assertThrows(NotFoundException.class, () -> accountService.deleteRole("username1", id));
+    assertThrows(ResponseStatusException.class, () -> accountService.deleteRole("username1", id));
   }
 
   @Test
@@ -182,7 +185,7 @@ public class AccountServiceTest {
     ProjectsToAccounts pta = new ProjectsToAccounts(RoleInProject.CONTENT_CREATOR, a, p);
     when(projectsToAccountsRepository.findAll()).thenReturn(List.of(pta));
     UUID finalId = id2;
-    assertThrows(NotFoundException.class, () -> accountService.deleteRole("username1", finalId));
+    assertThrows(ResponseStatusException.class, () -> accountService.deleteRole("username1", finalId));
   }
 
   @Test
@@ -192,8 +195,6 @@ public class AccountServiceTest {
     p.setProjectId(id);
     Account a = new Account();
     a.setUsername("username");
-    when(accountRepository.findById("username")).thenReturn(Optional.of(a));
-    when(collaboratorService.deleteCollaboratorFromProject(any(), any())).thenReturn("Deleted collaborator");
     ProjectsToAccounts pta = new ProjectsToAccounts(RoleInProject.CONTENT_CREATOR, a, p);
     when(projectsToAccountsRepository.findAll()).thenReturn(List.of(pta));
     accountService.deleteRole("username", id);
@@ -214,9 +215,8 @@ public class AccountServiceTest {
   void testUpdateRoleNotFound() {
     when(projectsToAccountsRepository.findAll()).thenReturn(List.of());
 
-    ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
-      accountService.updateRole(a.getUsername(), projectId, RoleInProject.PM);
-    });
+    ResponseStatusException exception = assertThrows(ResponseStatusException.class, () ->
+        accountService.updateRole(a.getUsername(), projectId, RoleInProject.PM));
 
     assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
     verify(projectsToAccountsRepository, never()).save(any(ProjectsToAccounts.class));
@@ -239,4 +239,64 @@ public class AccountServiceTest {
 
     assertEquals("VISITOR", role);
   }
+
+  @Test
+  void testGetProjects() {
+    when(projectsToAccountsRepository.findAll()).thenReturn(List.of(pta));
+    List<ProjectTransfer> projects = accountService.getProjects("username");
+    assertEquals(1, projects.size());
+    assertEquals(RoleInProject.CONTENT_CREATOR, projects.get(0).getRoleInProject());
+    assertEquals(projectId, projects.get(0).getProjectId());
+    assertEquals("Title project", projects.get(0).getName());
+  }
+
+  @Test
+  void testGetAccounts() {
+    when(accountRepository.findAll()).thenReturn(List.of(a));
+    List<AccountTransfer> accounts = accountService.getAccounts();
+    assertEquals(1, accounts.size());
+    assertFalse(accounts.get(0).isAdmin());
+    assertFalse(accounts.get(0).isPM());
+    assertEquals(a.getUsername(), accounts.get(0).getUsername());
+  }
+
+  @Test
+  void testGetAccountsByName() {
+    when(accountRepository.findAll()).thenReturn(List.of(a));
+    List<String> usernames = accountService.getAccountsByName("name");
+    assertEquals(1, usernames.size());
+    assertEquals("username", usernames.get(0));
+  }
+
+  @Test
+  void testEditAccountTransferNotFound() {
+    AccountTransfer accountTransfer = new AccountTransfer("username", false, false);
+    when(accountRepository.findById(accountTransfer.getUsername())).thenReturn(Optional.empty());
+    assertThrows(AccountNotFoundException.class, () -> accountService.editAccount(accountTransfer));
+  }
+
+  @Test
+  void testEditAccountTransferSuccess() {
+    AccountTransfer accountTransfer = new AccountTransfer("username", false, false);
+    Account account = new Account("username", "name", "password", Role.ROLE_PM);
+    when(accountRepository.findById(accountTransfer.getUsername())).thenReturn(Optional.of(account));
+    ArgumentCaptor<Account> ac = ArgumentCaptor.forClass(Account.class);
+    accountService.editAccount(accountTransfer);
+    verify(accountRepository, times(1)).save(ac.capture());
+    assertEquals("username", ac.getValue().getUsername());
+    assertEquals(Role.ROLE_USER, ac.getValue().getRole());
+  }
+
+    @Test
+    void testGetAccountsInProject(){
+        when(projectsToAccountsRepository.findAll()).thenReturn(List.of(pta));
+        List<AccountDisplay> accounts = accountService.getAccountsInProject(projectId);
+        assertEquals(1, accounts.size());
+        AccountDisplay account = accounts.get(0);
+        assertEquals(a.getUsername(), account.getUsername());
+        assertEquals(a.getName(), account.getName());
+        assertEquals(RoleInProject.CONTENT_CREATOR.toString(), account.getRoleInProject());
+
+    }
+
 }

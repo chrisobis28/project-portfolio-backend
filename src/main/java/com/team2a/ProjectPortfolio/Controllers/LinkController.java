@@ -16,6 +16,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.nio.file.Path;
 import java.util.List;
 import java.util.UUID;
 
@@ -64,9 +65,9 @@ public class LinkController {
      * @param link the link entity
      * @return the new link entity
      */
-    @PutMapping("/")
+    @PutMapping("/{projectId}")
     @PreAuthorize(EDITOR_IN_PROJECT)
-    public ResponseEntity<Link> editLinkOfProject (@RequestBody Link link) {
+    public ResponseEntity<Link> editLinkOfProject (@RequestBody Link link, @PathVariable("projectId") UUID projectId) {
         try {
             Link updatedLink = linkService.editLinkOfProject(link);
             linkProjectWebSocketHandler.broadcast(updatedLink.getProject().getProjectId().toString());
@@ -96,9 +97,10 @@ public class LinkController {
      * @param linkId the linkId of the link to be deleted
      * @return a string containing a message if the link was deleted
      */
-    @DeleteMapping("/{linkId}")
+    @DeleteMapping("/{linkId}/{projectId}")
     @PreAuthorize(EDITOR_IN_PROJECT)
-    public ResponseEntity<String> deleteLinkById (@PathVariable("linkId") UUID linkId) {
+    public ResponseEntity<String> deleteLinkById (@PathVariable("linkId") UUID linkId,
+                                                  @PathVariable("projectId") UUID projectId) {
         try {
             String returnedMessage = linkService.deleteLinkById(linkId);
             linkProjectWebSocketHandler.broadcast(returnedMessage);

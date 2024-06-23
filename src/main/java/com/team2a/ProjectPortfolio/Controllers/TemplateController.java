@@ -76,6 +76,7 @@ public class TemplateController {
     }
 
     @PostMapping("/additions/{templateName}")
+    @PreAuthorize(PM_ONLY)
     public ResponseEntity<TemplateAddition> addTemplateAddition (@PathVariable("templateName") String templateName,
                                                                 @Valid @RequestBody TemplateAddition templateAddition) {
         return ResponseEntity.status(HttpStatus.OK)

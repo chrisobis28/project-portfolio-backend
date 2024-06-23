@@ -45,9 +45,6 @@ public class AccountControllerIntegrationTest {
   private AccountRepository accountRepository;
 
   @Autowired
-  private CollaboratorRepository collaboratorRepository;
-
-  @Autowired
   private ProjectRepository projectRepository;
 
   @Autowired
@@ -69,11 +66,9 @@ public class AccountControllerIntegrationTest {
     projectRepository.deleteAll();
     projectsToAccountsRepository.deleteAll();
     account = new Account("username1", "name1", "password1", Role.ROLE_USER);
-    collaboratorRepository.deleteAll();
     project = new Project("title", "description", false);
     project = projectRepository.save(project);
     account = accountRepository.saveAndFlush(account);
-    collaboratorRepository.saveAndFlush(new Collaborator(account.getName()));
     securityConfigUtils.setAuthentication();
   }
 
@@ -83,15 +78,13 @@ public class AccountControllerIntegrationTest {
 
     mockMvc.perform(delete(Routes.ACCOUNT + "/" + account.getUsername())
             .contentType(MediaType.APPLICATION_JSON))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$", is("Success.")));
+        .andExpect(status().isOk());
 
     assertEquals(0, accountRepository.count());
 
     mockMvc.perform(delete(Routes.ACCOUNT + "/" + "username1")
             .contentType(MediaType.APPLICATION_JSON))
-        .andExpect(status().isNotFound())
-        .andExpect(jsonPath("$", is("There is no account with username username1.")));
+        .andExpect(status().isNotFound());
   }
 
   @Test
@@ -169,7 +162,7 @@ public class AccountControllerIntegrationTest {
     mockMvc.perform(post(Routes.ACCOUNT + "/" + account.getUsername() + "/" + project.getProjectId())
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString("CONTENT_CREATOR")))
-        .andExpect(status().isForbidden());
+        .andExpect(status().isConflict());
   }
 
   @Test

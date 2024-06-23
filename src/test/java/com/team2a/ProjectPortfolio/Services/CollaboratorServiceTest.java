@@ -6,6 +6,9 @@ import com.team2a.ProjectPortfolio.Commons.ProjectsToCollaborators;
 import com.team2a.ProjectPortfolio.Commons.Request;
 import com.team2a.ProjectPortfolio.Repositories.*;
 import jakarta.persistence.EntityNotFoundException;
+import com.team2a.ProjectPortfolio.dto.CollaboratorTransfer;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,9 +21,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import org.springframework.web.server.ResponseStatusException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -51,47 +57,9 @@ public class CollaboratorServiceTest {
     }
 
     @Test
-    void testGetCollaboratorsByProjectIdSuccess () {
-        UUID projectId = UUID.randomUUID();
-        Project project = new Project("Test", "Test", false);
-        Collaborator collaborator = new Collaborator("Filip");
-        String role = "Role";
-        ProjectsToCollaborators projectsToCollaborators = new ProjectsToCollaborators(project, collaborator,role);
-        List<ProjectsToCollaborators> projectsToCollaboratorsList = new ArrayList<>();
-        projectsToCollaboratorsList.add(projectsToCollaborators);
-        when(projectRepository.findById(projectId)).thenReturn(java.util.Optional.of(project));
-        when(ptc.findAllByProjectProjectId(projectId)).thenReturn(projectsToCollaboratorsList);
-        List<Collaborator> actualResponse = cs.getCollaboratorsByProjectId(projectId);
-        assertEquals(1, actualResponse.size());
-        assertEquals("Filip", actualResponse.get(0).getName());
-    }
-
-    @Test
     void testGetCollaboratorsByProjectIdNotFound () {
         UUID projectId = UUID.randomUUID();
-        assertThrows(EntityNotFoundException.class, () -> cs.getCollaboratorsByProjectId(projectId));
-    }
-
-    @Test
-    void testAddCollaboratorSuccess () {
-        UUID projectId = UUID.randomUUID();
-        UUID collaboratorId = UUID.randomUUID();
-        String role = "Role";
-        Project project = new Project("Test", "Test", false);
-        Collaborator collaborator = new Collaborator("Test");
-        collaborator.setCollaboratorId(collaboratorId);
-        when(projectRepository.findById(projectId)).thenReturn(java.util.Optional.of(project));
-        when(cr.findById(collaboratorId)).thenReturn(java.util.Optional.of(collaborator));
-        Collaborator actualResponse = cs.addCollaboratorToProject(projectId, collaboratorId,role);
-        assertEquals(collaboratorId, actualResponse.getCollaboratorId());
-    }
-
-    @Test
-    void testAddCollaboratorNotFound () {
-        UUID projectId = UUID.randomUUID();
-        UUID collaboratorId = UUID.randomUUID();
-        String role = "Role";
-        assertThrows(EntityNotFoundException.class, () -> cs.addCollaboratorToProject(projectId, collaboratorId,role));
+        assertThrows(ResponseStatusException.class, () -> cs.getCollaboratorsByProjectId(projectId));
     }
 
     @Test
@@ -173,6 +141,104 @@ public class CollaboratorServiceTest {
         Collaborator c1 = new Collaborator("coll1");
         when(cr.findAll()).thenReturn(List.of(c1));
         assertEquals(cs.getAllCollaborators(), List.of(c1));
+    }
+
+    @Test
+    void testCreateAndAddCollaboratorToProject_ExistingCollaborator() {
+        UUID projectId = UUID.randomUUID();
+        String collaboratorName = "John Doe";
+        String role = "Developer";
+
+        CollaboratorTransfer collaboratorTransfer = new CollaboratorTransfer(null,collaboratorName, role);
+
+        Project project = new Project();
+        project.setProjectId(projectId);
+
+        Collaborator existingCollaborator = new Collaborator();
+        existingCollaborator.setCollaboratorId(UUID.randomUUID());
+        existingCollaborator.setName(collaboratorName);
+
+        when(projectRepository.findById(projectId)).thenReturn(Optional.of(project));
+        when(cr.findByName(collaboratorName)).thenReturn(Optional.of(existingCollaborator));
+        when(ptc.existsByProjectProjectIdAndCollaboratorCollaboratorId(projectId, existingCollaborator.getCollaboratorId())).thenReturn(true);
+
+        CollaboratorTransfer result = cs.createAndAddCollaboratorToProject(projectId, collaboratorTransfer);
+
+        assertNotNull(result);
+        assertEquals(existingCollaborator.getCollaboratorId(), result.getCollaboratorId());
+        verify(ptc, times(1)).existsByProjectProjectIdAndCollaboratorCollaboratorId(projectId, existingCollaborator.getCollaboratorId());
+        verify(ptc, never()).save(any(ProjectsToCollaborators.class));
+    }
+
+    @Test
+    void testCreateAndAddCollaboratorToProject_NewCollaborator() {
+        UUID projectId = UUID.randomUUID();
+        UUID collaboratorId = UUID.randomUUID();
+        Collaborator collaborator = new Collaborator();
+        collaborator.setCollaboratorId(collaboratorId);
+        String collaboratorName = "Jane Smith";
+        String role = "Designer";
+
+        CollaboratorTransfer collaboratorTransfer = new CollaboratorTransfer(null, collaboratorName, role);
+
+        Project project = new Project();
+        project.setProjectId(projectId);
+
+        when(projectRepository.findById(projectId)).thenReturn(Optional.of(project));
+        when(cr.findByName(collaboratorName)).thenReturn(Optional.empty());
+        when(cr.save(any(Collaborator.class))).thenReturn(collaborator);
+        CollaboratorTransfer result = cs.createAndAddCollaboratorToProject(projectId, collaboratorTransfer);
+
+        assertNotNull(result);
+        assertNotNull(result.getCollaboratorId());
+        verify(ptc, times(1)).save(any(ProjectsToCollaborators.class));
+    }
+
+    @Test
+    void testCreateAndAddCollaboratorToProject_ProjectNotFound() {
+        UUID projectId = UUID.randomUUID();
+        String collaboratorName = "John Doe";
+        String role = "Developer";
+
+        CollaboratorTransfer collaboratorTransfer = new CollaboratorTransfer(null, collaboratorName, role);
+
+        when(projectRepository.findById(projectId)).thenReturn(Optional.empty());
+
+        assertThrows(ResponseStatusException.class, () -> cs.createAndAddCollaboratorToProject(projectId, collaboratorTransfer));
+    }
+
+    @Test
+    void testGetCollaboratorsByProjectId() {
+        UUID projectId = UUID.randomUUID();
+        Project project = new Project();
+        project.setProjectId(projectId);
+
+        Collaborator collaborator1 = new Collaborator( "John Doe");
+        Collaborator collaborator2 = new Collaborator("Jane Smith");
+
+        List<ProjectsToCollaborators> projectsToCollaboratorsList = new ArrayList<>();
+        projectsToCollaboratorsList.add(new ProjectsToCollaborators(project, collaborator1, "Developer"));
+        projectsToCollaboratorsList.add(new ProjectsToCollaborators(project, collaborator2, "Designer"));
+
+        when(projectRepository.findById(projectId)).thenReturn(java.util.Optional.of(project));
+        when(ptc.findAllByProjectProjectId(projectId)).thenReturn(projectsToCollaboratorsList);
+
+        List<CollaboratorTransfer> result = cs.getCollaboratorsByProjectId(projectId);
+
+        assertNotNull(result);
+        assertEquals(2, result.size());
+        List<String> collaboratorNames = result.stream().map(CollaboratorTransfer::getName).collect(Collectors.toList());
+        assertTrue(collaboratorNames.contains("John Doe"));
+        assertTrue(collaboratorNames.contains("Jane Smith"));
+    }
+
+    @Test
+    void testGetCollaboratorsByProjectId_ProjectNotFound() {
+        UUID projectId = UUID.randomUUID();
+
+        when(projectRepository.findById(projectId)).thenReturn(java.util.Optional.empty());
+
+        assertThrows(ResponseStatusException.class, () -> cs.getCollaboratorsByProjectId(projectId));
     }
 
     @Test

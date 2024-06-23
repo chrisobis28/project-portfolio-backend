@@ -1,13 +1,11 @@
 package com.team2a.ProjectPortfolio.Controllers;
 
-import static com.team2a.ProjectPortfolio.security.Permissions.EDITOR_IN_PROJECT;
-import static com.team2a.ProjectPortfolio.security.Permissions.PM_IN_PROJECT;
-import static com.team2a.ProjectPortfolio.security.Permissions.PM_ONLY;
-
 import com.team2a.ProjectPortfolio.Commons.Project;
+import com.team2a.ProjectPortfolio.Commons.Template;
 import com.team2a.ProjectPortfolio.Routes;
 import com.team2a.ProjectPortfolio.Services.ProjectService;
 import com.team2a.ProjectPortfolio.WebSocket.ProjectWebSocketHandler;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +14,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.UUID;
+
+import static com.team2a.ProjectPortfolio.security.Permissions.*;
 
 @RestController
 @RequestMapping(Routes.PROJECT)
@@ -97,6 +97,58 @@ public class ProjectController {
         Project response = projectService.createProject(project);
         webSocketHandler.broadcast("added " + response.getProjectId());
         return ResponseEntity.ok(response);
+    }
+
+    /**
+     * Updates the template of a project, this could be adding, updating or deleting the template
+     * @param projectId the id of the project
+     * @param template the new template
+     * @return a response entity with the project with the updated template
+     */
+    @PutMapping("/{projectId}/template/")
+    @PreAuthorize(PM_IN_PROJECT)
+    public ResponseEntity<Project> updateProjectTemplate (@PathVariable("projectId") UUID projectId,
+                                                          @RequestBody Template template) {
+        try {
+            Project response = projectService.updateProjectTemplate(projectId, template);
+            return ResponseEntity.ok(response);
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    /**
+     * Remove the template of a project
+     * @param projectId the id of the project
+     * @param str placeholder string - has no functionality
+     * @return a response entity with the project having the template set to null
+     */
+    @PutMapping("/remove-template/{projectId}")
+    @PreAuthorize(PM_IN_PROJECT)
+    public ResponseEntity<Project> removeTemplateFromProject (@PathVariable("projectId") UUID projectId,
+                                                              @RequestBody String str) {
+        try {
+            Project response = projectService.removeTemplateFromProject(projectId);
+            return ResponseEntity.ok(response);
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    /**
+     * Retrieve the template of a project given the project id
+     * @param projectId the id of the project
+     * @return the template of the specific project in a response entity
+     */
+    @GetMapping("/{projectId}/template/")
+    @PreAuthorize(USER_IN_PROJECT)
+    public ResponseEntity<Template> getTemplateByProjectId (@PathVariable("projectId") UUID projectId) {
+        try {
+            Template response = projectService.getTemplateByProjectId(projectId);
+            return ResponseEntity.ok(response);
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
 }
