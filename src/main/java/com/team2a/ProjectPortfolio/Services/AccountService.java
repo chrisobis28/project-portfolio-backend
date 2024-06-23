@@ -229,4 +229,15 @@ public class AccountService {
             .map(x -> new AccountDisplay(x.getAccount().getUsername(),
                 x.getAccount().getName(), x.getRole().toString())).toList();
     }
+
+    public List<Project> getProjectsAccountManages (String username) {
+        List<Project> projects = projectsToAccountsRepository
+                .findAllByAccountUsername(username)
+                .stream()
+                .filter(x -> x.getRole().equals(RoleInProject.PM))
+                .map(ProjectsToAccounts::getProject)
+                .toList();
+
+        return projects;
+    }
 }

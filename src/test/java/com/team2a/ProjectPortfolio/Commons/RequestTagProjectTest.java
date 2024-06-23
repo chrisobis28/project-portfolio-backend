@@ -13,7 +13,7 @@ class RequestTagProjectTest {
         UUID id1 = UUID.randomUUID();
         RequestTagProject rtp = new RequestTagProject(id1, false);
         assertEquals(rtp.getRequestTagProjectID(), id1);
-        assertFalse(rtp.isRemove());
+        assertFalse(rtp.getIsRemove());
     }
 
 }

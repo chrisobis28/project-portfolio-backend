@@ -1,9 +1,5 @@
 package com.team2a.ProjectPortfolio.Controllers;
 
-import static com.team2a.ProjectPortfolio.security.Permissions.EDITOR_IN_PROJECT;
-import static com.team2a.ProjectPortfolio.security.Permissions.PM_IN_PROJECT;
-import static com.team2a.ProjectPortfolio.security.Permissions.PM_ONLY;
-
 import com.team2a.ProjectPortfolio.Commons.Project;
 import com.team2a.ProjectPortfolio.Commons.Template;
 import com.team2a.ProjectPortfolio.Routes;
@@ -18,6 +14,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.UUID;
+
+import static com.team2a.ProjectPortfolio.security.Permissions.*;
 
 @RestController
 @RequestMapping(Routes.PROJECT)
@@ -143,7 +141,7 @@ public class ProjectController {
      * @return the template of the specific project in a response entity
      */
     @GetMapping("/{projectId}/template/")
-    @PreAuthorize(PM_IN_PROJECT)
+    @PreAuthorize(USER_IN_PROJECT)
     public ResponseEntity<Template> getTemplateByProjectId (@PathVariable("projectId") UUID projectId) {
         try {
             Template response = projectService.getTemplateByProjectId(projectId);

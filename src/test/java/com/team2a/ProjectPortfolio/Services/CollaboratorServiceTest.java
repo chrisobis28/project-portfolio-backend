@@ -3,11 +3,10 @@ package com.team2a.ProjectPortfolio.Services;
 import com.team2a.ProjectPortfolio.Commons.Collaborator;
 import com.team2a.ProjectPortfolio.Commons.Project;
 import com.team2a.ProjectPortfolio.Commons.ProjectsToCollaborators;
-import com.team2a.ProjectPortfolio.Repositories.CollaboratorRepository;
-import com.team2a.ProjectPortfolio.Repositories.ProjectRepository;
-import com.team2a.ProjectPortfolio.Repositories.ProjectsToCollaboratorsRepository;
-import com.team2a.ProjectPortfolio.dto.CollaboratorTransfer;
+import com.team2a.ProjectPortfolio.Commons.Request;
+import com.team2a.ProjectPortfolio.Repositories.*;
 import jakarta.persistence.EntityNotFoundException;
+import com.team2a.ProjectPortfolio.dto.CollaboratorTransfer;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,6 +19,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -38,13 +38,22 @@ public class CollaboratorServiceTest {
     private ProjectRepository projectRepository;
     @Mock
     private CollaboratorRepository cr;
+    @Mock
+    private RequestRepository requestRepository;
+    @Mock
+    private RequestCollaboratorsProjectsRepository
+            requestCollaboratorsProjectsRepository;
     @InjectMocks
     private CollaboratorService cs;
 
     @BeforeEach
     void setUp () {
         cr = Mockito.mock(CollaboratorRepository.class);
-        cs = new CollaboratorService(ptc, cr, projectRepository);
+        requestRepository = Mockito.mock(RequestRepository.class);
+        requestCollaboratorsProjectsRepository =
+                Mockito.mock(RequestCollaboratorsProjectsRepository.class);
+        cs = new CollaboratorService(ptc, cr, projectRepository,
+                requestRepository, requestCollaboratorsProjectsRepository);
     }
 
     @Test
@@ -230,6 +239,50 @@ public class CollaboratorServiceTest {
         when(projectRepository.findById(projectId)).thenReturn(java.util.Optional.empty());
 
         assertThrows(ResponseStatusException.class, () -> cs.getCollaboratorsByProjectId(projectId));
+    }
+
+    @Test
+    void testGetCollaboratorsForRequest () {
+        Request r = new Request();
+        r.setRequestCollaboratorsProjects(new ArrayList<>());
+        when(requestRepository.findById(any())).thenReturn(Optional.of(r));
+        assertEquals(cs.getCollaboratorsForRequest(UUID.randomUUID()), new ArrayList<>());
+    }
+
+    @Test
+    void testGetCollaboratorsRequestNotFound () {
+        when(requestRepository.findById(any())).thenReturn(Optional.empty());
+        assertThrows(EntityNotFoundException.class, () -> cs.getCollaboratorsForRequest(UUID.randomUUID()));
+    }
+
+    @Test
+    void testAddCollaboratorToRequestOk () {
+        Request r = new Request();
+        Collaborator col = new Collaborator();
+        when(requestRepository.findById(any())).thenReturn(Optional.of(r));
+        when(cr.findById(any())).thenReturn(Optional.of(col));
+
+
+        assertEquals(col, cs.addCollaboratorToRequest(UUID.randomUUID(),
+                UUID.randomUUID(), false));
+        verify(requestCollaboratorsProjectsRepository).save(any());
+    }
+
+    @Test
+    void testAddCollaboratorToRequestNotFound () {
+        when(requestRepository.findById(any())).thenReturn(Optional.empty());
+        assertThrows(EntityNotFoundException.class, () -> cs.addCollaboratorToRequest(UUID.randomUUID(),
+                UUID.randomUUID(), false));
+    }
+
+    @Test
+    void testAddCollaboratorToRequestNotFound2 () {
+        Request r = new Request();
+        Collaborator col = new Collaborator();
+        when(requestRepository.findById(any())).thenReturn(Optional.of(r));
+        when(cr.findById(any())).thenReturn(Optional.empty());
+        assertThrows(EntityNotFoundException.class, () -> cs.addCollaboratorToRequest(UUID.randomUUID(),
+                UUID.randomUUID(), false));
     }
 
 }

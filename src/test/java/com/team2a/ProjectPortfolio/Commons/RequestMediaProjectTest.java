@@ -14,7 +14,7 @@ class RequestMediaProjectTest {
 
         RequestMediaProject r = new RequestMediaProject(id1, true);
         assertEquals(r.getRequestMediaProjectId(), id1);
-        assertTrue(r.isRemove());
+        assertTrue(r.getIsRemove());
     }
 
 }

@@ -1,9 +1,12 @@
 package com.team2a.ProjectPortfolio.Controllers;
 
+import com.team2a.ProjectPortfolio.Commons.RequestTagProject;
 import com.team2a.ProjectPortfolio.Commons.Tag;
+import com.team2a.ProjectPortfolio.CustomExceptions.NotFoundException;
 import com.team2a.ProjectPortfolio.Services.TagService;
 import com.team2a.ProjectPortfolio.WebSocket.TagProjectWebSocketHandler;
 import com.team2a.ProjectPortfolio.WebSocket.TagWebSocketHandler;
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -190,5 +193,43 @@ class TagControllerTest {
         ResponseEntity<List<Tag>> res = tagController.getAllTags();
         assertEquals(res.getStatusCode(), HttpStatus.OK);
         assertEquals(res.getBody(), List.of(new Tag("tag1", "blue")));
+    }
+
+    @Test
+    void testGetTagsRequestOk () {
+        RequestTagProject r = new RequestTagProject();
+        when(tagService.getTagsForRequest(any())).thenReturn(List.of(r));
+        ResponseEntity<List<RequestTagProject>> res = tagController.getTagsForRequest(UUID.randomUUID(),
+                UUID.randomUUID());
+
+        assertEquals(res.getStatusCode(), HttpStatus.OK);
+        assertEquals(res.getBody(), List.of(r));
+
+    }
+
+    @Test
+    void testGetTagsRequestNotFound () {
+        when(tagService.getTagsForRequest(any())).thenThrow(new EntityNotFoundException());
+        ResponseEntity<List<RequestTagProject>> res = tagController.getTagsForRequest(UUID.randomUUID(),
+                UUID.randomUUID());
+
+        assertEquals(res.getStatusCode(), HttpStatus.NOT_FOUND);
+    }
+
+    @Test
+    void testAddTagToRequestOk () {
+        Tag t = new Tag();
+        when(tagService.addTagToRequest(any(), any(), any())).thenReturn(t);
+        ResponseEntity<Tag> res = tagController.addTagToRequest(UUID.randomUUID(),
+                UUID.randomUUID(), UUID.randomUUID(), false);
+    }
+
+    @Test
+    void testAddTagToRequestNotFound () {
+        Tag t = new Tag();
+        when(tagService.addTagToRequest(any(), any(), any())).thenThrow(new NotFoundException());
+        ResponseEntity<Tag> tag = tagController.addTagToRequest(UUID.randomUUID(), UUID.randomUUID(),
+                UUID.randomUUID(), false);
+        assertEquals(tag.getStatusCode(), HttpStatus.NOT_FOUND);
     }
 }

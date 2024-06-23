@@ -11,10 +11,14 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.team2a.ProjectPortfolio.Commons.Account;
+import com.team2a.ProjectPortfolio.Commons.Project;
 import com.team2a.ProjectPortfolio.Commons.Role;
 import com.team2a.ProjectPortfolio.Commons.RoleInProject;
 import com.team2a.ProjectPortfolio.CustomExceptions.AccountNotFoundException;
 import com.team2a.ProjectPortfolio.Services.AccountService;
+
+import java.util.ArrayList;
+import java.util.List;
 import com.team2a.ProjectPortfolio.WebSocket.AccountProjectWebSocketHandler;
 import com.team2a.ProjectPortfolio.WebSocket.AccountWebSocketHandler;
 import com.team2a.ProjectPortfolio.dto.AccountTransfer;
@@ -249,5 +253,14 @@ public class AccountControllerTest {
     ResponseEntity<List<String>> re = accountController.getAccountByName("name");
     assertEquals(HttpStatus.OK, re.getStatusCode());
     assertEquals(list, re.getBody());
+  }
+
+
+  @Test
+  void testGetProjectsManaged () {
+    when(accountService.getProjectsAccountManages("a")).thenReturn(new ArrayList<>());
+    ResponseEntity<List<Project>> res = accountController.getProjectsAccountManages("a");
+    assertEquals(res.getStatusCode(), HttpStatus.OK);
+    assertEquals(res.getBody(), new ArrayList<>());
   }
 }

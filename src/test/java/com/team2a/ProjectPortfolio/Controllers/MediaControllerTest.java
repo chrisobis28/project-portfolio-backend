@@ -8,7 +8,10 @@ import static org.mockito.Mockito.*;
 
 import com.team2a.ProjectPortfolio.Commons.Media;
 import com.team2a.ProjectPortfolio.Commons.Project;
+import com.team2a.ProjectPortfolio.Commons.RequestMediaProject;
 import com.team2a.ProjectPortfolio.CustomExceptions.MediaNotFoundException;
+import com.team2a.ProjectPortfolio.CustomExceptions.NotFoundException;
+import com.team2a.ProjectPortfolio.CustomExceptions.ProjectNotFoundException;
 import com.team2a.ProjectPortfolio.Services.MediaService;
 import java.util.List;
 import java.util.UUID;
@@ -172,4 +175,59 @@ public class MediaControllerTest {
     assertEquals(HttpStatus.OK, entity.getStatusCode());
     assertEquals(media, mediaService.changeFile(media.getMediaId(),file));
   }
+
+
+  @Test
+  void testGetMediaRequestOk () {
+    RequestMediaProject rm = new RequestMediaProject();
+    when(mediaService.getMediaForRequest(any())).thenReturn(List.of(rm));
+    ResponseEntity<List<RequestMediaProject>> res = mediaController.getMediaForRequest(UUID.randomUUID(),
+            UUID.randomUUID());
+    assertEquals(res.getStatusCode(), HttpStatus.OK);
+    assertEquals(res.getBody(), List.of(rm));
+  }
+
+  @Test
+  void testGetMediaRequestNotFound () {
+    RequestMediaProject rm = new RequestMediaProject();
+    when(mediaService.getMediaForRequest(any())).thenThrow(new NotFoundException());
+    ResponseEntity<List<RequestMediaProject>> res = mediaController.getMediaForRequest(UUID.randomUUID(),
+            UUID.randomUUID());
+    assertEquals(res.getStatusCode(), HttpStatus.NOT_FOUND);
+  }
+
+  @Test
+  void testAddRemovedMediaOk () {
+    Media m = new Media();
+    when(mediaService.addRemovedMediaToRequest(any(), any())).thenReturn(m);
+    ResponseEntity<Media> res = mediaController.addRemovedMediaToRequest(UUID.randomUUID(),
+            UUID.randomUUID(), UUID.randomUUID());
+  }
+
+  @Test
+  void testAddRemovedMediaRequestNotFound () {
+    Media rm = new Media();
+    when(mediaService.addRemovedMediaToRequest(any(), any())).thenThrow(new NotFoundException());
+    ResponseEntity<Media> res = mediaController.addRemovedMediaToRequest(UUID.randomUUID(),
+            UUID.randomUUID(), UUID.randomUUID());
+    assertEquals(res.getStatusCode(), HttpStatus.NOT_FOUND);
+  }
+
+  @Test
+  void testAddAddedMediaRequestOk () {
+    Media m = new Media();
+    when(mediaService.addAddedMediaToRequest(any(), any(), any())).thenReturn(m);
+    ResponseEntity<Media> res = mediaController.addAddedMediaToRequest(UUID.randomUUID(),
+            UUID.randomUUID(),null,  "a");
+  }
+
+  @Test
+  void testAddAddedMediaRequestNotFound () {
+    Media rm = new Media();
+    when(mediaService.addAddedMediaToRequest(any(), any(), any())).thenThrow(new NotFoundException());
+    ResponseEntity<Media> res = mediaController.addAddedMediaToRequest(UUID.randomUUID(),
+            UUID.randomUUID(),null,  "a");
+    assertEquals(res.getStatusCode(), HttpStatus.NOT_FOUND);
+  }
+
 }

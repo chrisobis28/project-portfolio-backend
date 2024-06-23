@@ -1,8 +1,5 @@
 package com.team2a.ProjectPortfolio.Controllers;
 
-import static com.team2a.ProjectPortfolio.security.Permissions.ADMIN_ONLY;
-import static com.team2a.ProjectPortfolio.security.Permissions.PM_ONLY;
-
 import com.team2a.ProjectPortfolio.Commons.Template;
 import com.team2a.ProjectPortfolio.Commons.TemplateAddition;
 import com.team2a.ProjectPortfolio.Routes;
@@ -15,6 +12,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import static com.team2a.ProjectPortfolio.security.Permissions.*;
 
 @RestController
 @RequestMapping(Routes.TEMPLATE)
@@ -71,7 +70,7 @@ public class TemplateController {
      * @return - the list of Templates
      */
     @GetMapping("")
-    @PreAuthorize(PM_ONLY)
+//    @PreAuthorize(USER_IN_PROJECT)
     public ResponseEntity<List<Template>> getAllTemplates () {
         return ResponseEntity.status(HttpStatus.OK).body(templateService.getAllTemplates());
     }

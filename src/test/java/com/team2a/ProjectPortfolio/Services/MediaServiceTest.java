@@ -9,8 +9,11 @@ import static org.mockito.Mockito.*;
 
 import com.team2a.ProjectPortfolio.Commons.Media;
 import com.team2a.ProjectPortfolio.Commons.Project;
+import com.team2a.ProjectPortfolio.Commons.Request;
+import com.team2a.ProjectPortfolio.Commons.RequestMediaProject;
 import com.team2a.ProjectPortfolio.CustomExceptions.FileNotSavedException;
 import com.team2a.ProjectPortfolio.CustomExceptions.MediaNotFoundException;
+import com.team2a.ProjectPortfolio.CustomExceptions.NotFoundException;
 import com.team2a.ProjectPortfolio.CustomExceptions.ProjectNotFoundException;
 import com.team2a.ProjectPortfolio.Repositories.MediaRepository;
 import com.team2a.ProjectPortfolio.Repositories.ProjectRepository;
@@ -18,6 +21,8 @@ import java.io.IOException;
 import java.util.*;
 
 import com.team2a.ProjectPortfolio.dto.MediaFileContent;
+import com.team2a.ProjectPortfolio.Repositories.RequestMediaProjectRepository;
+import com.team2a.ProjectPortfolio.Repositories.RequestRepository;
 import org.antlr.v4.runtime.misc.Pair;
 import org.antlr.v4.runtime.misc.Triple;
 import org.junit.jupiter.api.BeforeEach;
@@ -44,12 +49,21 @@ public class MediaServiceTest {
   @Mock
   private MediaHelper mediaHelper;
 
+  @Mock
+  private RequestRepository requestRepository;
+
+  @Mock
+  private RequestMediaProjectRepository requestMediaProject;
+
   @BeforeEach
   void setUp() {
     mediaHelper = mock(MediaHelper.class);
     mediaRepository = mock(MediaRepository.class);
     projectRepository = mock(ProjectRepository.class);
-    mediaService = new MediaService(mediaRepository, projectRepository);
+    requestRepository = mock(RequestRepository.class);
+    requestMediaProject = mock(RequestMediaProjectRepository.class);
+    mediaService = new MediaService(mediaRepository, projectRepository, requestRepository,
+            requestMediaProject);
     mediaService.setMediaHelper(mediaHelper);
   }
 
@@ -230,5 +244,47 @@ public class MediaServiceTest {
     when(mediaRepository.save(media)).thenReturn(media);
     assertEquals(media, mediaService.changeFile(id,file));
   }
+
+
+  @Test
+  void testGetMediaForRequestOk () {
+    Request r = new Request();
+    r.setRequestMediaProjects(new ArrayList<>());
+    when(requestRepository.findById(any())).thenReturn(Optional.of(r));
+    assertEquals(mediaService.getMediaForRequest(any()), new ArrayList<>());
+  }
+
+  @Test
+  void testGetMediaRequestNotFound () {
+    when(requestRepository.findById(any())).thenThrow(new NotFoundException());
+    assertThrows(NotFoundException.class, () -> mediaService.getMediaForRequest(UUID.randomUUID()));
+  }
+  @Test
+  void testAddRemovedMediaOk() {
+    Request r = new Request();
+    when(requestRepository.findById(any())).thenReturn(Optional.of(r));
+    Media m = new Media();
+    when(mediaRepository.findById(any())).thenReturn(Optional.of(m));
+    assertEquals(mediaService.addRemovedMediaToRequest(UUID.randomUUID(),
+            UUID.randomUUID()), m);
+    verify(requestMediaProject).save(any());
+  }
+
+  @Test
+  void testAddRemovedMediaNotFound () {
+    when(requestRepository.findById(any())).thenReturn(Optional.empty());
+    assertThrows(NotFoundException.class, () -> mediaService.addRemovedMediaToRequest(UUID.randomUUID(),
+            UUID.randomUUID()));
+  }
+
+  @Test
+  void testAddRemovedMediaNotFound2 () {
+    Request r = new Request();
+    when(requestRepository.findById(any())).thenReturn(Optional.of(r));
+    when(mediaRepository.findById(any())).thenReturn(Optional.empty());
+    assertThrows(NotFoundException.class, () -> mediaService.addRemovedMediaToRequest(UUID.randomUUID(),
+            UUID.randomUUID()));
+  }
+
 
 }

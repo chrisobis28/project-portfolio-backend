@@ -14,7 +14,7 @@ class RequestLinkProjectTest {
 
         RequestLinkProject rlp = new RequestLinkProject(id1, true);
         assertEquals(rlp.getRequestLinkProjectId(), id1);
-        assertTrue(rlp.isRemove());
+        assertTrue(rlp.getIsRemove());
     }
 
 }

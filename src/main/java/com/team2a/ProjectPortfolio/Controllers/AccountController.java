@@ -6,6 +6,7 @@ import static com.team2a.ProjectPortfolio.security.Permissions.PM_ONLY;
 import static com.team2a.ProjectPortfolio.security.Permissions.USER_SPECIFIC;
 
 import com.team2a.ProjectPortfolio.Commons.Account;
+import com.team2a.ProjectPortfolio.Commons.Project;
 import com.team2a.ProjectPortfolio.Commons.RoleInProject;
 import com.team2a.ProjectPortfolio.CustomExceptions.AccountNotFoundException;
 import com.team2a.ProjectPortfolio.Routes;
@@ -22,15 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(Routes.ACCOUNT)
@@ -175,6 +168,11 @@ public class AccountController {
     public ResponseEntity<String> getRole (@PathVariable("username") String username,
                                                  @PathVariable("projectId") UUID projectId) {
         return ResponseEntity.ok(accountService.getRole(username, projectId));
+    }
+
+    @GetMapping("/public/managed/{username}")
+    public ResponseEntity<List<Project>> getProjectsAccountManages (@PathVariable("username") String username) {
+        return ResponseEntity.ok(accountService.getProjectsAccountManages(username));
     }
 
     /**
