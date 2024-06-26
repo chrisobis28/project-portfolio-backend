@@ -57,7 +57,7 @@ public class AuthenticationService {
         newAccount.setPassword(passwordEncoder.encode(registerUserRequest.getPassword()));
         newAccount.setName(registerUserRequest.getName());
         newAccount.setRole(Role.ROLE_USER);
-        Optional<Collaborator> collaborator = collaboratorRepository.findByName(registerUserRequest.getUsername());
+        Optional<Collaborator> collaborator = collaboratorRepository.findByName(registerUserRequest.getName());
 
         // If the collaborator does not exist, create a new collaborator,
         // otherwise, do nothing
